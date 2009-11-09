@@ -5,6 +5,7 @@ public class enumerate {
     public static void main(String[] args) {
 
         CommPortIdentifier portId = null;  // will be set if port found
+        /*
         while (portIdentifiers.hasMoreElements()) {
             CommPortIdentifier pid = (CommPortIdentifier) portIdentifiers.nextElement();
 
@@ -18,6 +19,7 @@ public class enumerate {
             System.err.println("Could not find serial port " + wantedPortName);
             System.exit(1);
         }
+        */
     }
 }
 
