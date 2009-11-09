@@ -5,7 +5,7 @@ default: run_enumerate
 #	java Quoter SYK GOOG JPM
 
 run_%: %.class
-	x=`echo $@ | sed s/^run_//`; java $x
+	x=`echo $@ | sed s/^run_//`; java $$x
 
 clean:
 	git clean -dfx
