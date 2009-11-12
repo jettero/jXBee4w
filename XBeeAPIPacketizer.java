@@ -1,6 +1,6 @@
 
 
-public class XBeeAPIHeader {
+public class XBeeAPIPacketizer {
     static int seqno = 0;
 
     public static void seqno() {
