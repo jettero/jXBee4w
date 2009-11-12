@@ -1,3 +1,5 @@
+// [junk] NOTE: this is just a comm test
+
 import javax.comm.*;
 import java.util.*;
 
