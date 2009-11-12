@@ -12,3 +12,4 @@ clean:
 
 %.class: %.java
 	javac $<
+	@chmod 644 $@
