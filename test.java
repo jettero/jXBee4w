@@ -3,7 +3,10 @@
 public class test {
     public static void main(String[] args) {
         XBeeAPIHeader h = new XBeeAPIHeader();
-        h.fuck();
-        System.out.println("supz");
+        h.seqno();
+        h.seqno();
+        h.seqno();
+        h.seqno();
+        h.seqno();
     }
 }
