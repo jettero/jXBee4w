@@ -10,7 +10,7 @@ run_%: %.class
 clean:
 	git clean -dfx
 
-test.class: XBeeAPIHeader.class
+test.class: XBeeAPIPacketizer.class
 
 %.class: %.java
 	javac $<

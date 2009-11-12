@@ -1,12 +1,12 @@
-//import XBeeAPIHeader;
+//import XBeeAPIPacket;
 
 public class test {
     public static void main(String[] args) {
-        XBeeAPIHeader h = new XBeeAPIHeader();
-        h.seqno();
-        h.seqno();
-        h.seqno();
-        h.seqno();
-        h.seqno();
+        XBeeAPIPacketizer p = new XBeeAPIPacketizer();
+        p.seqno();
+        p.seqno();
+        p.seqno();
+        p.seqno();
+        p.seqno();
     }
 }
