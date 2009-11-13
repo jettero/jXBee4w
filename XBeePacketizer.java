@@ -14,13 +14,8 @@ public class XBeePacketizer {
         return awesome;
     }
 
-    public XBeePacket[] build_tx(String bytes) {
-        XBeePacket p[] = new XBeePacket[1];
-
-        /*
-        for(int i=0, int j=1; i*100<bytes.length(); i++, j++)
-            System.out.println("i: " + i + "; j: " + j);
-            */
+    public XBeePacket[] build_tx(String msg) {
+        XBeePacket p[] = new XBeePacket[ (int)Math.ceil(msg.length()/100) ];
 
         return p;
     }
