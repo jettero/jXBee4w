@@ -2,7 +2,7 @@
 
 public class test {
     public static void main(String[] args) {
-        XBeeAPIPacketizer p = new XBeeAPIPacketizer();
+        XBeePacketizer p = new XBeePacketizer();
 
         p.set_seqno(65533);
 
