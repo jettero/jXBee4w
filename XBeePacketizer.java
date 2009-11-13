@@ -28,7 +28,13 @@ public class XBeePacketizer {
             if( ending > hard_ending )
                 ending = hard_ending;
 
-            p.add( XBeePacket.tx(this.seqno(), msg.substring(beginning, ending)) );
+            try {
+                p.add( XBeePacket.tx(this.seqno(), msg.substring(beginning, ending)) );
+            }
+
+            catch(Exception e) {
+                System.err.println("problem building packet: " + e.getMessage() );
+            }
         }
 
         return p;

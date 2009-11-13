@@ -11,10 +11,15 @@ public class test {
 
         List q = p.build_tx(payload);
 
-        // all as one packet
-        XBeePacket test = XBeePacket.tx((char)972, payload);
+        try {
+            // all as one packet
+            XBeePacket test = XBeePacket.tx((char)972, payload);
+            q.add(test);
+        }
 
-        q.add(test);
+        catch(Exception e) {
+            System.err.println("problem building packet: " + e.getMessage());
+        }
 
         for(int i=0; i<q.size(); i++) {
             System.out.println("writing packet-" + i);
