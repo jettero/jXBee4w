@@ -8,11 +8,25 @@ public class XBeePacket {
         return new String(packet);
     }
 
-    public void set_tx(char seqno, String payload) {
-        System.out.println("seqno: " + seqno + "; payload len: " + payload.length());
+    public void set_tx(char seqno, String _payload) {
+        byte payload[] = _payload.getBytes();
 
-        packet = new byte[ payload.length() + 9 ];
+        packet = new byte[ payload.length + 8 ];
+
+        // the payload bytes:
+        for(int i=0; i<payload.length; i++)
+            packet[i+7] = payload[i];
+
+        // frame header:
         packet[0] = 0x7e;
+        packet[1] = (byte) ((0xff00 & packet.length) >> 8);
+        packet[2] = (byte) (0xff & packet.length);
+    }
+
+    public static XBeePacket tx(char seqno, String payload) {
+        XBeePacket p = new XBeePacket();
+        p.set_tx(seqno, payload);
+        return p;
     }
 }
 

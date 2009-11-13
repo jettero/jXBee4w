@@ -1,16 +1,29 @@
 import java.io.*;
+import java.util.*;
 
 public class test {
     public static void main(String[] args) {
+        String payload = "";
         XBeePacketizer p = new XBeePacketizer();
-        XBeePacket q[]   = p.build_tx("supz");
 
-        for(int i=0; i<q.length; i++) {
+        for(int i=0; i<557; i++)
+            payload += ( (i%2)==0 ? "x" : "o");
+
+        List q = p.build_tx(payload);
+
+        // all as one packet
+        XBeePacket test = XBeePacket.tx((char)972, payload);
+
+        q.add(test);
+
+        for(int i=0; i<q.size(); i++) {
+            System.out.println("writing packet-" + i);
+
             try {
-                FileWriter fstream = new FileWriter("dump-" + i + ".txt");
+                FileWriter fstream = new FileWriter("packet-" + i + ".txt");
                 BufferedWriter out = new BufferedWriter(fstream);
 
-                out.write( q[i].serialize() );
+                out.write( ( (XBeePacket) q.get(i) ).serialize() );
                 out.close();
             }
 

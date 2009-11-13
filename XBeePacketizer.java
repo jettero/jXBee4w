@@ -1,6 +1,7 @@
+import java.util.*;
 
 public class XBeePacketizer {
-    static int seqno = 0;
+    int seqno = 0;
 
     void set_seqno(int i) {
         char awesome = (char)i;
@@ -14,8 +15,21 @@ public class XBeePacketizer {
         return awesome;
     }
 
-    public XBeePacket[] build_tx(String msg) {
-        XBeePacket p[] = new XBeePacket[ (int)Math.ceil(msg.length()/100) ];
+    public List build_tx(String msg) {
+        int packets        = (int)Math.ceil(msg.length()/100.0);
+        List<XBeePacket> p = new ArrayList<XBeePacket>();
+
+        int hard_ending = msg.length();
+
+        for(int i=0; i<packets; i++) {
+            int beginning = i*100;
+            int ending    = (i+1)*100;
+
+            if( ending > hard_ending )
+                ending = hard_ending;
+
+            p.add( XBeePacket.tx(this.seqno(), msg.substring(beginning, ending)) );
+        }
 
         return p;
     }
