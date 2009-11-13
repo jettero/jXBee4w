@@ -5,17 +5,18 @@ public class test {
         XBeePacketizer p = new XBeePacketizer();
         XBeePacket q[]   = p.build_tx("supz");
 
-        try {
-        // Create file 
-            FileWriter fstream = new FileWriter("out.txt");
-            BufferedWriter out = new BufferedWriter(fstream);
+        for(int i=0; i<q.length; i++) {
+            try {
+                FileWriter fstream = new FileWriter("dump-" + i + ".txt");
+                BufferedWriter out = new BufferedWriter(fstream);
 
-            out.write("Hello Java");
-            out.close();
-        }
+                out.write( q[i].serialize() );
+                out.close();
+            }
 
-        catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            catch (Exception e) {
+                System.err.println("Error: " + e.getMessage());
+            }
         }
     }
 }
