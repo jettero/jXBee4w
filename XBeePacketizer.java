@@ -32,7 +32,7 @@ public class XBeePacketizer {
                 p.add( XBeePacket.tx(this.seqno(), msg.substring(beginning, ending)) );
             }
 
-            catch(XBeePayloadException e) {
+            catch(PayloadException e) {
                 System.err.println("problem building packet: " + e.getMessage() );
             }
         }

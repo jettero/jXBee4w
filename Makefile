@@ -10,7 +10,7 @@ run_%: %.class
 clean:
 	git clean -dfx
 
-test.class: XBeePacketizer.class XBeePacket.class XBeePayloadException.class
+test.class: XBeePacketizer.class XBeePacket.class PayloadException.class
 
 %.class: %.java
 	javac $<

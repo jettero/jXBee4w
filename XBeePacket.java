@@ -8,11 +8,11 @@ public class XBeePacket {
         return new String(packet);
     }
 
-    public void set_tx(char seqno, String _payload) throws XBeePayloadException {
+    public void set_tx(char seqno, String _payload) throws PayloadException {
         byte payload[] = _payload.getBytes();
 
         if( payload.length > 100 )
-            throw new XBeePayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
+            throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
 
         packet = new byte[ payload.length + 8 ];
 
@@ -26,7 +26,7 @@ public class XBeePacket {
         packet[2] = (byte) (0xff & packet.length);
     }
 
-    public static XBeePacket tx(char seqno, String payload) throws XBeePayloadException {
+    public static XBeePacket tx(char seqno, String payload) throws PayloadException {
         XBeePacket p = new XBeePacket();
         p.set_tx(seqno, payload);
         return p;

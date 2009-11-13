@@ -17,7 +17,7 @@ public class test {
             q.add(test);
         }
 
-        catch(XBeePayloadException e) {
+        catch(PayloadException e) {
             System.err.println("problem building packet: " + e.getMessage());
         }
 
