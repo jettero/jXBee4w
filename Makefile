@@ -10,8 +10,7 @@ run_%: %.class
 clean:
 	git clean -dfx
 
-test.class: XBeePacketizer.class XBeePacket.class PayloadException.class
-
 %.class: %.java
+	@rm *.class  # until I can figure out a better way to do the dependencies
 	javac $<
 	@chmod 644 $@
