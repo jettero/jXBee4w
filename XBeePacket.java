@@ -15,13 +15,14 @@ public class XBeePacket {
 
     byte packet[];
 
-    // there is no default packet type, so no constructor
-
     public byte[] getBytes() {
         return packet;
     }
 
-    public void setBytes(byte b[]) throws FrameException {
+    XBeePacket() {} // there's no way to know what kind of packet = new byte[????], so it has to happen in the 
+                    // specific packet type builder
+
+    XBeePacket(byte b[]) throws FrameException {
         // maybe sanity check the frame a little later on for now, just
         // minimally look for things that make this packet a packet
         if( b.length < FRAME_HEADER_LEN )
