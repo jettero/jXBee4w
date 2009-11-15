@@ -66,5 +66,17 @@ public class XBeePacket {
 
         return (byte) (0xff - sum);
     }
+
+    private boolean check_checksum() {
+        int sum = 0;
+
+        for(int i=3; i < packet.length; i++)
+            sum += (packet[i] & 0xff);
+
+        if( sum == 0xff )
+            return true; // oh, goodie don't fall through to the pessimistic assumption
+
+        return false; // :( let's be pessimistic
+    }
 }
 
