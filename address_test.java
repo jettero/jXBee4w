@@ -14,9 +14,9 @@ public class address_test {
         try {
             FileOutputStream out = new FileOutputStream("dump.txt");
 
-            out.write( a.serialize() );
-            out.write( b.serialize() );
-            out.write( c.serialize() );
+            out.write( a.getBytes() );
+            out.write( b.getBytes() );
+            out.write( c.getBytes() );
 
             out.close();
         }
