@@ -1,21 +1,24 @@
 import java.util.*;
 
 public class XBeePacketizer {
-    int seqno = 0;
+    char seqno = 1;
 
     void set_seqno(int i) {
         char awesome = (char)i;
         seqno = awesome;
     }
 
-    public char seqno() {
-        char awesome = (char)seqno;
-        seqno = awesome + 1;
+    public byte seqno() {
+        char awesome = seqno;
 
-        return awesome;
+        seqno = (char) (awesome + 1);
+        if( seqno >= 256 )
+            seqno = 1;
+
+        return (byte) awesome;
     }
 
-    public List build_tx(String msg) {
+    public List build_tx(Address64 dst, String msg) {
         int packets        = (int)Math.ceil(msg.length()/100.0);
         List<XBeePacket> p = new ArrayList<XBeePacket>();
 
@@ -29,7 +32,7 @@ public class XBeePacketizer {
                 ending = hard_ending;
 
             try {
-                p.add( XBeePacket.tx(this.seqno(), msg.substring(beginning, ending)) );
+                p.add( XBeePacket.tx(this.seqno(), dst, msg.substring(beginning, ending)) );
             }
 
             catch(PayloadException e) {
