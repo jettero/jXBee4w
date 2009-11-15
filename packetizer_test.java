@@ -18,7 +18,7 @@ public class packetizer_test {
             try {
                 FileOutputStream out = new FileOutputStream("packet-" + i + ".txt");
 
-                out.write( ( (XBeePacket) q.get(i) ).serialize() );
+                out.write( ( (XBeePacket) q.get(i) ).getBytes() );
                 out.close();
             }
 
