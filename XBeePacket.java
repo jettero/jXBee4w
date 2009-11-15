@@ -53,15 +53,18 @@ public class XBeePacket {
         for(int i=0; i<payload.length; i++)
             packet[i+14] = payload[i]; // 14-n
 
-        this.calculate_checksum();
+        packet[packet.length-1] = this.calculate_checksum();
     }
 
-    private void calculate_checksum() {
+    private byte calculate_checksum() {
         int sum = 0;
-        for(int i=0; i<packet.length; i++) {
-            sum += packet[i];
-            System.out.println(" sum += " + packet[i] + " = " + sum);
-        }
+
+        for(int i=3; i < packet.length-1; i++)
+            sum += (packet[i] & 0xff);
+
+        sum = 0xff - (sum & 0xff); // subtract that last byte from 0xff
+
+        return (byte) (0xff - sum);
     }
 }
 
