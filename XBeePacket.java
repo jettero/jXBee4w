@@ -4,7 +4,7 @@ public class XBeePacket {
 
     // there is no default packet type, so no constructor
 
-    public byte[] serialize() {
+    public byte[] getBytes() {
         return packet;
     }
 

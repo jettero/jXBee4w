@@ -29,7 +29,7 @@ public class Address64 {
         }
     }
 
-    public byte[] serialize() {
+    public byte[] getBytes() {
         return addr;
     }
 
