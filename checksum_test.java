@@ -1,45 +1,18 @@
 import java.io.*;
 import java.util.*;
 
-public class address_test {
+public class checksum_test {
     public static void main(String[] args) {
-        Address64 a = new Address64("00:11:22:33:44:55:66:77");
-        Address64 b = new Address64("88:99:aa:bb:cc:dd:ee:ff");
-        Address64 c = new Address64("11:05:19:73:11:05:19:73");
+        byte b[]     = {(byte)0x7E, (byte)0x00, (byte)0x02, (byte)0x23, (byte)0x11, (byte)0xCB};
+        XBeePacket p = new XBeePacket(b);
 
-        System.out.println( a.toText() );
-        System.out.println( b.toText() );
-        System.out.println( c.toText() );
+        if( p.check_checksum() ) System.out.println("Packet from manual passes checksum check.");
+        else                     System.out.println("Packet from manual does not pass checksum check.");
 
-        try {
-            FileOutputStream out = new FileOutputStream("dump.txt");
+        String check = Integer.toHexString(b[5] & 0xff); // java has no unsigned type, so squash the "negative" bits for printing
+        System.out.println("Checksum from manual: " + check);
 
-            out.write( a.getBytes() );
-            out.write( b.getBytes() );
-            out.write( c.getBytes() );
-
-            out.close();
-        }
-
-        catch (Exception e) {
-            System.err.println("file output stream exception: " + e.getMessage());
-        }
-
-        try {
-            String cmd[]   = {"xxd", "dump.txt"};
-            Process prcs   = Runtime.getRuntime().exec(cmd);
-            InputStream in = prcs.getInputStream();
-
-            int ch;
-            StringBuffer sb = new StringBuffer(512);
-            while((ch=in.read())!=-1)
-                sb.append((char)ch);
-
-            System.out.print(sb.toString());
-        }
-
-        catch (Exception e) {
-            System.err.println("exec() exception: " + e.getMessage());
-        }
+        check = Integer.toHexString(p.calculate_checksum() & 0xff);
+        System.out.println("Checksum from calculator: " + check);
     }
 }
