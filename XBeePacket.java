@@ -79,18 +79,16 @@ public class XBeePacket {
         packet[packet.length-1] = this.calculate_checksum();
     }
 
-    private byte calculate_checksum() {
+    public byte calculate_checksum() {
         int sum = 0;
 
         for(int i=3; i < packet.length-1; i++)
             sum += (packet[i] & 0xff);
 
-        sum = 0xff - (sum & 0xff); // subtract that last byte from 0xff
-
-        return (byte) (0xff - sum);
+        return (byte) (0xff - (sum & 0xff));
     }
 
-    private boolean check_checksum() {
+    public boolean check_checksum() {
         int sum = 0;
 
         for(int i=3; i < packet.length; i++)
