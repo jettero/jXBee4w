@@ -34,9 +34,11 @@ public class XBeePacket {
         int length = b[2];
             length += (b[1] << 8);
 
-        if( length != b.length )
-            throw new FrameException("The packet length ("
-                + b.length + ") does not equal the stated length in the packet header (" + length + ")");
+        int packet_length = b.length-FRAME_HEADER_LEN;
+
+        if( length != packet_length )
+            throw new FrameException("The packet length (" + packet_length
+                + ") does not equal the stated length in the packet header (" + length + ")");
 
         packet = b;
     }
@@ -55,12 +57,13 @@ public class XBeePacket {
         if( payload.length > TX64_PAYLOAD_LIMIT )
             throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
 
-        packet = new byte[ payload.length + FRAME_HEADER_LEN + TX64_HEADER_LEN ];
+        int content_length = payload.length + TX64_HEADER_LEN;
+        packet = new byte[ FRAME_HEADER_LEN + content_length ];
 
         // frame header:
         packet[0]  = 0x7e;
-        packet[1]  = (byte) ((0xff00 & packet.length) >> 8);
-        packet[2]  = (byte) (0xff & packet.length);
+        packet[1]  = (byte) ((0xff00 & content_length) >> 8);
+        packet[2]  = (byte) (0xff & content_length);
         packet[3]  = 0x00; // Tx packet
         packet[4]  = seqno;
         packet[13] = 0x0; // 0x01 is disable ACK and 0x04 is use broadcast, neither interest us
