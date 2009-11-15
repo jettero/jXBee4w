@@ -20,6 +20,7 @@ XBeePacket.class:     Address64.class PayloadException.class FrameException.clas
 
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
+checksum_test.class:   XBeePacket.class
 
 %.class: %.java
 	javac $<
