@@ -50,10 +50,8 @@ public class XBeePacket {
             packet[5+i] = _dstb[0+i]; // 5-12
 
         // the payload bytes:
-        for(int i=0; i<payload.length; i++){
-            System.out.println("copy payload("+i+")");
+        for(int i=0; i<payload.length; i++)
             packet[i+14] = payload[i]; // 14-n
-        }
 
         this.calculate_checksum();
     }
