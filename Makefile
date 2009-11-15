@@ -11,7 +11,9 @@ run_last_test:
 clean:
 	git clean -dfx
 
-address_test.class: Address64.class
+address_test.class: Address64.class Address64Exception.class
+
+packetizer_test.class: Address64.class Address64Exception.class PayloadException.class XBeePacket.class XBeePacketizer.class
 
 %.class: %.java
 	javac $<
