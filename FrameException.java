@@ -1,4 +1,4 @@
 
-public class PayloadException extends IllegalArgumentException {
-    public PayloadException(String error) { super(error); } 
+public class FrameException extends IllegalArgumentException {
+    public FrameException(String error) { super(error); } 
 }
