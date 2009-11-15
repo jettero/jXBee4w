@@ -6,12 +6,13 @@ run_last_test:
 	@-if [ -f .last ]; then make run_`cat .last`; else make run_$(default_test)_test; fi
 
 run_%: %.class
-	x=`echo $@ | sed s/^run_//`; echo $$x > .last; java $$x
+	@x=`echo $@ | sed s/^run_//`; echo $$x > .last; echo " >> RUNNING $$x << "; java $$x
 
 clean:
 	git clean -dfx
 
+address_test.class: Address64.class
+
 %.class: %.java
-	@-rm -f *.class  # until I can figure out a better way to do the dependencies
 	javac $<
 	@chmod 644 $@

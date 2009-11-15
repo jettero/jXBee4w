@@ -14,7 +14,7 @@ public class Address64 {
             if( !a[i].matches("^[0-9a-fA-F]{1,2}$") )
                 throw new Address64Exception("octet("+i+") is not the right length or contains invalid characters (hex only)");
 
-            addr[i] = (byte) (Integer.parseInt(a[i], 16) & 0xff);
+            addr[i] = (byte) Integer.parseInt(a[i], 16);
         }
     }
 
@@ -29,17 +29,8 @@ public class Address64 {
         }
     }
 
-    public String serialize() {
-        char squash[] = new char[ addr.length ];
-        try {
-            return new String(addr, "US-ASCII");
-        }
-        
-        catch(Exception e) {
-            System.err.println("grrz, encoding");
-        } 
-
-        return "blarg";
+    public byte[] serialize() {
+        return addr;
     }
 
     public String toText() {
