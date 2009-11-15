@@ -1,12 +1,12 @@
 SHELL=/bin/bash
 
-default_test=address
+default_test=packetizer_test
 
 run_last_test:
-	@-if [ -f .last ]; then make run_`cat .last`; else make run_$(default_test)_test; fi
+	@-if [ -f .last ]; then make `cat .last`; else make $(default_test); fi
 
-run_%: %.class
-	@x=`echo $@ | sed s/^run_//`; echo $$x > .last; echo " >> RUNNING $$x << "; java $$x
+%_test: %_test.class
+	@echo $@ > .last; echo " >> RUNNING $@ << "; java $@
 
 clean:
 	git clean -dfx
