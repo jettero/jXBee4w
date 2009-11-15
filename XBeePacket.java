@@ -1,5 +1,18 @@
 
 public class XBeePacket {
+    public static final int FRAME_DELIMITER_LEN  = 1;
+    public static final int FRAME_LENGTH_LEN     = 2;
+    public static final int FRAME_CHECKSUM_LEN   = 1;
+    public static final int FRAME_HEADER_LEN     = FRAME_DELIMITER_LEN + FRAME_LENGTH_LEN + FRAME_CHECKSUM_LEN;
+
+    public static final int API_MESSAGE_TYPE_LEN = 1;
+
+    public static final int TX64_PAYLOAD_LIMIT   = 100;
+    public static final int TX64_SEQNO_LEN       = 1;
+    public static final int TX64_DST_ADDR_LEN    = 5;
+    public static final int TX64_OPTIONS_LEN     = 1;
+    public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + TX64_SEQNO_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
+
     byte packet[];
 
     // there is no default packet type, so no constructor
@@ -19,10 +32,10 @@ public class XBeePacket {
         byte payload[] = _payload.getBytes();
         byte _dstb[]   = dst.getBytes();
 
-        if( payload.length > 100 )
+        if( payload.length > TX64_PAYLOAD_LIMIT )
             throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
 
-        packet = new byte[ payload.length + 9 ];
+        packet = new byte[ payload.length + FRAME_HEADER_LEN + TX64_HEADER_LEN ];
 
         // frame header:
         packet[0]  = 0x7e;
@@ -39,6 +52,16 @@ public class XBeePacket {
         // the payload bytes:
         for(int i=0; i<payload.length; i++)
             packet[i+14] = payload[i]; // 14-n
+
+        this.calculate_checksum();
+    }
+
+    private void calculate_checksum() {
+        int sum = 0;
+        for(int i=0; i<packet.length; i++) {
+            sum += packet[i];
+            System.out.println(" sum += " + packet[i] + " = " + sum);
+        }
     }
 }
 
