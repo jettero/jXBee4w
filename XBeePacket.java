@@ -21,6 +21,25 @@ public class XBeePacket {
         return packet;
     }
 
+    public void setBytes(byte b[]) throws FrameException {
+        // maybe sanity check the frame a little later on for now, just
+        // minimally look for things that make this packet a packet
+        if( b.length < FRAME_HEADER_LEN )
+            throw new FrameException("This packet doesn't seem long enough to parse the frame.");
+
+        if( b[0] != 0x7e )
+            throw new FrameException("This packet doesn't seem parseable, frame delimiter not found in the 0th position");
+
+        int length = b[2];
+            length += (b[1] << 8);
+
+        if( length != b.length )
+            throw new FrameException("The packet length ("
+                + b.length + ") does not equal the stated length in the packet header (" + length + ")");
+
+        packet = b;
+    }
+
     // shortcut for the below set_tx() function + new
     public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
         XBeePacket p = new XBeePacket();
