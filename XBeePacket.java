@@ -9,7 +9,7 @@ public class XBeePacket {
 
     public static final int TX64_PAYLOAD_LIMIT   = 100;
     public static final int TX64_SEQNO_LEN       = 1;
-    public static final int TX64_DST_ADDR_LEN    = 5;
+    public static final int TX64_DST_ADDR_LEN    = 8;
     public static final int TX64_OPTIONS_LEN     = 1;
     public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + TX64_SEQNO_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
 
@@ -50,8 +50,10 @@ public class XBeePacket {
             packet[5+i] = _dstb[0+i]; // 5-12
 
         // the payload bytes:
-        for(int i=0; i<payload.length; i++)
+        for(int i=0; i<payload.length; i++){
+            System.out.println("copy payload("+i+")");
             packet[i+14] = payload[i]; // 14-n
+        }
 
         this.calculate_checksum();
     }
