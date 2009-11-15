@@ -2,16 +2,20 @@
 public class Address64 {
     byte addr[];
 
-    Address64(String s) {
+    Address64(String s) throws Address64Exception {
+        String a[] = s.split(":");
+
+        if( a.length != 8 )
+            throw new Address64Exception("addresses should be 8 hex octets in xx:xx:xx:xx:xx:xx:xx:xx form");
+
         addr = new byte[8];
-        addr[0] = 0x00;
-        addr[1] = 0x11;
-        addr[2] = 0x22;
-        addr[3] = 0x33;
-        addr[4] = 0x44;
-        addr[5] = 0x55;
-        addr[6] = 0x66;
-        addr[7] = 0x77;
+
+        for(int i=0; i<a.length; i++) {
+            if( !a[i].matches("^[0-9a-fA-F]{1,2}$") )
+                throw new Address64Exception("octet("+i+") is not the right length or contains invalid characters (hex only)");
+
+            addr[i] = (byte) (Integer.parseInt(a[i], 16) & 0xff);
+        }
     }
 
     Address64(byte SH[], byte SL[]) throws Address64Exception {
@@ -25,16 +29,29 @@ public class Address64 {
         }
     }
 
+    public String serialize() {
+        char squash[] = new char[ addr.length ];
+        try {
+            return new String(addr, "US-ASCII");
+        }
+        
+        catch(Exception e) {
+            System.err.println("grrz, encoding");
+        } 
+
+        return "blarg";
+    }
+
     public String toText() {
         String s = "";
-        String d = Integer.toHexString(addr[0]);
+        String d = Integer.toHexString(addr[0] & 0xff); // java has no unsigned type, so squash the "negative" bits for printing
 
         if( d.length() == 1 )
              s = "0" + d;
         else s =  d;
 
         for(int i=1; i<addr.length; i++) {
-            d = Integer.toHexString(addr[0]);
+            d = Integer.toHexString(addr[i] & 0xff); // java has no unsigned type, so squash the "negative" bits for printing
             if( d.length() == 1 )
                  s += ":0" + d;
             else s += ":" + d;

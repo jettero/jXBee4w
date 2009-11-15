@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class test {
+public class packetizer_test {
     public static void main(String[] args) {
         String payload = "";
         XBeePacketizer p = new XBeePacketizer();

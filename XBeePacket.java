@@ -17,13 +17,8 @@ public class XBeePacket {
         packet = new byte[ payload.length + 9 ];
 
         // the payload bytes:
-        for(int i=0; i<payload.length; i++) {
+        for(int i=0; i<payload.length; i++)
             packet[i+8] = payload[i];
-
-            /* if( payload[i] == 0x7e )
-            /*     throw new PayloadException("invalid character at byte-" + i + " of payload 0x7e characters may not appear in a packet payload");
-            */
-        }
 
         // frame header:
         packet[0] = 0x7e;
