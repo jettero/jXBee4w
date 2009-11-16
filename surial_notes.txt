@@ -1,0 +1,51 @@
+
+
+[13:52] RLa (n=rlaanemt@133.220.190.90.dyn.estpak.ee) has quit ("Leaving")
+[13:52] surial!!: jettero: fat-jarring is the habit of sticking RXTXComm.jar *INSIDE* your own app jar so your deployment consists 
+                  of just 1 (fat) jar.
+[13:52] Spyderco (n=Hsan@194.45.110.65) has quit ("Ik ga weg")
+[13:52] surial: ~fatjar
+[13:52] javabot: surial, fatjar is a jar file compiled from several other jars, see http://fjep.sourceforge.net/
+[13:52] surial: There are some caveats when you do that, so use that project, which takes care of them.
+[13:52] surial!!: jettero: That answer your question?
+[13:52] jettero: can you stick a dll in there?
+[13:52] surial: technically no.
+[13:53] jettero: one of teh two files for RXTX is this .dll
+[13:53] surial: But you can unpack the DLL at runtime.
+[13:53] surial: into a tmp dir, and then go from there.
+[13:53] jettero: you can unpack files from the jar inside the java app?
+[13:53] jettero: that's kinda neat
+[13:53] surial: presumably if RXTXConn.jar ships as a single jar, it contains the DLL, and the library takes care of unpacking this 
+                thing and loading it into the JVM space.
+[13:53] jettero: nope
+[13:53] ernimril: surial: it does not
+[13:53] jettero: it ships as a .zip and the INSTALL doc says to put the .dll in the java\jre\bin and the .jar in java\jre\lib\ext
+[13:53] surial!!: jettero: Yeah. getClass().getResourceAsStream("WhateverYouWant.txt"); <- gets you an input stream for a file that 
+                  is in the same location as your .class file. Be it in a dir, a jar, a network, doesn't matter.
+[13:54] dvinchi (n=dvinchi_@148.245.35.9) has quit (Client Quit)
+[13:54] w0lfshad3: nvm, i'm stupid, didn't look properly in the servlet, it writes an extra <h1> to the response so it looked like 
+                   the jsp was running too
+[13:54] jettero: ~surial++
+[13:54] javabot: surial has a karma level of 103, jettero
+[13:54] surial!!: jettero: Yich. Well, that's just a stupid suggestion. You should go tell them that it's no longer 1992.
+[13:54] jettero: I'm copying all this to my notes
+[13:54] jettero: haha
+[13:54] jettero: I like this channel
+[13:54] ernimril: surial: they did kind of stop working on rxtx back then
+[13:54] surial: Which is where everyone else abandoned the principle of sticking things in lib/ext and bin, because it obviously 
+                cannot work and is a sucky deployment :P
+[13:54] surial: ernimril: fair point :P
+[13:55] jettero: this stuff makes me want to go back and look at Javacomm again
+[13:55] Ivellina (n=BringItO@85.187.230.106) has joined ##java
+[13:55] surial!!: jettero: My suggestion if you want this deployed, is to do a little work; zip RXTXConn.jar *INTO* your own 
+                  MyApp.jar (unpack, then repack), as well as the DLL. Write some code to unpack the DLL, and System.loadLibrary it.
+[13:55] jettero: at least that was abandoned later (2006)
+[13:55] surial!!: jettero: The end result is a single jar file that 'just works' by double clicking it.
+[13:55] dvinchi (n=dvinchi_@148.245.35.9) has joined ##java
+[13:55] jettero: this is a 500 level class... I think I can get away with just handing over the .java, .dll, and rxtx .jar
+[13:55] surial: In order to streamline this work, you may want to look into ant (a build tool; like make). Or you can probably just 
+                use make, if you're more familiar with that.
+[13:56] andern: dwr: i think its to find NaNs
+[13:56] jettero: if it was at work I'd do everything you said
+[13:56] surial: ah. Okay. Do that then.
+
