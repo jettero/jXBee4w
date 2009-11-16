@@ -1,0 +1,14 @@
+COPYRIGHT (2009)
+
+Paul Miller -- <paul.e.miller@wmich.edu>
+
+LICENSING
+
+The RXTXcomm.jar and rxtxSerial.dll files are slurped from the
+RxTx toolkit (http://www.rxtx.org/) and is licensed under the
+LGPL.  Clearly it remains so.
+
+All code not related to RXTXcomm.jar and rxtxSerial.dll is also
+LGPL or whatever license is allowed after the homework is turned
+in (homework).
+
