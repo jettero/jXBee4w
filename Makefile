@@ -25,6 +25,7 @@ XBeePacket.class:     Address64.class PayloadException.class FrameException.clas
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
 checksum_test.class:   XBeePacket.class
+config_test.class:     XBeeConfig.class
 
 %.class: %.java RXTXcomm.jar
 	javac -cp RXTXcomm.jar $<
