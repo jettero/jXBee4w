@@ -11,6 +11,10 @@ run_last_test:
 	@echo " >> RUNNING $@ << "
 	@java $@
 
+twoway_test: twoway_test.class
+	@echo " >> RUNNING $@ << "
+	@java $@ `cat /tmp/p1`
+
 clean:
 	git clean -dfx
 
@@ -22,6 +26,6 @@ address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
 checksum_test.class:   XBeePacket.class
 
-%.class: %.java
-	javac $<
+%.class: %.java RXTXcomm.jar
+	javac -cp RXTXcomm.jar $<
 	@chmod 644 $@
