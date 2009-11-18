@@ -27,6 +27,10 @@ packetizer_test.class: XBeePacketizer.class
 checksum_test.class:   XBeePacket.class
 config_test.class:     XBeeConfig.class
 
-%.class: %.java RXTXcomm.jar
+XBeeConfig.class: XBeeConfig.java RXTXcomm.jar
 	javac -cp RXTXcomm.jar $<
+	@chmod 644 $@
+
+%.class: %.java RXTXcomm.jar
+	javac $<
 	@chmod 644 $@
