@@ -17,7 +17,7 @@ public class config_test {
             for(int i=0; i<conf.length; i++)
                 System.out.println(conf[i] + " result: " + res[i]);
 
-            System.exit(0); // why do we have to explicitly exit?  I suspect RXTX has some internal threads
+            c.close();
         }
 
         catch ( Exception e ) {
