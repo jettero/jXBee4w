@@ -1,6 +1,7 @@
 import gnu.io.*;
 import java.io.*;
 import java.util.*;
+import java.nio.*;
 
 public class XBeeConfig {
     InputStream  in;
@@ -34,20 +35,18 @@ public class XBeeConfig {
 
         System.out.println("receiving maybe");
 
-        List<Integer>l = new ArrayList<Integer>();
-        Integer aByte;
+        ByteBuffer b = ByteBuffer.wrap(new byte[1024]);
+
+        int aByte;
         while( (aByte = this.in.read()) > -1 )
-            l.add( aByte );
+            try { b.put( (byte) aByte ); }
+            catch(BufferOverflowException e) { /* huh... just ignore this and return what we can */ }
 
-        // NOTE: this is "hugely inefficient," but it does work.  ByteBuffer
-        // was a suggestion, but lacks the functionality I desired. The lackof
-        // dynamically expanding arrays in java is a sad limitation.
+        byte[] res = new byte[ b.position() ];
+        b.clear(); // go back to the start
+        b.get(res); // because we get from 0
 
-        byte b[] = new byte[ l.size() ];
-        for(int i=0; i<l.size(); i++)
-            b[i] = l.get(i).byteValue();
-
-        return b;
+        return res;
     }
 
     public String[] config(String configs[]) throws IOException {
@@ -56,10 +55,10 @@ public class XBeeConfig {
         byte b[] = this.send_and_recv("+++");
         System.out.println( "[debug] got: " + new String(b) );
 
-        ArrayList<String>s = new ArrayList<String>();
+        String responses[] = new String[ configs.length ];
 
         // TODO: do configs here
 
-        return s.toArray(new String[ s.size() ]);
+        return responses;
     }
 }
