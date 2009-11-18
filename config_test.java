@@ -11,8 +11,11 @@ public class config_test {
 
             c.debug = true;
 
-            String conf[] = { "ATDB" };
-            String responses[] = c.config(conf);
+            String conf[] = { "ATDB", "ATAP", "ATBD" };
+            String res[]  = c.config(conf);
+
+            for(int i=0; i<conf.length; i++)
+                System.out.println(conf[i] + " result: " + res[i]);
 
             System.exit(0); // why do we have to explicitly exit?  I suspect RXTX has some internal threads
         }

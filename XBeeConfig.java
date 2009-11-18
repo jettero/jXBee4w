@@ -53,11 +53,17 @@ public class XBeeConfig {
         return res;
     }
 
-    public String[] config(String configs[]) throws IOException {
+    public String[] config(String settings[]) throws IOException {
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
-        byte b[] = this.send_and_recv("+++");
 
-        String responses[] = new String[ configs.length ];
+        byte b[] = this.send_and_recv("+++");
+        if( b[0] != 'O' || b[1] != 'K' )
+            throw new XBeeConfigException("Coulnd't get the modem to drop into config mode.  Maybe bad linespeed.");
+
+        String responses[] = new String[ settings.length ];
+
+        for(int i=0; i<settings.length; i++)
+            responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
 
         // TODO: do configs here
 
