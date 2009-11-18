@@ -11,7 +11,7 @@ public class config_test {
 
             c.debug = true;
 
-            String conf[] = { "ATDB", "ATAP", "ATBD" };
+            String conf[] = { "ATRE", "ATBD7", "ATAP1" };
             String res[]  = c.config(conf);
 
             for(int i=0; i<conf.length; i++)
@@ -21,7 +21,7 @@ public class config_test {
         }
 
         catch ( Exception e ) {
-            e.printStackTrace();
+            System.err.println("ERROR configuring modem: " + e.getMessage());
         }
     }
 }

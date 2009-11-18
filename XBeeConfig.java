@@ -65,7 +65,9 @@ public class XBeeConfig {
         for(int i=0; i<settings.length; i++)
             responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
 
-        // TODO: do configs here
+        b = this.send_and_recv("ATCN\r");
+        if( b[0] != 'O' || b[1] != 'K' )
+            throw new XBeeConfigException("Mostly the settings seemed to commit ok, but there was some problem exiting command mode");
 
         return responses;
     }
