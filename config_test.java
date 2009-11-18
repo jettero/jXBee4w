@@ -9,6 +9,8 @@ public class config_test {
         try {
             XBeeConfig c = new XBeeConfig(port, 115200);
 
+            c.debug = true;
+
             String conf[] = { "ATDB" };
             String responses[] = c.config(conf);
 

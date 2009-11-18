@@ -4,9 +4,10 @@ import java.util.*;
 import java.nio.*;
 
 public class XBeeConfig {
-    InputStream  in;
-    OutputStream out;
-    String s[];
+    public InputStream  in;
+    public OutputStream out;
+    public String s[];
+    public boolean debug;
 
     XBeeConfig(String portName, int speed) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
@@ -25,15 +26,15 @@ public class XBeeConfig {
     }
 
     public byte[] send_and_recv(String toSend) throws IOException {
-        System.out.println("[debug] sending: " + toSend);
+        if( debug )
+            System.out.println("[debug] sending: " + toSend);
+
         this.out.write(toSend.getBytes());
 
         int retries = 10;
         while( this.in.available() < 1 && retries-->0 )
             try { Thread.sleep(250); }
             catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
-
-        System.out.println("receiving maybe");
 
         ByteBuffer b = ByteBuffer.wrap(new byte[1024]);
 
@@ -46,14 +47,15 @@ public class XBeeConfig {
         b.clear(); // go back to the start
         b.get(res); // because we get from 0
 
+        if( debug )
+            System.out.println( "[debug] got: " + new String(res) );
+
         return res;
     }
 
     public String[] config(String configs[]) throws IOException {
-        System.out.println("[debug] sleep before send");
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
         byte b[] = this.send_and_recv("+++");
-        System.out.println( "[debug] got: " + new String(b) );
 
         String responses[] = new String[ configs.length ];
 
