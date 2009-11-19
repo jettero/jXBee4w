@@ -9,6 +9,7 @@ public class XBeeConfig {
 
     private InputStream  in;
     private OutputStream out;
+    private String s[];
     private CommPort commPort;
 
     protected void finalize() throws Throwable { this.close(); }
