@@ -18,15 +18,22 @@ public class config_test {
             XBeeConfig c = new XBeeConfig(port, speed, true); // the last value is whether to print debugging info
 
             try {
-                String conf[]    = { "ATRE", "ATBD7", "ATAP1" };
+                String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATHV", "ATVR" };
                 Pattern expect[] = new Pattern[ conf.length ];
 
-                String res[] = c.config(conf, expect);
+                Pattern _OK = Pattern.compile("^OK$");
+                expect[0] = expect[1] = expect[2] = _OK;
+                expect[conf.length-1] = Pattern.compile("^10CD$");
 
+                String res[] = c.config(conf, expect);
                 for(int i=0; i<conf.length; i++)
                     System.out.println(conf[i] + " result: " + res[i]);
 
-                result = CONFIGURED;
+                result = CONFIGURED; // used by the linespeed retry loop
+
+                // not a debug message
+                System.out.println("XBee version " + conf[conf.length-2]
+                    + " running firmware revision " + conf[conf.length-1] + " configured successfully");
 
             } catch( XBeeConfigException e ) {
                 System.err.println("ERROR configuring modem: " + e.getMessage());
