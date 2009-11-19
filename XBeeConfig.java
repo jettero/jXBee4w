@@ -93,6 +93,13 @@ public class XBeeConfig {
             }
         }
 
+        b = this.send_and_recv("ATWR\r");
+        if( !(new String(b)).trim().equals("OK") ) {
+            XBeeConfigException x = new XBeeConfigException("there was some problem writing the new configs to NV ram");
+            x.command_mode = true;
+            throw x;
+        }
+
         b = this.send_and_recv("ATCN\r");
         if( !(new String(b)).trim().equals("OK") ) {
             XBeeConfigException x = new XBeeConfigException("there was some problem exiting command mode");
