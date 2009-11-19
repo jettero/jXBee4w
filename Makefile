@@ -14,7 +14,7 @@ run_last_test:
 config_test: config_test.class
 	@echo $@ > .last
 	@echo " >> RUNNING $@ << "
-	@java $@ `cat /tmp/p1`
+	@for i in `cat /tmp/p1`; do java $@ $$i; done
 
 clean:
 	git clean -dfx
