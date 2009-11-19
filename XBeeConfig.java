@@ -15,20 +15,14 @@ public class XBeeConfig {
     protected void finalize() throws Throwable { this.close(); }
     public    void close() { commPort.close(); }
 
-    XBeeConfig()          { debug = false; }
-    XBeeConfig(boolean d) { debug = d; }
-
-    public void connect(String portName, int speed) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    XBeeConfig(String portName, int speed, boolean d) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+        debug = d;
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
-        this.connect(portIdentifier, speed, d);
-    }
-
-    public void connect(CommPortIdentifier portIdentifier, int speed) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(this.getClass().getName(), 2000);
 
         if ( commPort instanceof SerialPort ) {
             if( debug )
-                System.out.println("[debug] opening port: " + portIdentifier.getName() + " at " + speed);
+                System.out.println("[debug] opening port: " + portName + " at " + speed);
 
             SerialPort serialPort = (SerialPort) commPort;
             serialPort.setSerialPortParams(speed, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
@@ -37,7 +31,7 @@ public class XBeeConfig {
             out = serialPort.getOutputStream();
 
         } else {
-            throw new UnsupportedCommOperationException("\"" + portIdentifier.getName() + "\" is probably not a serial port");
+            throw new UnsupportedCommOperationException("\"" + portName + "\" is probably not a serial port");
         }
     }
 
