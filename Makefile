@@ -11,9 +11,8 @@ run_last_test:
 	@echo " >> RUNNING $@ << "
 	@java $@
 
-config_test:
+config_test: config_test.class
 	@echo $@ > .last
-	@make --no-print-directory $@.class
 	@echo " >> RUNNING $@ << "
 	@for i in `cat /tmp/p1`; do java $@ $$i; done
 
