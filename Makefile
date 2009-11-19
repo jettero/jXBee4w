@@ -22,7 +22,7 @@ clean:
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeePacket.class
 XBeePacket.class:     Address64.class PayloadException.class FrameException.class
-XBeeConfig.class:     XBeeConfig.java RXTXcomm.jar
+XBeeConfig.class:     XBeeConfig.java RXTXcomm.jar XBeeConfigException.class 
 
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
