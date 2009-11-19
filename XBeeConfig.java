@@ -71,11 +71,15 @@ public class XBeeConfig {
         String responses[] = new String[ settings.length ];
 
         for(int i=0; i<settings.length; i++) {
-            responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
-            Matcher m = expect[i].matcher(responses[i]);
 
-            if( !m.find() )
-                throw new XBeeConfigException("unexpected config command result");
+            responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
+
+            if( expect[i] != null ) {
+                Matcher m = expect[i].matcher(responses[i]);
+
+                if( !m.find() )
+                    throw new XBeeConfigException("unexpected config command result");
+            }
         }
 
         b = this.send_and_recv("ATCN\r");

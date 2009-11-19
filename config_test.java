@@ -1,3 +1,6 @@
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
 
 public class config_test {
     public static void main(String[] args) {
@@ -9,19 +12,20 @@ public class config_test {
         try {
             XBeeConfig c = new XBeeConfig(port, 115200);
 
-            /*
             c.debug = true;
 
             try {
-                String conf[] = { "ATRE" }; //{, "ATBD7", "ATAP1" };
-                String res[]  = c.config(conf);
+                String conf[]    = { "ATRE", "ATBD7", "ATAP1" };
+                Pattern expect[] = new Pattern[ conf.length ];
+
+                String res[] = c.config(conf,expect);
 
                 for(int i=0; i<conf.length; i++)
                     System.out.println(conf[i] + " result: " + res[i]);
 
             } catch( XBeeConfigException e ) {
+                System.err.println("ERROR configuring modem: " + e.getMessage());
             }
-            */
 
             c.close();
         }
@@ -38,8 +42,8 @@ public class config_test {
             System.err.println("ERROR opening port: unsupported operation ... " + e.getMessage());
         }
 
-        catch(java.io.IOException e) {
-            System.err.println("ERROR opening port: unsupported operation ... " + e.getMessage());
+        catch(IOException e) {
+            System.err.println("IO ERROR opening port: " + e.getMessage());
         }
     }
 }
