@@ -65,7 +65,7 @@ public class XBeeConfig {
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
 
         byte b[] = this.send_and_recv("+++");
-        if( !(new String(b)).equals("OK") )
+        if( !(new String(b)).trim().equals("OK") )
             throw new XBeeConfigException("coulnd't get the modem to drop into config mode ... linespeed issue?");
 
         String responses[] = new String[ settings.length ];
@@ -83,7 +83,7 @@ public class XBeeConfig {
         }
 
         b = this.send_and_recv("ATCN\r");
-        if( !(new String(b)).equals("OK") )
+        if( !(new String(b)).trim().equals("OK") )
             throw new XBeeConfigException("there was some problem exiting command mode");
 
         return responses;
