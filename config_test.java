@@ -15,7 +15,7 @@ public class config_test {
         int result = UNKNOWN;
 
         try {
-            XBeeConfig c = new XBeeConfig(port, speed, true); // the last value is whether to print debugging info
+            XBeeConfig c = XBeeConfig.newFromPortName(port, speed, true); // the last value is whether to print debugging info
 
             try {
                 String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATHV", "ATVR" };
