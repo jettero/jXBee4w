@@ -6,7 +6,8 @@ public class config_test {
     public static final int UNKNOWN    = 0;
     public static final int CONFIGURED = 1;
     public static final int CONFIG_ERR = 2;
-    public static final int PORT_ERR   = 4;
+    public static final int SPEED_ERR  = 4;
+    public static final int PORT_ERR   = 8;
 
     static boolean debug = true;
 
@@ -30,6 +31,8 @@ public class config_test {
             } catch( XBeeConfigException e ) {
                 System.err.println("ERROR configuring modem: " + e.getMessage());
                 result = CONFIG_ERR;
+                if( e.probably_linespeed )
+                    result = SPEED_ERR;
             }
 
             c.close();
@@ -64,7 +67,7 @@ public class config_test {
         if( args.length > 0 )
             port = args[0];
 
-        if( config(port, 115200) == PORT_ERR )
+        if( config(port, 115200) == SPEED_ERR )
             config(port, 9600);
     }
 }
