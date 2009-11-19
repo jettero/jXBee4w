@@ -65,8 +65,11 @@ public class XBeeConfig {
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
 
         byte b[] = this.send_and_recv("+++");
-        if( !(new String(b)).trim().equals("OK") )
-            throw new XBeeConfigException("coulnd't get the modem to drop into config mode ... linespeed issue?");
+        if( !(new String(b)).trim().equals("OK") ) {
+            XBeeConfigException x = new XBeeConfigException("coulnd't get the modem to drop into config mode ... linespeed issue?");
+            x.probably_linespeed = true;
+            throw x;
+        }
 
         String responses[] = new String[ settings.length ];
 
@@ -77,14 +80,21 @@ public class XBeeConfig {
             if( expect[i] != null ) {
                 Matcher m = expect[i].matcher(responses[i]);
 
-                if( !m.find() )
-                    throw new XBeeConfigException("unexpected config command result");
+                if( !m.find() ) {
+                    XBeeConfigException x = new XBeeConfigException("unexpected config command result");
+                    x.command_mode = true;
+                    x.user_expect = true;
+                    throw x;
+                }
             }
         }
 
         b = this.send_and_recv("ATCN\r");
-        if( !(new String(b)).trim().equals("OK") )
-            throw new XBeeConfigException("there was some problem exiting command mode");
+        if( !(new String(b)).trim().equals("OK") ) {
+            XBeeConfigException x = new XBeeConfigException("there was some problem exiting command mode");
+            x.command_mode = true;
+            throw x;
+        }
 
         return responses;
     }
