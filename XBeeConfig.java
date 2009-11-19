@@ -2,6 +2,7 @@ import gnu.io.*;
 import java.io.*;
 import java.util.*;
 import java.nio.*;
+import java.util.regex.*;
 
 public class XBeeConfig {
     public boolean debug;
@@ -60,21 +61,26 @@ public class XBeeConfig {
         return res;
     }
 
-    public String[] config(String settings[]) throws IOException {
+    public String[] config(String settings[], Pattern expect[]) throws IOException, XBeeConfigException {
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
 
         byte b[] = this.send_and_recv("+++");
-        if( b[0] != 'O' || b[1] != 'K' )
-            throw new XBeeConfigException("Coulnd't get the modem to drop into config mode.  Maybe bad linespeed.");
+        if( !(new String(b)).equals("OK") )
+            throw new XBeeConfigException("coulnd't get the modem to drop into config mode ... linespeed issue?");
 
         String responses[] = new String[ settings.length ];
 
-        for(int i=0; i<settings.length; i++)
+        for(int i=0; i<settings.length; i++) {
             responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
+            Matcher m = expect[i].matcher(responses[i]);
+
+            if( !m.find() )
+                throw new XBeeConfigException("unexpected config command result");
+        }
 
         b = this.send_and_recv("ATCN\r");
-        if( b[0] != 'O' || b[1] != 'K' )
-            throw new XBeeConfigException("Mostly the settings seemed to commit ok, but there was some problem exiting command mode");
+        if( !(new String(b)).equals("OK") )
+            throw new XBeeConfigException("there was some problem exiting command mode");
 
         return responses;
     }
