@@ -22,7 +22,8 @@ clean:
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeePacket.class
 XBeePacket.class:     Address64.class PayloadException.class FrameException.class
-XBeeConfig.class:     XBeeConfig.java RXTXcomm.jar XBeeConfigException.class 
+XBeeConfig.class:     XBeeConfigException.class
+XBeeHandle.class:     XBeePacket.class
 
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
