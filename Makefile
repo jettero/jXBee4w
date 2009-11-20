@@ -2,6 +2,8 @@ SHELL=/bin/bash
 
 default_test=packetizer_test
 
+default: XBeeHandle.class
+
 run_last_test:
 	@-if [ -f .last ]; then make `cat .last`; else make $(default_test); fi
 
@@ -23,7 +25,7 @@ Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeePacket.class
 XBeePacket.class:     Address64.class PayloadException.class FrameException.class
 XBeeConfig.class:     XBeeConfigException.class
-XBeeHandle.class:     XBeePacket.class
+XBeeHandle.class:     XBeePacket.class PacketRecvEvent.class
 
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
