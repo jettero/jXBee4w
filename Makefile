@@ -34,4 +34,4 @@ config_test.class:     XBeeConfig.class
 
 %.class: %.java RXTXcomm.jar
 	javac -cp '.;RXTXcomm.jar' $<
-	@chmod 644 $@
+	@chmod 644 *.class
