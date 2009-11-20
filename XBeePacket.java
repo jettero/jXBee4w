@@ -72,7 +72,7 @@ public class XBeePacket {
     }
 
     public void set_tx(byte seqno, Address64 dst, byte []payload) throws PayloadException {
-        byte _dstb[]   = dst.getBytes();
+        byte _dstb[] = dst.getBytes();
 
         if( payload.length > TX64_PAYLOAD_LIMIT )
             throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
