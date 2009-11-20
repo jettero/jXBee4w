@@ -10,7 +10,7 @@ public class packetizer_test {
         for(int i=0; i<557; i++)
             payload += ( (i%2)==0 ? "x" : "o");
 
-        List q = p.build_tx(dst, payload);
+        List q = p.tx(dst, payload);
 
         for(int i=0; i<q.size(); i++) {
             System.out.println("writing packet-" + i);
