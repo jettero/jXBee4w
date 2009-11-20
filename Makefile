@@ -1,20 +1,21 @@
 SHELL=/bin/bash
 
 default_test=handle_test
+lastfile=/tmp/.lastjxbee4w
 
 #default: XBeeHandle.class
 
 run_last_test:
-	@-if [ -f .last ]; then make `cat .last`; else make $(default_test); fi
+	@-if [ -f $(lastfile) ]; then make `cat $(lastfile)`; else make $(default_test); fi
 
 %_test:
-	@echo $@ > .last
+	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
 	@echo " >> RUNNING $@ << "
 	@java $@
 
 config_test: config_test.class
-	@echo $@ > .last
+	@echo $@ > $(lastfile)
 	@echo " >> RUNNING $@ << "
 	@for i in `cat /tmp/p1`; do java $@ $$i; done
 
