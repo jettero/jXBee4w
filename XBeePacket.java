@@ -44,13 +44,6 @@ public class XBeePacket {
         packet = b;
     }
 
-    // shortcut for the below set_tx() function + new
-    public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
-        XBeePacket p = new XBeePacket();
-        p.set_tx(seqno, dst, payload);
-        return p;
-    }
-
     public static boolean enoughForPacket(ByteBuffer b) {
         int buflen = b.position();
 
@@ -65,6 +58,13 @@ public class XBeePacket {
         }
 
         return false;
+    }
+
+    // shortcut for the below set_tx() function + new
+    public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
+        XBeePacket p = new XBeePacket();
+        p.set_tx(seqno, dst, payload);
+        return p;
     }
 
     public void set_tx(byte seqno, Address64 dst, String _payload) throws PayloadException {
