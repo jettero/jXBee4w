@@ -18,7 +18,21 @@ public class XBeePacketizer {
         return (byte) awesome;
     }
 
-    public List build_tx(Address64 dst, String msg) {
+    public XBeePacket[] at(String s[][]) throws PayloadException {
+        XBeePacket p[] = new XBeePacket[ s.length ];
+
+        for(int i=0; i<s.length; i++) {
+            if( s[i].length < 1 || s[i].length > 2 )
+                throw new PayloadException("commands have one or two parts: the command and the paramters (optional) -- received " + s[i].length);
+
+            if( s[i].length == 1 ) p[i] = XBeePacket.at(this.seqno(), s[i][0]);
+            else                   p[i] = XBeePacket.at(this.seqno(), s[i][0], s[i][1]);
+        }
+
+        return p;
+    }
+
+    public List tx(Address64 dst, String msg) {
         int packets        = (int)Math.ceil(msg.length()/100.0);
         List<XBeePacket> p = new ArrayList<XBeePacket>();
 
@@ -36,7 +50,8 @@ public class XBeePacketizer {
             }
 
             catch(PayloadException e) {
-                System.err.println("problem building packet: " + e.getMessage() );
+                // NOTE: This really shouldn't happen at all.  If it does, it'll happen a lot.
+                System.err.println("internal error building packet: " + e.getMessage() );
             }
         }
 

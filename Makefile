@@ -33,6 +33,7 @@ packetizer_test.class: XBeePacketizer.class
 checksum_test.class:   XBeePacket.class
 config_test.class:     XBeeConfig.class
 handle_test.class:     XBeeHandle.class XBeePacket.class
+at_cmd_test.class:     XBeePacketizer.class
 
 %.class: %.java RXTXcomm.jar
 	javac -cp '.;RXTXcomm.jar' $<
