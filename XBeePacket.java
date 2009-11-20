@@ -1,3 +1,4 @@
+import java.nio.*;
 
 public class XBeePacket {
     public static final int FRAME_DELIMITER_LEN  = 1;
@@ -19,7 +20,7 @@ public class XBeePacket {
         return packet;
     }
 
-    XBeePacket() {} // there's no way to know what kind of packet = new byte[????], so it has to happen in the 
+    XBeePacket() {} // there's no way to know what kind of packet = new byte[????], so it has to happen in the
                     // specific packet type builder
 
     XBeePacket(byte b[]) throws FrameException {
@@ -50,8 +51,27 @@ public class XBeePacket {
         return p;
     }
 
+    public static boolean enoughForPacket(ByteBuffer b) {
+        int buflen = b.position();
+
+        if( buflen > 3 ) {
+            int pktlen = b.get(1) << 8;
+                pktlen += b.get(2);
+
+            System.out.println("[debug] enoughForPacket(b)? pktlen: " + pktlen + "; bufferlen: " + buflen);
+
+            if( (pktlen + FRAME_HEADER_LEN) <= buflen )
+                return true;
+        }
+
+        return false;
+    }
+
     public void set_tx(byte seqno, Address64 dst, String _payload) throws PayloadException {
-        byte payload[] = _payload.getBytes();
+        this.set_tx(seqno, dst, _payload.getBytes());
+    }
+
+    public void set_tx(byte seqno, Address64 dst, byte []payload) throws PayloadException {
         byte _dstb[]   = dst.getBytes();
 
         if( payload.length > TX64_PAYLOAD_LIMIT )
