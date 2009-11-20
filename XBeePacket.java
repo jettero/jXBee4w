@@ -16,9 +16,9 @@ public class XBeePacket {
 
     byte packet[];
 
-    public byte[] getBytes() {
-        return packet;
-    }
+    /////////////////////////////////////////////////////////////////////////////////
+    // consturcotors and factories
+    //
 
     XBeePacket() {} // there's no way to know what kind of packet = new byte[????], so it has to happen in the
                     // specific packet type builder
@@ -42,22 +42,6 @@ public class XBeePacket {
                 + ") does not equal the stated length in the packet header (" + length + ")");
 
         packet = b;
-    }
-
-    public static boolean enoughForPacket(ByteBuffer b) {
-        int buflen = b.position();
-
-        if( buflen > 3 ) {
-            int pktlen = b.get(1) << 8;
-                pktlen += b.get(2);
-
-            System.out.println("[debug] enoughForPacket(b)? pktlen: " + pktlen + "; bufferlen: " + buflen);
-
-            if( (pktlen + FRAME_HEADER_LEN) <= buflen )
-                return true;
-        }
-
-        return false;
     }
 
     // shortcut for the below set_tx() function + new
@@ -99,6 +83,9 @@ public class XBeePacket {
         packet[packet.length-1] = this.calculate_checksum();
     }
 
+    /////////////////////////////////////////////////////////////////////////////////
+    // packet helpers
+    //
     public byte calculate_checksum() {
         int sum = 0;
 
@@ -119,5 +106,29 @@ public class XBeePacket {
 
         return false; // :( let's be pessimistic
     }
+
+    public byte[] getBytes() {
+        return packet;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    // byte helpers
+    //
+    public static boolean enoughForPacket(ByteBuffer b) {
+        int buflen = b.position();
+
+        if( buflen > 3 ) {
+            int pktlen = b.get(1) << 8;
+                pktlen += b.get(2);
+
+            System.out.println("[debug] enoughForPacket(b)? pktlen: " + pktlen + "; bufferlen: " + buflen);
+
+            if( (pktlen + FRAME_HEADER_LEN) <= buflen )
+                return true;
+        }
+
+        return false;
+    }
+
 }
 
