@@ -62,9 +62,11 @@ public class XBeeHandle {
                             // TODO: do something once we have enough for a packet
                             // probably build a packet and notify
 
-                            // XBeePacket p = new XBeePacket();
-                            // ev.recvPacket(p);
-                            // inPkt = false;
+                            if( XBeePacket.enoughForPacket(b) ) {
+                                // XBeePacket p = new XBeePacket();
+                                // ev.recvPacket(p);
+                                // inPkt = false;
+                            }
 
                         } else {
                             if( aByte == 0x7e ) {
