@@ -63,9 +63,16 @@ public class XBeeHandle {
                             // probably build a packet and notify
 
                             if( XBeePacket.enoughForPacket(b) ) {
-                                // XBeePacket p = new XBeePacket();
-                                // ev.recvPacket(p);
-                                // inPkt = false;
+                                byte[] pktbytes = new byte[ b.position() ];
+                                XBeePacket p = new XBeePacket(pktbytes);
+
+                                if( p.check_checksum() )
+                                    ev.recvPacket(p);
+
+                                // else
+                                    // log this or something ... we got a packet, but apparently it's bad. :(
+
+                                inPkt = false;
                             }
 
                         } else {
