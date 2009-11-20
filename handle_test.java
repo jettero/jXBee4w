@@ -8,9 +8,11 @@ public class handle_test implements PacketRecvEvent {
     }
 
     public static void main(String[] args) {
-        XBeeHandle h = XBeeHandle();
-        XBeePacket p = XBeePacket.at("DB");
+        XBeeHandle h  = XBeeHandle();
+        XBeePacket sl = XBeePacket.at("SL");
+        XBeePacket sh = XBeePacket.at("SH");
 
-        h.send_packet(p);
+        h.send_packet(sl);
+        h.send_packet(sh);
     }
 }
