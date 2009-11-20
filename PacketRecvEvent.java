@@ -1,5 +1,5 @@
 
 public interface PacketRecvEvent {
-    public void RecvPacket(XBeePacket p);
+    public void recvPacket(XBeePacket p);
 }
 
