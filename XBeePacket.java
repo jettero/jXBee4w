@@ -14,6 +14,10 @@ public class XBeePacket {
     public static final int TX64_OPTIONS_LEN     = 1;
     public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + TX64_SEQNO_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
 
+    public static final int AT_PAYLOAD_LIMIT   = 100; // no idea what the limit is, if any, but 100 is enough for sure
+    public static final int AT_SEQNO_LEN       = 1;
+    public static final int AT_HEADER_LEN      = API_MESSAGE_TYPE_LEN + AT_SEQNO_LEN;
+
     byte packet[];
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -44,22 +48,24 @@ public class XBeePacket {
         packet = b;
     }
 
-    // shortcut for the below set_tx() function + new
+    // Tx packet facotry
     public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
         XBeePacket p = new XBeePacket();
         p.set_tx(seqno, dst, payload);
         return p;
     }
 
+    // Tx packet setup from string
     public void set_tx(byte seqno, Address64 dst, String _payload) throws PayloadException {
         this.set_tx(seqno, dst, _payload.getBytes());
     }
 
+    // Tx Packet setup from bytes
     public void set_tx(byte seqno, Address64 dst, byte []payload) throws PayloadException {
         byte _dstb[] = dst.getBytes();
 
         if( payload.length > TX64_PAYLOAD_LIMIT )
-            throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to 100 bytes");
+            throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to " + TX64_PAYLOAD_LIMIT + " bytes");
 
         int content_length = payload.length + TX64_HEADER_LEN;
         packet = new byte[ FRAME_HEADER_LEN + content_length ];
@@ -81,6 +87,45 @@ public class XBeePacket {
             packet[i+14] = payload[i]; // 14-n
 
         packet[packet.length-1] = this.calculate_checksum();
+    }
+
+    // AT command factories
+    public static XBeePacket at(byte seqno, String cmd) throws PayloadException {
+        XBeePacket p = new XBeePacket();
+        p.set_at(seqno, cmd.getBytes(), "".getBytes());
+        return p;
+    }
+
+    public static XBeePacket at(byte seqno, String cmd, String param) throws PayloadException {
+        XBeePacket p = new XBeePacket();
+        p.set_at(seqno, cmd.getBytes(), param.getBytes());
+        return p;
+    }
+
+    // AT command setup
+    public void set_at(byte seqno, byte []cmd, byte []param) throws PayloadException {
+        if( cmd.length != 2 )
+            throw new PayloadException("asked to send XBee " + cmd.length + " byte command, but AT commands are two bytes");
+
+        if( param.length > AT_PAYLOAD_LIMIT )
+            throw new PayloadException("asked to packetize " + param.length + " param bytes, but param bytes are restricted to " + AT_PAYLOAD_LIMIT + " bytes");
+
+        int content_length = cmd.length + param.length + AT_HEADER_LEN;
+        packet = new byte[ FRAME_HEADER_LEN + content_length ];
+
+        // frame header:
+        packet[0]  = 0x7e;
+        packet[1]  = (byte) ((0xff00 & content_length) >> 8);
+        packet[2]  = (byte) (0xff & content_length);
+        packet[3]  = 0x08; // AT cmd packet
+        packet[4]  = seqno;
+        packet[5]  = cmd[0];
+        packet[6]  = cmd[1];
+
+        for(int i=0; i<param.length; i++)
+            packet[7+i] = param[i];
+
+        packet[packet.length-1]  = this.calculate_checksum();
     }
 
     /////////////////////////////////////////////////////////////////////////////////
