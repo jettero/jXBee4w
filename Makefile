@@ -1,8 +1,8 @@
 SHELL=/bin/bash
 
-default_test=packetizer_test
+default_test=handle_test
 
-default: XBeeHandle.class
+#default: XBeeHandle.class
 
 run_last_test:
 	@-if [ -f .last ]; then make `cat .last`; else make $(default_test); fi
