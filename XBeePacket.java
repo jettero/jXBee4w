@@ -2,9 +2,10 @@ import java.io.*;
 import java.nio.*;
 
 public class XBeePacket {
-    public static final byte FRAME_DELIMITER= 0x7e;
-    public static final byte AMT_TX    = 0x00;
-    public static final byte AMT_ATCMD = 0x08;
+    public static final byte FRAME_DELIMITER = (byte) 0x7e;
+    public static final byte AMT_TX          = (byte) 0x00;
+    public static final byte AMT_AT_COMMAND  = (byte) 0x08;
+    public static final byte AMT_AT_RESPONSE = (byte) 0x88;
 
     public static final int FRAME_DELIMITER_LEN  = 1;
     public static final int FRAME_LENGTH_LEN     = 2;
@@ -12,18 +13,19 @@ public class XBeePacket {
     public static final int FRAME_HEADER_LEN     = FRAME_DELIMITER_LEN + FRAME_LENGTH_LEN + FRAME_CHECKSUM_LEN;
 
     public static final int API_MESSAGE_TYPE_LEN = 1;
+    public static final int FRAME_ID_LEN         = 1;
 
     public static final int TX64_PAYLOAD_LIMIT   = 100;
-    public static final int TX64_SEQNO_LEN       = 1;
     public static final int TX64_DST_ADDR_LEN    = 8;
     public static final int TX64_OPTIONS_LEN     = 1;
-    public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + TX64_SEQNO_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
+    public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
 
-    public static final int AT_PAYLOAD_LIMIT   = 100; // no idea what the limit is, if any, but 100 is enough for sure
-    public static final int AT_SEQNO_LEN       = 1;
-    public static final int AT_HEADER_LEN      = API_MESSAGE_TYPE_LEN + AT_SEQNO_LEN;
+    public static final int AT_PAYLOAD_LIMIT = 100; // no idea what the limit is, if any, but 100 is enough for sure
+    public static final int AT_HEADER_LEN    = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN;
 
     byte packet[];
+    boolean checked;
+    boolean ok;
 
     /////////////////////////////////////////////////////////////////////////////////
     // consturcotors and factories
@@ -34,7 +36,7 @@ public class XBeePacket {
 
     XBeePacket(byte b[]) { packet = b; }
 
-    // Tx packet facotry
+    // Tx packet factory
     public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
         XBeePacket p = new XBeePacket();
         p.set_tx(seqno, dst, payload);
@@ -103,7 +105,7 @@ public class XBeePacket {
         packet[0]  = FRAME_DELIMITER;
         packet[1]  = (byte) ((0xff00 & content_length) >> 8);
         packet[2]  = (byte)  (0x00ff & content_length);
-        packet[3]  = AMT_ATCMD;
+        packet[3]  = AMT_AT_COMMAND;
         packet[4]  = seqno;
         packet[5]  = cmd[0];
         packet[6]  = cmd[1];
@@ -146,12 +148,12 @@ public class XBeePacket {
     public boolean checkFrame() {
         if( packet == null ) {
             System.err.println("ERROR: invalid packet, no contents");
-            return false;
+            return (ok = false);
         }
 
         if( packet.length < FRAME_HEADER_LEN ) {
             System.err.println("ERROR: invalid packet, fewer bytes than a frame header");
-            return false;
+            return (ok = false);
         }
         return true;
     }
@@ -162,19 +164,74 @@ public class XBeePacket {
         if( pktlen+FRAME_HEADER_LEN != packet.length ) {
             System.err.printf("ERROR: invalid packet, packet length differs from what is specified in frame header (%d+%d vs %d)%n", 
                 pktlen, FRAME_HEADER_LEN, packet.length);
-            return false;
+            return (ok = false);
         }
         return true;
     }
 
     public boolean checkPacket() {
+        checked = true;
+
         if( !checkFrame() )
-            return false;
+            return (ok = false);
 
         if( checkFrameLen() && checkChecksum() )
-            return true;
+            return (ok = true);
 
-        return false;
+        return (ok = false);
+    }
+
+    public boolean conditionalCheckPacket() {
+        if( checked )
+            return ok;
+
+        return checkPacket();
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    // accessor helpers
+    //
+
+    public int length() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        return packet.length;
+    }
+
+    public byte type() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        return packet[3];
+    }
+
+    public int seqno() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        return packet[4] & 0xff;
+    }
+
+    public int frameID() { return seqno(); } // technically more accurately named
+
+    public int payloadLength() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        int pktlen = (packet[1] << 8) + packet[2];
+
+        switch(type()) {
+            case AMT_TX:         pktlen -= TX64_HEADER_LEN; break;
+            case AMT_AT_COMMAND: pktlen -= AT_HEADER_LEN;   break;
+
+            default:
+                System.err.println("warning: making educated guess on payload length");
+                pktlen -= API_MESSAGE_TYPE_LEN;
+                pktlen -= FRAME_ID_LEN;
+        }
+
+        return pktlen;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +255,10 @@ public class XBeePacket {
         return false;
     }
 
+
+    /////////////////////////////////////////////////////////////////////////////////
+    // debugging helpers
+    //
     public static void bytesToFile(String fname, byte b[]) {
         // this whole function is for debugging purposes, no sense checking some global flag
         System.out.println("[debug] dumping packet bytes to " + fname);

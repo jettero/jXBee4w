@@ -30,7 +30,9 @@ public class XBeeHandle {
             out = serialPort.getOutputStream();
 
             packetReader = new PacketReader(in, callback);
-            _prThread    = new Thread(packetReader);
+            packetReader.setDebug(debug);
+
+            _prThread = new Thread(packetReader);
             _prThread.start();
 
         } else {
@@ -49,6 +51,9 @@ public class XBeeHandle {
         private InputStream in;
         private ByteBuffer b;
         private boolean inPkt;
+        private boolean debug;
+
+        public void setDebug(boolean d) { debug = d; }
 
         public PacketReader (InputStream _in, PacketRecvEvent callback) {
             in = _in;
