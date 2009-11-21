@@ -22,11 +22,14 @@ config_test: config_test.class
 clean:
 	git clean -dfx
 
+packets:              XBeeTxPacket.class 
+XBeeTxPacket.class:   XBeePacket.class
+
 Address64.class:      Address64Exception.class
-XBeePacketizer.class: XBeePacket.class
+XBeePacketizer.class: packets
 XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class
-XBeeHandle.class:     XBeePacket.class PacketRecvEvent.class
+XBeeHandle.class:     packets PacketRecvEvent.class
 
 address_test.class:    Address64.class
 packetizer_test.class: XBeePacketizer.class
