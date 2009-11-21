@@ -1,5 +1,7 @@
 *.class
 *.txt
+*.dat
+*.pkt
 file
 .last
 *.log
