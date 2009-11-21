@@ -2,6 +2,10 @@ import java.io.*;
 import java.nio.*;
 
 public class XBeePacket {
+    public static final byte FRAME_DELIMITER= 0x7e;
+    public static final byte AMT_TX    = 0x00;
+    public static final byte AMT_ATCMD = 0x08;
+
     public static final int FRAME_DELIMITER_LEN  = 1;
     public static final int FRAME_LENGTH_LEN     = 2;
     public static final int FRAME_CHECKSUM_LEN   = 1;
@@ -53,10 +57,10 @@ public class XBeePacket {
         packet = new byte[ FRAME_HEADER_LEN + content_length ];
 
         // frame header:
-        packet[0]  = 0x7e;
+        packet[0]  = FRAME_DELIMITER;
         packet[1]  = (byte) ((0xff00 & content_length) >> 8);
-        packet[2]  = (byte) (0xff & content_length);
-        packet[3]  = 0x00; // Tx packet
+        packet[2]  = (byte)  (0x00ff & content_length);
+        packet[3]  = AMT_TX;
         packet[4]  = seqno;
         packet[13] = 0x0; // 0x01 is disable ACK and 0x04 is use broadcast, neither interest us
 
@@ -96,10 +100,10 @@ public class XBeePacket {
         packet = new byte[ FRAME_HEADER_LEN + content_length ];
 
         // frame header:
-        packet[0]  = 0x7e;
+        packet[0]  = FRAME_DELIMITER;
         packet[1]  = (byte) ((0xff00 & content_length) >> 8);
-        packet[2]  = (byte) (0xff & content_length);
-        packet[3]  = 0x08; // AT cmd packet
+        packet[2]  = (byte)  (0x00ff & content_length);
+        packet[3]  = AMT_ATCMD;
         packet[4]  = seqno;
         packet[5]  = cmd[0];
         packet[6]  = cmd[1];
