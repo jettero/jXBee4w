@@ -4,7 +4,7 @@ import java.util.regex.*;
 
 public class handle_test implements PacketRecvEvent {
     public void recvPacket(XBeePacket p) {
-        System.out.println("wow, recved!!");
+        System.out.printf("wow, recved!! type: %02x; payload length: %d; %n", p.type(), p.payloadLength());
         p.fileDump("wow-%d.pkt");
     }
 
