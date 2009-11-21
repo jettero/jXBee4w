@@ -76,10 +76,9 @@ public class XBeeHandle {
                 b.get(pktbytes);
 
                 XBeePacket p = new XBeePacket(pktbytes);
-                           p.fileDump("wtf-%d.pkt");
 
                 if( p.checkPacket() ) {
-                    System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
+                    System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
                     ev.recvPacket(p);
                 }
 

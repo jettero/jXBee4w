@@ -184,7 +184,7 @@ public class XBeePacket {
                 pktlen += b.get(2);
                 pktlen += FRAME_HEADER_LEN;
 
-            System.out.println("[debug] enoughForPacket(b)? pktlen+FHL: " + pktlen + "; bufferlen: " + buflen);
+            // System.out.println("[debug] enoughForPacket(b)? pktlen+FHL: " + pktlen + "; bufferlen: " + buflen);
 
             if( pktlen <= buflen )
                 return true;

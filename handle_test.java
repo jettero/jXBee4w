@@ -5,6 +5,7 @@ import java.util.regex.*;
 public class handle_test implements PacketRecvEvent {
     public void recvPacket(XBeePacket p) {
         System.out.println("wow, recved!!");
+        p.fileDump("wow-%d.pkt");
     }
 
     public void go() {
