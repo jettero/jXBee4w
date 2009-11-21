@@ -17,17 +17,29 @@ public class handle_test implements PacketRecvEvent {
             return;
         }
 
-        XBeePacket sl = XBeePacket.at((byte) 1, "SL");
-        XBeePacket sh = XBeePacket.at((byte) 2, "SH");
+        String cmds[][] = { { "Sl" }, { "SH" } };
+
+        System.out.println("making a couple command packets");
+        XBeePacket serials[] = (new XBeePacketizer()).at(cmds);
 
         try {
-            h.send_packet(sl);
-            h.send_packet(sh);
+            System.out.println("sending first packet");
+            h.send_packet(serials[0]);
+
+            System.out.println("sending second packet");
+            h.send_packet(serials[1]);
 
         } catch(IOException e) {
-            System.out.println("error sending packet: " + e.getMessage());
+            System.err.println("error sending packet: " + e.getMessage());
+            h.close();
             return;
         }
+
+        System.out.println("waiting to see if anything happens");
+        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+
+        System.out.println("bye");
+        h.close();
     }
 
     public static void main(String[] args) {
