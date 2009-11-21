@@ -95,6 +95,7 @@ public class XBeeHandle {
                 System.out.println("[debug] packetReader found a frame delimiter, starting packet");
 
                 try {
+                    b.clear();
                     b.put( (byte) aByte );
                     inPkt = true;
                 }
@@ -105,33 +106,41 @@ public class XBeeHandle {
             }
         }
 
-        public synchronized void run() {
+        private synchronized void _step() { // synchronized so in=null doesn't sneak up on us
             int aByte;
 
-            while(in != null) { // synchronized so we notice a close here
-                System.out.println("[debug] packetReader looking for packets");
-                try {
-                    if( in.available() >= 1 ) {
-                        while( (aByte = in.read()) > -1 ) {
-                            System.out.printf("got aByte=%02x%n", aByte);
+            if( in == null )
+                return;
 
-                            if( inPkt )
-                                inPkt(aByte);
+            System.out.println("[debug] packetReader looking for packets");
+            try {
 
-                            else
-                                seekDelimiter(aByte);
-                        }
+                if( in.available() >= 1 ) {
+                    while( (aByte = in.read()) > -1 ) {
+                        System.out.printf("got aByte=%02x%n", aByte);
+
+                        if( inPkt )
+                            inPkt(aByte);
+
+                        else
+                            seekDelimiter(aByte);
                     }
                 }
+            }
 
-                catch(IOException e) {
-                    inPkt = false;
-                    // pfft.  Just start over.
-                }
+            catch(IOException e) {
+                inPkt = false;
+                // pfft.  Just start over.
+            }
+
+        }
+
+        public void run() { // not synchronized so the (this).lock is cleared every _step()
+            while(in != null) {
+                _step();
 
                 try { Thread.sleep(250); }
                 catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
-
             }
         }
     }
