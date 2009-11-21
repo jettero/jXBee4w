@@ -1,5 +1,9 @@
 
 public class XBeeTxPacket extends XBeePacket {
+    public static final int TX64_PAYLOAD_LIMIT   = 100;
+    public static final int TX64_DST_ADDR_LEN    = 8;
+    public static final int TX64_OPTIONS_LEN     = 1;
+    public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
 
     XBeeTxPacket(byte seqno, Address64 dst, byte []payload) throws PayloadException {
         byte _dstb[] = dst.getBytes();

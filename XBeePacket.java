@@ -15,11 +15,6 @@ public class XBeePacket {
     public static final int API_MESSAGE_TYPE_LEN = 1;
     public static final int FRAME_ID_LEN         = 1;
 
-    public static final int TX64_PAYLOAD_LIMIT   = 100;
-    public static final int TX64_DST_ADDR_LEN    = 8;
-    public static final int TX64_OPTIONS_LEN     = 1;
-    public static final int TX64_HEADER_LEN      = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN + TX64_DST_ADDR_LEN + TX64_OPTIONS_LEN;
-
     public static final int AT_PAYLOAD_LIMIT = 100; // no idea what the limit is, if any, but 100 is enough for sure
     public static final int AT_HEADER_LEN    = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN;
 
