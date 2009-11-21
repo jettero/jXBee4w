@@ -28,26 +28,7 @@ public class XBeePacket {
     XBeePacket() {} // there's no way to know what kind of packet = new byte[????], so it has to happen in the
                     // specific packet type builder
 
-    XBeePacket(byte b[]) throws FrameException {
-        // maybe sanity check the frame a little later on for now, just
-        // minimally look for things that make this packet a packet
-        if( b.length < FRAME_HEADER_LEN )
-            throw new FrameException("This packet doesn't seem long enough to parse the frame.");
-
-        if( b[0] != 0x7e )
-            throw new FrameException("This packet doesn't seem parseable, frame delimiter not found in the 0th position");
-
-        int length = b[2];
-            length += (b[1] << 8);
-
-        int packet_length = b.length-FRAME_HEADER_LEN;
-
-        if( length != packet_length )
-            throw new FrameException("The packet length (" + packet_length
-                + ") does not equal the stated length in the packet header (" + length + ")");
-
-        packet = b;
-    }
+    XBeePacket(byte b[]) { packet = b; }
 
     // Tx packet facotry
     public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
@@ -141,6 +122,10 @@ public class XBeePacket {
         return (byte) (0xff - (sum & 0xff));
     }
 
+    public byte[] getBytes() {
+        return packet;
+    }
+
     public boolean checkChecksum() {
         int sum = 0;
 
@@ -150,11 +135,39 @@ public class XBeePacket {
         if( sum == 0xff )
             return true; // oh, goodie don't fall through to the pessimistic assumption
 
+        System.err.println("ERROR: packet checksum error");
         return false; // :( let's be pessimistic
     }
 
-    public byte[] getBytes() {
-        return packet;
+    public boolean checkFrame() {
+        if( packet == null ) {
+            System.err.println("ERROR: invalid packet, no contents");
+            return false;
+        }
+
+        if( packet.length < FRAME_HEADER_LEN ) {
+            System.err.println("ERROR: invalid packet, fewer bytes than a frame header");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkFrameLen() {
+        int pktlen = (packet[1] << 8) + packet[2];
+
+        if( pktlen+FRAME_HEADER_LEN != packet.length ) {
+            System.err.printf("ERROR: invalid packet, packet length differs from what is specified in frame header (%d+%d vs %d)%n", 
+                pktlen, FRAME_HEADER_LEN, packet.length);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkPacket() {
+        if( !checkFrame() )    return false;
+        if( !checkFrameLen() ) return false;
+        if( !checkChecksum() ) return false;
+        return true;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -176,23 +189,29 @@ public class XBeePacket {
         return false;
     }
 
+    public static void bytesToFile(String fname, byte b[]) {
+        System.out.println("dumping packet bytes to " + fname);
+
+        try {
+            FileOutputStream out = new FileOutputStream(fname);
+
+            out.write(b);
+            out.close();
+        }
+
+        catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
     public void fileDump(String fname) {
-        if( packet == null )   return;
-        if( packet.length < 5) return;
+        if( packet == null or packet.length < 5) {
+            System.err.println("nonsense packet, refusing to dump");
+            return;
+        }
 
         String mod = String.format(fname, (int) this.getBytes()[4]);
-        System.out.println("dumping packet to " + mod);
-
-            try {
-                FileOutputStream out = new FileOutputStream(mod);
-
-                out.write(packet);
-                out.close();
-            }
-
-            catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-            }
+        bytesToFile(mod, packet);
     }
 
 }

@@ -24,7 +24,7 @@ clean:
 
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeePacket.class
-XBeePacket.class:     Address64.class PayloadException.class FrameException.class
+XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class
 XBeeHandle.class:     XBeePacket.class PacketRecvEvent.class
 
