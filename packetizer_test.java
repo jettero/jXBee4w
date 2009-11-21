@@ -12,19 +12,7 @@ public class packetizer_test {
 
         List q = p.tx(dst, payload);
 
-        for(int i=0; i<q.size(); i++) {
-            System.out.println("writing packet-" + i);
-
-            try {
-                FileOutputStream out = new FileOutputStream("packet-" + i + ".txt");
-
-                out.write( ( (XBeePacket) q.get(i) ).getBytes() );
-                out.close();
-            }
-
-            catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-            }
-        }
+        for(int i=0; i<q.size(); i++)
+            ( (XBeePacket) q.get(i) ).fileDump("packet-%d.txt");
     }
 }

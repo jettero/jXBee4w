@@ -1,3 +1,4 @@
+import java.io.*;
 import java.nio.*;
 
 public class XBeePacket {
@@ -173,6 +174,25 @@ public class XBeePacket {
         }
 
         return false;
+    }
+
+    public void fileDump(String fname) {
+        if( packet == null )   return;
+        if( packet.length < 5) return;
+
+        String mod = String.format(fname, (int) this.getBytes()[4]);
+        System.out.println("dumping packet to " + mod);
+
+            try {
+                FileOutputStream out = new FileOutputStream(mod);
+
+                out.write(packet);
+                out.close();
+            }
+
+            catch (Exception e) {
+                System.err.println("Error: " + e.getMessage());
+            }
     }
 
 }
