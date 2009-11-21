@@ -47,62 +47,70 @@ public class XBeeHandle {
     private static class PacketReader implements Runnable {
         private PacketRecvEvent ev;
         private InputStream in;
-        
-        public PacketReader (InputStream in, PacketRecvEvent callback) {
-            this.in = in;
-            this.ev = callback;
+        private ByteBuffer b;
+        private boolean inPkt;
+
+        public PacketReader (InputStream _in, PacketRecvEvent callback) {
+            in = _in;
+            ev = callback;
+            b = ByteBuffer.wrap(new byte[1024]);
+            inPkt = false;
         }
 
         public void close() {
             System.out.println("[debug] packetReader closing");
             in = null; // this is synchronized (see below)
         }
-        
+
+        private void inPkt(int aByte) {
+            try { b.put( (byte) aByte ); }
+            catch(BufferOverflowException e) { /* huh... just ignore this for now */ }
+
+            // TODO: do something once we have enough for a packet
+            // probably build a packet and notify
+
+            if( XBeePacket.enoughForPacket(b) ) {
+                byte[] pktbytes = new byte[ b.position() ];
+                XBeePacket p = new XBeePacket(pktbytes);
+
+                System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
+
+                if( p.check_checksum() )
+                    ev.recvPacket(p);
+
+                // else
+                    // log this or something ... we got a packet, but apparently it's bad. :(
+
+                inPkt = false;
+            }
+        }
+
+        private void seekDelimiter(int aByte) {
+            if( aByte == 0x7e ) {
+                System.out.println("[debug] packetReader found a frame delimiter, starting packet");
+
+                b.clear();
+                try { b.put( (byte) aByte ); }
+                catch(BufferOverflowException e) { /* ignore */ }
+                inPkt = true;
+            }
+        }
+
         public synchronized void run() {
-            ByteBuffer b = ByteBuffer.wrap(new byte[1024]);
-            boolean inPkt = false;
             int aByte;
 
-            while(this.in != null) { // synchronized so we notice a close here
+            while(in != null) { // synchronized so we notice a close here
                 System.out.println("[debug] packetReader looking for packets");
                 try {
-                    if( this.in.available() >= 1 ) {
-                        while( (aByte = this.in.read()) > -1 ) {
+                    if( in.available() >= 1 ) {
+                        while( (aByte = in.read()) > -1 ) {
                             System.out.printf("got aByte=%d%n", aByte);
 
-                            if( inPkt ) {
-                                try { b.put( (byte) aByte ); }
-                                catch(BufferOverflowException e) { /* huh... just ignore this for now */ }
+                            if( inPkt )
+                                inPkt(aByte);
 
-                                // TODO: do something once we have enough for a packet
-                                // probably build a packet and notify
-
-                                if( XBeePacket.enoughForPacket(b) ) {
-                                    byte[] pktbytes = new byte[ b.position() ];
-                                    XBeePacket p = new XBeePacket(pktbytes);
-
-                                    System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
-
-                                    if( p.check_checksum() )
-                                        ev.recvPacket(p);
-
-                                    // else
-                                        // log this or something ... we got a packet, but apparently it's bad. :(
-
-                                    inPkt = false;
-                                }
-
-                            } else {
-                                if( aByte == 0x7e ) {
-                                    System.out.println("[debug] packetReader found a frame delimiter, starting packet");
-
-                                    b.clear();
-                                    try { b.put( (byte) aByte ); }
-                                    catch(BufferOverflowException e) { /* ignore */ }
-                                    inPkt = true;
-                                }
-                            }
-
+                            else
+                                this.seekDelimiter(aByte);
                         }
                     }
                 }
@@ -120,6 +128,7 @@ public class XBeeHandle {
     }
 
     public void send_packet(XBeePacket p) throws IOException {
-        /// send a packet... this is pretty straight forward
+        System.out.println("[debug] XBeeHandle sending packet");
+        out.write(p.getBytes());
     }
 }
