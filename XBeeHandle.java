@@ -79,7 +79,7 @@ public class XBeeHandle {
 
                 System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
 
-                if( p.check_checksum() )
+                if( p.checkChecksum() )
                     ev.recvPacket(p);
 
                 // else

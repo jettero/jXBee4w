@@ -86,24 +86,24 @@ public class XBeePacket {
         for(int i=0; i<payload.length; i++)
             packet[i+14] = payload[i]; // 14-n
 
-        packet[packet.length-1] = this.calculate_checksum();
+        packet[packet.length-1] = this.calculateChecksum();
     }
 
     // AT command factories
     public static XBeePacket at(byte seqno, String cmd) throws PayloadException {
         XBeePacket p = new XBeePacket();
-        p.set_at(seqno, cmd.getBytes(), "".getBytes());
+        p.setAT(seqno, cmd.getBytes(), "".getBytes());
         return p;
     }
 
     public static XBeePacket at(byte seqno, String cmd, String param) throws PayloadException {
         XBeePacket p = new XBeePacket();
-        p.set_at(seqno, cmd.getBytes(), param.getBytes());
+        p.setAT(seqno, cmd.getBytes(), param.getBytes());
         return p;
     }
 
     // AT command setup
-    public void set_at(byte seqno, byte []cmd, byte []param) throws PayloadException {
+    public void setAT(byte seqno, byte []cmd, byte []param) throws PayloadException {
         if( cmd.length != 2 )
             throw new PayloadException("asked to send XBee " + cmd.length + " byte command, but AT commands are two bytes");
 
@@ -125,13 +125,13 @@ public class XBeePacket {
         for(int i=0; i<param.length; i++)
             packet[7+i] = param[i];
 
-        packet[packet.length-1]  = this.calculate_checksum();
+        packet[packet.length-1]  = this.calculateChecksum();
     }
 
     /////////////////////////////////////////////////////////////////////////////////
     // packet helpers
     //
-    public byte calculate_checksum() {
+    public byte calculateChecksum() {
         int sum = 0;
 
         for(int i=3; i < packet.length-1; i++)
@@ -140,7 +140,7 @@ public class XBeePacket {
         return (byte) (0xff - (sum & 0xff));
     }
 
-    public boolean check_checksum() {
+    public boolean checkChecksum() {
         int sum = 0;
 
         for(int i=3; i < packet.length; i++)
