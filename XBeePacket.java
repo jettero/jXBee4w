@@ -130,9 +130,9 @@ public class XBeePacket {
         int sum = 0;
 
         for(int i=3; i < packet.length; i++)
-            sum += (packet[i] & 0xff);
+            sum += packet[i];
 
-        if( sum == 0xff )
+        if( (sum & 0xff) == 0xff )
             return true; // oh, goodie don't fall through to the pessimistic assumption
 
         System.err.printf("ERROR: packet checksum error (worked out to %02x)", sum);
