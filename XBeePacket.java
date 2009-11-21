@@ -135,7 +135,7 @@ public class XBeePacket {
         if( sum == 0xff )
             return true; // oh, goodie don't fall through to the pessimistic assumption
 
-        System.err.println("ERROR: packet checksum error");
+        System.err.printf("ERROR: packet checksum error (worked out to %02x)", sum);
         return false; // :( let's be pessimistic
     }
 
@@ -164,10 +164,13 @@ public class XBeePacket {
     }
 
     public boolean checkPacket() {
-        if( !checkFrame() )    return false;
-        if( !checkFrameLen() ) return false;
-        if( !checkChecksum() ) return false;
-        return true;
+        if( !checkFrame() )
+            return false;
+
+        if( checkFrameLen() && checkChecksum() )
+            return true;
+
+        return false;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -179,10 +182,11 @@ public class XBeePacket {
         if( buflen > 3 ) {
             int pktlen = b.get(1) << 8;
                 pktlen += b.get(2);
+                pktlen += FRAME_HEADER_LEN;
 
-            System.out.println("[debug] enoughForPacket(b)? pktlen: " + pktlen + "; bufferlen: " + buflen);
+            System.out.println("[debug] enoughForPacket(b)? pktlen+FHL: " + pktlen + "; bufferlen: " + buflen);
 
-            if( (pktlen + FRAME_HEADER_LEN) <= buflen )
+            if( pktlen <= buflen )
                 return true;
         }
 
@@ -205,7 +209,7 @@ public class XBeePacket {
     }
 
     public void fileDump(String fname) {
-        if( packet == null or packet.length < 5) {
+        if( packet == null || packet.length < 5) {
             System.err.println("nonsense packet, refusing to dump");
             return;
         }
