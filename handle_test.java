@@ -36,7 +36,7 @@ public class handle_test implements PacketRecvEvent {
         }
 
         System.out.println("waiting to see if anything happens");
-        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+        try { Thread.sleep(3000); } catch (InterruptedException e) {}
 
         System.out.println("bye");
         h.close();
