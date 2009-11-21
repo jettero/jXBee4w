@@ -12,7 +12,7 @@ run_last_test:
 	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
 	@echo " >> RUNNING $@ << "
-	@java $@
+	@java $@; chmod 644 *.txt
 
 config_test: config_test.class
 	@echo $@ > $(lastfile)
