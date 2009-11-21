@@ -71,6 +71,10 @@ public class XBeeHandle {
 
             if( XBeePacket.enoughForPacket(b) ) {
                 byte[] pktbytes = new byte[ b.position() ];
+
+                b.clear();
+                b.get(pktbytes);
+
                 XBeePacket p = new XBeePacket(pktbytes);
 
                 System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
@@ -89,10 +93,14 @@ public class XBeeHandle {
             if( aByte == 0x7e ) {
                 System.out.println("[debug] packetReader found a frame delimiter, starting packet");
 
-                b.clear();
-                try { b.put( (byte) aByte ); }
-                catch(BufferOverflowException e) { /* ignore */ }
-                inPkt = true;
+                try {
+                    b.put( (byte) aByte );
+                    inPkt = true;
+                }
+
+                catch(BufferOverflowException e) {
+                    System.err.println("internal error storing packet delimiter");
+                }
             }
         }
 
