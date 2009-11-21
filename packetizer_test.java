@@ -13,6 +13,6 @@ public class packetizer_test {
         List q = p.tx(dst, payload);
 
         for(int i=0; i<q.size(); i++)
-            ( (XBeePacket) q.get(i) ).fileDump("packet-%d.txt");
+            ( (XBeePacket) q.get(i) ).fileDump("packet-%d.pkt");
     }
 }

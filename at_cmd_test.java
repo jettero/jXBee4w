@@ -10,6 +10,6 @@ public class at_cmd_test {
         XBeePacket p[] = z.at(s);
 
         for(int i=0; i<p.length; i++)
-            p[i].fileDump("packet-%d.txt");
+            p[i].fileDump("packet-%d.pkt");
     }
 }
