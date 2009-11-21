@@ -188,6 +188,7 @@ public class XBeePacket {
                 pktlen += b.get(2);
                 pktlen += FRAME_HEADER_LEN;
 
+            // in a static method, we can't really check some global flag, so make this commentable
             // System.out.println("[debug] enoughForPacket(b)? pktlen+FHL: " + pktlen + "; bufferlen: " + buflen);
 
             if( pktlen <= buflen )
@@ -198,7 +199,8 @@ public class XBeePacket {
     }
 
     public static void bytesToFile(String fname, byte b[]) {
-        System.out.println("dumping packet bytes to " + fname);
+        // this whole function is for debugging purposes, no sense checking some global flag
+        System.out.println("[debug] dumping packet bytes to " + fname);
 
         try {
             FileOutputStream out = new FileOutputStream(fname);

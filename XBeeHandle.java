@@ -58,7 +58,9 @@ public class XBeeHandle {
         }
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
-            System.out.println("[debug] packetReader closing");
+            if( debug )
+                System.out.println("[debug] packetReader closing");
+
             in = null; // this is synchronized (see below)
         }
 
@@ -78,7 +80,9 @@ public class XBeeHandle {
                 XBeePacket p = new XBeePacket(pktbytes);
 
                 if( p.checkPacket() ) {
-                    System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
+                    if( debug )
+                        System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
+
                     ev.recvPacket(p);
                 }
 
@@ -91,7 +95,8 @@ public class XBeeHandle {
 
         private void seekDelimiter(int aByte) {
             if( aByte == 0x7e ) {
-                System.out.println("[debug] packetReader found a frame delimiter, starting packet");
+                if( debug )
+                    System.out.println("[debug] packetReader found a frame delimiter, starting packet");
 
                 try {
                     b.clear();
@@ -111,13 +116,13 @@ public class XBeeHandle {
             if( in == null )
                 return;
 
-            System.out.println("[debug] packetReader looking for packets");
+            if( debug )
+                System.out.println("[debug] packetReader looking for packets");
+
             try {
 
                 if( in.available() >= 1 ) {
                     while( (aByte = in.read()) > -1 ) {
-                        System.out.printf("got aByte=%02x%n", aByte);
-
                         if( inPkt )
                             inPkt(aByte);
 
@@ -145,7 +150,9 @@ public class XBeeHandle {
     }
 
     public void send_packet(XBeePacket p) throws IOException {
-        System.out.println("[debug] XBeeHandle sending packet");
+        if( debug )
+            System.out.println("[debug] XBeeHandle sending packet");
+
         out.write(p.getBytes());
     }
 }
