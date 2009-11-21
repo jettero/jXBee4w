@@ -13,7 +13,7 @@ public class XBeeHandle {
     private Thread _prThread;
 
     protected void finalize() throws Throwable { this.close(); }
-    public    void close() {
+    public void close() {
         packetReader.close();
         commPort.close();
     }
@@ -57,7 +57,7 @@ public class XBeeHandle {
             inPkt = false;
         }
 
-        public void close() {
+        public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
             System.out.println("[debug] packetReader closing");
             in = null; // this is synchronized (see below)
         }
@@ -76,11 +76,12 @@ public class XBeeHandle {
                 b.get(pktbytes);
 
                 XBeePacket p = new XBeePacket(pktbytes);
+                           p.fileDump("wtf-%d.pkt");
 
-                System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
-
-                if( p.checkChecksum() )
+                if( p.checkPacket() ) {
+                    System.out.println("[debug] packetReader completed XBeePacket, sending to ev");
                     ev.recvPacket(p);
+                }
 
                 // else
                     // log this or something ... we got a packet, but apparently it's bad. :(
@@ -112,13 +113,13 @@ public class XBeeHandle {
                 try {
                     if( in.available() >= 1 ) {
                         while( (aByte = in.read()) > -1 ) {
-                            System.out.printf("got aByte=%d%n", aByte);
+                            System.out.printf("got aByte=%02x%n", aByte);
 
                             if( inPkt )
                                 inPkt(aByte);
 
                             else
-                                this.seekDelimiter(aByte);
+                                seekDelimiter(aByte);
                         }
                     }
                 }
