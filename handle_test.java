@@ -3,8 +3,15 @@ import java.util.*;
 import java.util.regex.*;
 
 public class handle_test implements PacketRecvEvent {
+    byte[] SL,SH;
+
     public void showResponse(XBeeATResponsePacket p) {
-        System.out.println("ATr"); // TODO: write this
+        String cmd = p.cmd();
+
+        if( cmd.equals("SL") ) {
+            SL = p.responseBytes();
+        }
+        System.out.println("AT" + p.cmd() + " response: ");
     }
 
     public void showMessage(XBeeRxPacket p) {

@@ -5,4 +5,17 @@ public class XBeeATPacket extends XBeePacket {
 
     XBeeATPacket() {}
     XBeeATPacket(byte b[]) { super(b); }
+
+    public String cmd() { return new String(this.cmdBytes()); }
+    public byte[] cmdBytes() {
+        if( !conditionalCheckPacket() )
+            return new byte[0];
+
+        byte b[] = new byte[2];
+
+        b[0] = packet[5];
+        b[1] = packet[6];
+
+        return b;
+    }
 }
