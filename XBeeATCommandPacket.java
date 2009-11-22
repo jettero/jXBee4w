@@ -17,8 +17,8 @@ public class XBeeATCommandPacket extends XBeeATPacket {
         packet[2]  = (byte)  (0x00ff & content_length);
         packet[3]  = AMT_AT_COMMAND;
         packet[4]  = seqno;
-        packet[5]  = cmd[0];
-        packet[6]  = cmd[1];
+        packet[5]  = cmd[0]; // NOTE: if these go in lower case, they come back out lower case...
+        packet[6]  = cmd[1]; // should we normalize them to upper case?
 
         for(int i=0; i<param.length; i++)
             packet[7+i] = param[i];
