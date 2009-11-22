@@ -25,8 +25,11 @@ show show_packets: run_last_test
 clean:
 	git clean -dfx
 
-packets:              XBeeTxPacket.class XBeeATCommandPacket.class
-XBeeTxPacket.class:   XBeePacket.class
+packets:                    XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class 
+XBeeTxPacket.class:         XBeeRadio64Packet.class XBeePacket.class
+XBeeRxPacket.class:         XBeeRadio64Packet.class XBeePacket.class
+XBeeATCommandPacket.class:  XBeePacket.class
+XBeeATResponsePacket.class: XBeePacket.class
 
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: packets
