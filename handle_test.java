@@ -3,11 +3,11 @@ import java.util.*;
 import java.util.regex.*;
 
 public class handle_test implements PacketRecvEvent {
-    byte[] SL,SH;
+    byte[] SH, SL;
 
-    public void showAddress(byte []sl, byte[]sh) {
-        Address64 a = new Address64(sl,sh);
-        System.out.println("   SL+SH => " + a.toText());
+    public void showAddress(byte []sh, byte[]sl) {
+        Address64 a = new Address64(sh, sl);
+        System.out.println("   SH+SL => " + a.toText());
     }
 
     public void showResponse(XBeeATResponsePacket p) {
@@ -17,14 +17,14 @@ public class handle_test implements PacketRecvEvent {
 
         if( cmd.equals("SL") ) {
             SL = p.responseBytes();
-            if( SL != null && SH != null )
-                showAddress(SL,SH);
+            if( SH != null && SL != null )
+                showAddress(SH, SL);
         }
 
         if( cmd.equals("SH") ) {
             SH = p.responseBytes();
-            if( SL != null && SH != null )
-                showAddress(SL,SH);
+            if( SH != null && SL != null )
+                showAddress(SH, SL);
         }
     }
 
@@ -55,7 +55,7 @@ public class handle_test implements PacketRecvEvent {
             return;
         }
 
-        String cmds[][] = { { "SL" }, { "SH" } };
+        String cmds[][] = { { "SH" }, { "SL" } };
 
         System.out.println("making a couple command packets");
         XBeePacket serials[] = (new XBeePacketizer()).at(cmds);
