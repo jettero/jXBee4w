@@ -18,7 +18,26 @@ public class Address64 {
         }
     }
 
+    private byte[] padaddr(byte b[], int l) {
+        if(b.length>=l)
+            return b;
+
+        byte n[] = new byte[l];
+        int diff = n.length - b.length;
+
+        for(int i=0; i<diff; i++)
+            n[i] = 0;
+
+        for(int i=0; i<b.length; i++)
+            n[diff+i] = b[i];
+
+        return n;
+    }
+
     Address64(byte SH[], byte SL[]) throws Address64Exception {
+        if( SL.length < 4 ) SL = padaddr(SL, 4);
+        if( SH.length < 4 ) SH = padaddr(SH, 4);
+
         if( SH.length != 4 ) throw new Address64Exception("SH address must be 4 bytes (not " + SH.length + ")");
         if( SL.length != 4 ) throw new Address64Exception("SL address must be 4 bytes (not " + SL.length + ")");
 

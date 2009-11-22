@@ -7,9 +7,14 @@ public class address_test {
         Address64 b = new Address64("88:99:aa:bb:cc:dd:ee:ff");
         Address64 c = new Address64("11:05:19:73:11:05:19:73");
 
+        byte sl[] = { (byte) 0xaa };
+        byte sh[] = { (byte) 0xbb };
+        Address64 d = new Address64(sl, sh);
+
         System.out.println( a.toText() );
         System.out.println( b.toText() );
         System.out.println( c.toText() );
+        System.out.println( d.toText() );
 
         try {
             FileOutputStream out = new FileOutputStream("dump.txt");
@@ -17,6 +22,7 @@ public class address_test {
             out.write( a.getBytes() );
             out.write( b.getBytes() );
             out.write( c.getBytes() );
+            out.write( d.getBytes() );
 
             out.close();
         }
