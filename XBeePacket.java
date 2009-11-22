@@ -17,9 +17,9 @@ public class XBeePacket {
     public static final int API_MESSAGE_TYPE_LEN = 1;
     public static final int FRAME_ID_LEN         = 1;
 
-    byte packet[];
-    boolean checked;
-    boolean ok;
+    public byte packet[];
+    private boolean checked;
+    private boolean ok;
 
     /////////////////////////////////////////////////////////////////////////////////
     // consturcotors and factories
@@ -29,6 +29,24 @@ public class XBeePacket {
                     // specific packet type builder
 
     XBeePacket(byte b[]) { packet = b; }
+
+    public XBeePacket adapt() {
+        if( !conditionalCheckPacket() )
+            return this;
+
+        switch(type()) {
+            case AMT_RX64:        return new XBeeRxPacket(packet);
+            case AMT_AT_RESPONSE: return new XBeeATResponsePacket(packet);
+
+            /* TODO:
+            case AMT_TX64:        return new XBeeTxPacket(packet);
+            case AMT_TX64_STATUS: return new XBeeTxStatusPacket(packet);
+            case AMT_AT_COMMAND:  return new XBeeATCommandPacket(packet);
+            */
+        }
+
+        return this;
+    }
 
     // Tx packet factory
     public static XBeeTxPacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {

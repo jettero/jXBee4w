@@ -1,5 +1,6 @@
 
 public class XBeeTxPacket extends XBeeRadio64Packet {
+
     XBeeTxPacket(byte seqno, Address64 dst, byte []payload) throws PayloadException {
         byte _dstb[] = dst.getBytes();
 
@@ -27,4 +28,5 @@ public class XBeeTxPacket extends XBeeRadio64Packet {
 
         packet[packet.length-1] = this.calculateChecksum();
     }
+
 }

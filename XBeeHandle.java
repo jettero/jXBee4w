@@ -82,13 +82,13 @@ public class XBeeHandle {
                 b.clear();
                 b.get(pktbytes);
 
-                XBeePacket p = XBeePacket.newFromType(pktbytes);
+                XBeePacket p = new XBeePacket(pktbytes);
 
                 if( p.checkPacket() ) {
                     if( debug )
                         System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
 
-                    ev.recvPacket(p);
+                    ev.recvPacket(p.adapt());
                 }
 
                 // else
