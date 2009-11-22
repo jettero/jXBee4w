@@ -26,10 +26,12 @@ clean:
 	git clean -dfx
 
 packets:                    XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class 
-XBeeTxPacket.class:         XBeeRadio64Packet.class XBeePacket.class
-XBeeRxPacket.class:         XBeeRadio64Packet.class XBeePacket.class
-XBeeATCommandPacket.class:  XBeePacket.class
-XBeeATResponsePacket.class: XBeePacket.class
+XBeeTxPacket.class:         XBeeRadio64Packet.class
+XBeeRxPacket.class:         XBeeRadio64Packet.class
+XBeeATCommandPacket.class:  XBeeATPacket.class
+XBeeATResponsePacket.class: XBeeATPacket.class
+XBeeATPacket.class:         XBeePacket.class
+XBeeRadio64Packet.class:    XBeePacket.class
 
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: packets
