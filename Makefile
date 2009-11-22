@@ -19,10 +19,13 @@ config_test: config_test.class
 	@echo " >> RUNNING $@ << "
 	@for i in `cat /tmp/p1`; do java $@ $$i; done
 
+show show_packets: run_last_test
+	(for i in packet-*.pkt; do echo -n $$i; xxd $$i; done) | less -ES
+
 clean:
 	git clean -dfx
 
-packets:              XBeeTxPacket.class 
+packets:              XBeeTxPacket.class XBeeATCommandPacket.class
 XBeeTxPacket.class:   XBeePacket.class
 
 Address64.class:      Address64Exception.class

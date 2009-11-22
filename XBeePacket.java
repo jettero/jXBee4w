@@ -15,9 +15,6 @@ public class XBeePacket {
     public static final int API_MESSAGE_TYPE_LEN = 1;
     public static final int FRAME_ID_LEN         = 1;
 
-    public static final int AT_PAYLOAD_LIMIT = 100; // no idea what the limit is, if any, but 100 is enough for sure
-    public static final int AT_HEADER_LEN    = API_MESSAGE_TYPE_LEN + FRAME_ID_LEN;
-
     byte packet[];
     boolean checked;
     boolean ok;
@@ -32,48 +29,17 @@ public class XBeePacket {
     XBeePacket(byte b[]) { packet = b; }
 
     // Tx packet factory
-    public static XBeePacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
-        XBeeTxPacket p = new XBeeTxPacket(seqno, dst, payload.getBytes());
-        return p;
+    public static XBeeTxPacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
+        return new XBeeTxPacket(seqno, dst, payload.getBytes());
     }
 
     // AT command factories
-    public static XBeePacket at(byte seqno, String cmd) throws PayloadException {
-        XBeePacket p = new XBeePacket();
-        p.setAT(seqno, cmd.getBytes(), "".getBytes());
-        return p;
+    public static XBeeATCommandPacket at(byte seqno, String cmd) throws PayloadException {
+        return at(seqno, cmd, "");
     }
 
-    public static XBeePacket at(byte seqno, String cmd, String param) throws PayloadException {
-        XBeePacket p = new XBeePacket();
-        p.setAT(seqno, cmd.getBytes(), param.getBytes());
-        return p;
-    }
-
-    // AT command setup
-    public void setAT(byte seqno, byte []cmd, byte []param) throws PayloadException {
-        if( cmd.length != 2 )
-            throw new PayloadException("asked to send XBee " + cmd.length + " byte command, but AT commands are two bytes");
-
-        if( param.length > AT_PAYLOAD_LIMIT )
-            throw new PayloadException("asked to packetize " + param.length + " param bytes, but param bytes are restricted to " + AT_PAYLOAD_LIMIT + " bytes");
-
-        int content_length = cmd.length + param.length + AT_HEADER_LEN;
-        packet = new byte[ FRAME_HEADER_LEN + content_length ];
-
-        // frame header:
-        packet[0]  = FRAME_DELIMITER;
-        packet[1]  = (byte) ((0xff00 & content_length) >> 8);
-        packet[2]  = (byte)  (0x00ff & content_length);
-        packet[3]  = AMT_AT_COMMAND;
-        packet[4]  = seqno;
-        packet[5]  = cmd[0];
-        packet[6]  = cmd[1];
-
-        for(int i=0; i<param.length; i++)
-            packet[7+i] = param[i];
-
-        packet[packet.length-1]  = this.calculateChecksum();
+    public static XBeeATCommandPacket at(byte seqno, String cmd, String param) throws PayloadException {
+        return new XBeeATCommandPacket(seqno, cmd.getBytes(), param.getBytes());
     }
 
     /////////////////////////////////////////////////////////////////////////////////
