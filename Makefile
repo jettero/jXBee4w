@@ -6,13 +6,13 @@ lastfile=/tmp/.lastjxbee4w
 #default: XBeeHandle.class
 
 run_last_test:
-	@-if [ -f $(lastfile) ]; then make `cat $(lastfile)`; else make $(default_test); fi
+	@-if [ -f $(lastfile) ]; then make --no-print-directory `cat $(lastfile)`; else make --no-print-directory $(default_test); fi
 
 %_test:
 	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
 	@echo " >> RUNNING $@ << "
-	@java $@; chmod 644 *.txt *.pkt
+	@java $@; chmod 644 *.txt *.pkt &>/dev/null || /bin/true
 
 config_test: config_test.class
 	@echo $@ > $(lastfile)
