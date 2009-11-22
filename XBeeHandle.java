@@ -82,7 +82,7 @@ public class XBeeHandle {
                 b.clear();
                 b.get(pktbytes);
 
-                XBeePacket p = new XBeePacket(pktbytes);
+                XBeePacket p = XBeePacket.newFromType(pktbytes);
 
                 if( p.checkPacket() ) {
                     if( debug )
