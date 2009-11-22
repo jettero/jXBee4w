@@ -3,7 +3,9 @@ import java.nio.*;
 
 public class XBeePacket {
     public static final byte FRAME_DELIMITER = (byte) 0x7e;
-    public static final byte AMT_TX          = (byte) 0x00;
+    public static final byte AMT_TX64        = (byte) 0x00;
+    public static final byte AMT_TX64_STATUS = (byte) 0x89;
+    public static final byte AMT_RX64        = (byte) 0x80;
     public static final byte AMT_AT_COMMAND  = (byte) 0x08;
     public static final byte AMT_AT_RESPONSE = (byte) 0x88;
 

@@ -13,7 +13,7 @@ public class XBeeTxPacket extends XBeeRadio64Packet {
         packet[0]  = FRAME_DELIMITER;
         packet[1]  = (byte) ((0xff00 & content_length) >> 8);
         packet[2]  = (byte)  (0x00ff & content_length);
-        packet[3]  = AMT_TX;
+        packet[3]  = AMT_TX64;
         packet[4]  = seqno;
         packet[13] = 0x0; // 0x01 is disable ACK and 0x04 is use broadcast, neither interest us
 
