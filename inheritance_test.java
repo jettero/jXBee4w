@@ -9,5 +9,7 @@ public class inheritance_test {
 
     public static void main(String[] args) {
         Test1 t1 = new Test1("test1");
+
+        System.out.println("t1: " + t1.test1());
     }
 }
