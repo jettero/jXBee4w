@@ -3,7 +3,22 @@ import java.util.*;
 import java.util.regex.*;
 
 public class handle_test implements PacketRecvEvent {
+    public void showResponse(XBeeRxPacket p) {
+        System.out.println("rx"); // TODO: write this
+    }
+
+    public void showResponse(XBeeATResponsePacket p) {
+        System.out.println("ATr"); // TODO: write this
+    }
+
     public void recvPacket(XBeePacket p) {
+        switch(p.type()) {
+            case XBeePacket.APT_AT_RESPONSE: showResponse(p); break;
+            case XBeePacket.APT_RX:          showMessage(p);  break;
+
+            default:
+                System.err.printf("Packet type: %02x ignored — unhandled type");
+        }
         System.out.printf("wow, recved!! type: %02x; payload length: %d; %n", p.type(), p.payloadLength());
         p.fileDump("wow-%d.pkt");
     }
