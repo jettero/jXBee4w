@@ -12,7 +12,7 @@ public class XBeeRadio64Packet extends XBeePacket {
         if( !conditionalCheckPacket() )
             return -1;
 
-        int pktlen = (packet[1] << 8) + packet[2];
+        int pktlen = frameLength();
             pktlen -= R64_HEADER_LEN;
 
         return pktlen;

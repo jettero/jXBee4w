@@ -104,8 +104,8 @@ public class XBeePacket {
         return true;
     }
 
-    public boolean checkFrameLen() {
-        int pktlen = (packet[1] << 8) + packet[2];
+    public boolean checkFrameLength() {
+        int pktlen = frameLength();
 
         if( pktlen+FRAME_HEADER_LEN != packet.length ) {
             System.err.printf("ERROR: invalid packet, packet length differs from what is specified in frame header (%d+%d vs %d)%n", 
@@ -121,7 +121,7 @@ public class XBeePacket {
         if( !checkFrame() )
             return (ok = false);
 
-        if( checkFrameLen() && checkChecksum() )
+        if( checkFrameLength() && checkChecksum() )
             return (ok = true);
 
         return (ok = false);
@@ -137,6 +137,14 @@ public class XBeePacket {
     /////////////////////////////////////////////////////////////////////////////////
     // accessor helpers
     //
+
+    public int frameLength() {
+        // NOTE: checking conditionalCheckPacket would be a fail because it uses this method
+        if( packet == null )    return -1;
+        if( packet.length < 3 ) return -1;
+
+        return (packet[1] << 8) + packet[2];
+    }
 
     public int length() {
         if( !conditionalCheckPacket() )

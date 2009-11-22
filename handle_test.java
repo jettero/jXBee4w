@@ -7,7 +7,7 @@ public class handle_test implements PacketRecvEvent {
 
     public void showAddress(byte []sl, byte[]sh) {
         Address64 a = new Address64(sl,sh);
-        System.out.println("  SL+SH => " + a.toText());
+        System.out.println("   SL+SH => " + a.toText());
     }
 
     public void showResponse(XBeeATResponsePacket p) {
