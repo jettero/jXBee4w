@@ -16,6 +16,16 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         this.println("   SH+SL => " + a.toText());
     }
 
+    public Address64 addr() {
+        this.println("addr requested, waiting for it");
+
+        while( a == null )
+            try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
+
+        this.println("returning addr: " + a.toText());
+        return a;
+    }
+
     public void showResponse(XBeeATResponsePacket p) {
         String cmd = p.cmd();
 
@@ -55,6 +65,12 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         port = _p;
     }
 
+    public void send(Address64 dst) {
+        Address64 src = this.addr(); // blocks until we get our addr
+
+        System.out.printf(this.desc() + "sending from %s to %s", src.toText(), dst.toText());
+    }
+
     public void run() {
         XBeeHandle h;
 
@@ -92,10 +108,17 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
     }
 
     public static void main(String[] args) {
-        Thread lhs = new Thread(new modem2modem_test("LHS", "COM7"));
-        Thread rhs = new Thread(new modem2modem_test("RHS", "COM8"));
+        modem2modem_test target, source;
+
+        Thread lhs = new Thread(target = new modem2modem_test("LHS", "COM7"));
+        Thread rhs = new Thread(source = new modem2modem_test("RHS", "COM8"));
 
         System.out.println("starting lhs"); lhs.start();
         System.out.println("starting rhs"); rhs.start();
+
+        source.send(target.addr()); // addr blocks until there's someting to return
+
+        lhs.join();
+        rhs.join();
     }
 }
