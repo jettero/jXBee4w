@@ -49,6 +49,8 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
     }
 
     public void recvPacket(XBeePacket p) {
+        p.fileDump(this.desc() + "recv-%d.pkt");
+
         switch(p.type()) {
             case XBeePacket.AMT_AT_RESPONSE: showResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:        showMessage(  (XBeeRxPacket)         p ); break;
@@ -56,8 +58,6 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
             default:
                 System.err.printf(this.desc() + "Packet type: %02x ignored — unhandled type");
         }
-
-        p.fileDump(this.desc() + "recv-%d.pkt");
     }
 
     modem2modem_test(String _n, String _p) {

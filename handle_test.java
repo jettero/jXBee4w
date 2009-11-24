@@ -33,6 +33,8 @@ public class handle_test implements PacketRecvEvent {
     }
 
     public void recvPacket(XBeePacket p) {
+        p.fileDump("recv-%d.pkt");
+
         switch(p.type()) {
             case XBeePacket.AMT_AT_RESPONSE: showResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:        showMessage(  (XBeeRxPacket)         p ); break;
@@ -40,8 +42,6 @@ public class handle_test implements PacketRecvEvent {
             default:
                 System.err.printf("Packet type: %02x ignored — unhandled type");
         }
-
-        p.fileDump("recv-%d.pkt");
     }
 
     public void go() {
