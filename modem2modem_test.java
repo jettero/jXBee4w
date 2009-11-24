@@ -118,7 +118,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
 
         source.send(target.addr()); // addr blocks until there's someting to return
 
-        lhs.join();
-        rhs.join();
+        try { lhs.join(); } catch (InterruptedException e) { /* cool, but we're just collecting their exit anyway */ }
+        try { rhs.join(); } catch (InterruptedException e) {}
     }
 }
