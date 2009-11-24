@@ -36,7 +36,7 @@ Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class
 XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class
-XBeeHandle.class:     XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class PacketRecvEvent.class
+XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class
 
 address_test.class:     Address64.class
 packetizer_test.class:  XBeePacketizer.class
