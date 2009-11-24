@@ -7,6 +7,8 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
     private String port;
     private byte[] SH, SL;
     public Address64 a;
+    public boolean debug;
+    public int wait;
 
     public void println(String arg) { System.out.println(this.desc() + arg); }
     public String desc() { return "[" + name + "] "; }
@@ -60,9 +62,11 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         }
     }
 
-    modem2modem_test(String _n, String _p) {
-        name = _n;
-        port = _p;
+    modem2modem_test(String _n, String _p, boolean _d, int _w) {
+        name  = _n;
+        port  = _p;
+        debug = _d;
+        wait  = _w;
     }
 
     public void send(Address64 dst) {
@@ -75,7 +79,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         XBeeHandle h;
 
         try {
-            h = XBeeHandle.newFromPortName(name, port, 115200, true, this);
+            h = XBeeHandle.newFromPortName(name, port, 115200, debug, this);
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -101,7 +105,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         }
 
         this.println("waiting to see if anything happens");
-        try { Thread.sleep(10 * 1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(wait * 1000); } catch (InterruptedException e) {}
 
         this.println("bye");
         h.close();
@@ -110,10 +114,10 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
     public static void main(String[] args) {
         modem2modem_test target, source;
 
-        //Thread lhs = new Thread(target = new modem2modem_test("LHS", "COM7"));
-        Thread rhs = new Thread(source = new modem2modem_test("RHS", "COM8"));
+        Thread lhs = new Thread(target = new modem2modem_test("LHS", "COM7", false, 2));
+        Thread rhs = new Thread(source = new modem2modem_test("RHS", "COM8", false, 2));
 
-        //System.out.println("starting lhs"); lhs.start();
+        System.out.println("starting lhs"); lhs.start();
         System.out.println("starting rhs"); rhs.start();
 
         //source.send(target.addr()); // addr blocks until there's someting to return
