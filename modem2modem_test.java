@@ -75,7 +75,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         XBeeHandle h;
 
         try {
-            h = XBeeHandle.newFromPortName(port, 115200, false, this);
+            h = XBeeHandle.newFromPortName(name, port, 115200, false, this);
 
         } catch(Exception e) {
             e.printStackTrace();
