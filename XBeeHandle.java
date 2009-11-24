@@ -18,9 +18,13 @@ public class XBeeHandle {
         commPort.close();
     }
 
-    XBeeHandle(CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    XBeeHandle(CommPortIdentifier p, int s, boolean d, PacketRecvEvent c) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+        this("<blarg>", p, s, d, c);
+    }
+
+    XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         debug = _debug;
-        commPort = portIdentifier.open(this.getClass().getName(), 2000);
+        commPort = portIdentifier.open(name, 2000);
 
         if ( commPort instanceof SerialPort ) {
             SerialPort serialPort = (SerialPort) commPort;
@@ -41,9 +45,13 @@ public class XBeeHandle {
     }
 
     public static XBeeHandle newFromPortName(String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+        return XBeeHandle.newFromPortName("<blarg>", portName, speed, debug, callback);
+    }
+
+    public static XBeeHandle newFromPortName(String handleName, String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 
-        return new XBeeHandle(portIdentifier, speed, debug, callback);
+        return new XBeeHandle(handleName, portIdentifier, speed, debug, callback);
     }
 
     private static class PacketReader implements Runnable {
