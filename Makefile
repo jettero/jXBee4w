@@ -25,7 +25,6 @@ show show_packets:
 clean:
 	git clean -dfx
 
-packets:                    XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class 
 XBeeTxPacket.class:         XBeeRadio64Packet.class
 XBeeRxPacket.class:         XBeeRadio64Packet.class
 XBeeATCommandPacket.class:  XBeeATPacket.class
@@ -34,10 +33,10 @@ XBeeATPacket.class:         XBeePacket.class
 XBeeRadio64Packet.class:    XBeePacket.class
 
 Address64.class:      Address64Exception.class
-XBeePacketizer.class: packets
+XBeePacketizer.class: XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class
 XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class
-XBeeHandle.class:     packets PacketRecvEvent.class
+XBeeHandle.class:     XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class PacketRecvEvent.class
 
 address_test.class:     Address64.class
 packetizer_test.class:  XBeePacketizer.class
