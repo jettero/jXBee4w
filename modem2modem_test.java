@@ -75,7 +75,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         XBeeHandle h;
 
         try {
-            h = XBeeHandle.newFromPortName(name, port, 115200, false, this);
+            h = XBeeHandle.newFromPortName(name, port, 115200, true, this);
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -101,7 +101,7 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
         }
 
         this.println("waiting to see if anything happens");
-        try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
+        try { Thread.sleep(10 * 1000); } catch (InterruptedException e) {}
 
         this.println("bye");
         h.close();
@@ -110,15 +110,15 @@ public class modem2modem_test implements PacketRecvEvent, Runnable {
     public static void main(String[] args) {
         modem2modem_test target, source;
 
-        Thread lhs = new Thread(target = new modem2modem_test("LHS", "COM7"));
+        //Thread lhs = new Thread(target = new modem2modem_test("LHS", "COM7"));
         Thread rhs = new Thread(source = new modem2modem_test("RHS", "COM8"));
 
-        System.out.println("starting lhs"); lhs.start();
+        //System.out.println("starting lhs"); lhs.start();
         System.out.println("starting rhs"); rhs.start();
 
-        source.send(target.addr()); // addr blocks until there's someting to return
+        //source.send(target.addr()); // addr blocks until there's someting to return
 
-        try { lhs.join(); } catch (InterruptedException e) { /* cool, but we're just collecting their exit anyway */ }
-        try { rhs.join(); } catch (InterruptedException e) {}
+        //try { lhs.join(); } catch (InterruptedException e) { /* cool, but we're just collecting their exit anyway */ }
+        //try { rhs.join(); } catch (InterruptedException e) {}
     }
 }
