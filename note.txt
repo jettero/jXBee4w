@@ -1,0 +1,16 @@
+
+sending message
+[debug] XBeeHandle sending packet
+wating around for 10 seconds
+[debug] packetReader found a frame delimiter, starting packet
+[debug] packetReader completed a XBeePacket, sending to ev
+[debug] dumping packet bytes to recv-5.pkt
+Packet type: 89 ignored -- unhandled type.
+[debug] packetReader found a frame delimiter, starting packet
+[debug] packetReader completed a XBeePacket, sending to ev
+[debug] dumping packet bytes to recv-0.pkt
+Packet type: 81 ignored -- unhandled type.
+[debug] packetReader closing
+[debug] packetReader closing
+
+
