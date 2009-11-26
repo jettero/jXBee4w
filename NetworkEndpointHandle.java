@@ -17,6 +17,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private Address64 a;
     private byte[] SH, SL;
 
+    public void close() { xh.close(); }
+
     public static int config(CommPortIdentifier port, int speed) {
         int result = UNKNOWN;
 
@@ -38,8 +40,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                 result = CONFIGURED; // used by the linespeed retry loop
 
                 // not a debug message
-                System.out.println("XBee version " + conf[conf.length-2]
-                    + " running firmware revision " + conf[conf.length-1] + " configured successfully");
+                System.out.println("XBee (modem version " + res[conf.length-2].trim()
+                    + ", firmware revision " + res[conf.length-1].trim() + ") configured successfully");
 
             } catch( XBeeConfigException e ) {
                 System.err.println("ERROR configuring modem: " + e.getMessage());
@@ -88,7 +90,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             if(pid.getPortType() == CommPortIdentifier.PORT_SERIAL )
 
                 ports.offer(pid); // returns false if it's full, but who cares, we're expecting like 8 things tops
-                System.out.println("in " + pid.getName());
         }
     }
 
@@ -174,7 +175,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
     }
 
-    public NetworkEndpointHandle configuredEndpoint() throws XBeeConfigException {
+    public static NetworkEndpointHandle configuredEndpoint() throws XBeeConfigException {
         NetworkEndpointHandle h = new NetworkEndpointHandle();
         h.locateAndConfigure();
 
