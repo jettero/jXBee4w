@@ -9,14 +9,14 @@ public class neh_test {
                     NetworkEndpointHandle.debug = true;
 
         NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint();
-            System.out.println("LHS Address: " + h.addr().toText());
-            System.out.println(" HV version: " + h.hardwareVersion());
-            System.out.println(" VR version: " + h.firmwareVersion());
+            System.out.println("LHS Address: " + lhs.addr().toText());
+            System.out.println(" HV version: " + lhs.hardwareVersion());
+            System.out.println(" VR version: " + lhs.firmwareVersion());
 
         NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint();
-            System.out.println("RHS Address: " + h.addr().toText());
-            System.out.println(" HV version: " + h.hardwareVersion());
-            System.out.println(" VR version: " + h.firmwareVersion());
+            System.out.println("RHS Address: " + rhs.addr().toText());
+            System.out.println(" HV version: " + rhs.hardwareVersion());
+            System.out.println(" VR version: " + rhs.firmwareVersion());
 
         lhs.close();
         rhs.close();
