@@ -178,15 +178,36 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
     }
 
+    private void sendAddressRequest() {
+        String cmds[][] = { { "SH" }, { "SL" } };
+        XBeePacket serials[] = (new XBeePacketizer()).at(cmds);
+
+        for(int i=0; i<serials.length; i++) {
+            try {
+                xh.send_packet(serials[i]);
+
+            } catch(IOException e) {
+                System.err.println("error sending address request packet(" + i + "): " + e.getMessage());
+                return;
+            }
+        }
+    }
+
+    private void getAddress() {
+        int retries;
+
+        while( a == null ) {
+            sendAddressRequest();
+            retries = 8;
+
+            while( a == null && (retries--) > 0)
+                try { Thread.sleep(1500); } catch (InterruptedException e) {}
+        }
+    }
+
     public Address64 addr() {
-        if( debug )
-            System.out.println("waiting for address");
-
-        while( a == null )
-            try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
-
-        if( debug )
-            System.out.println("got it");
+        if( a == null )
+            getAddress();
 
         return a;
     }
