@@ -156,7 +156,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             byte b[] = p.responseBytes();
 
             if( debug )
-                System.out.println("received valid AT" + cmd + " response.");
+                System.out.println("[debug] received valid AT" + cmd + " response.");
 
             if( cmd.equals("VR") ) {
                 firmwareVersion = String.format("%02x%02x", b[0], b[1]);
