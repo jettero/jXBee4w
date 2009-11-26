@@ -4,6 +4,8 @@ public class neh_test {
         NetworkEndpointHandle.debug = false;
         NetworkEndpointHandle h = NetworkEndpointHandle.configuredEndpoint();
 
+        System.out.println("Cool! All configured! Address: " + h.addr().toText());
+
         h.close();
     }
 }

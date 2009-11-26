@@ -195,8 +195,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         NetworkEndpointHandle h = new NetworkEndpointHandle();
         h.locateAndConfigure();
 
-        System.out.println("Cool! All configured! Address: " + this.addr().toText());
-
         return h;
     }
 }
