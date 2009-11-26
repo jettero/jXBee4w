@@ -104,9 +104,11 @@ public class XBeeConfig {
             throw x;
         }
 
-        b = this.send_and_recv("ATCN\r");
-        if( !(new String(b)).trim().equals("OK") ) {
-            XBeeConfigException x = new XBeeConfigException("there was some problem exiting command mode");
+                                // OK\n with:       modem status watchdog timer reset
+        byte ok_with_status[] = { 0x4f, 0x4b, 0x0d, 0x7e, 0x00, 0x02, (byte) 0x8a, 0x01, 0x74 };
+        b = this.send_and_recv("ATFR\r"); // restart under the new settings
+        if( !(new String(b)).equals(new String(ok_with_status)) ) {
+            XBeeConfigException x = new XBeeConfigException("there was some problem rebooting from command mode");
             x.command_mode = true;
             throw x;
         }
