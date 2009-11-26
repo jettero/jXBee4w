@@ -178,9 +178,24 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
     }
 
+    public Address64 addr() {
+        if( debug )
+            System.out.println("waiting for address");
+
+        while( a == null )
+            try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
+
+        if( debug )
+            system.out.println("got it");
+
+        return a;
+    }
+
     public static NetworkEndpointHandle configuredEndpoint() throws XBeeConfigException {
         NetworkEndpointHandle h = new NetworkEndpointHandle();
         h.locateAndConfigure();
+
+        System.out.println("Cool! All configured! Address: " + this.addr().toText());
 
         return h;
     }
