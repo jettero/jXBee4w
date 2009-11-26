@@ -8,12 +8,17 @@ public class neh_test {
                 if( !debug.equals("0") )
                     NetworkEndpointHandle.debug = true;
 
-        NetworkEndpointHandle h = NetworkEndpointHandle.configuredEndpoint();
+        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint();
+            System.out.println("LHS Address: " + h.addr().toText());
+            System.out.println(" HV version: " + h.hardwareVersion());
+            System.out.println(" VR version: " + h.firmwareVersion());
 
-        System.out.println("Cool! All configured! Address: " + h.addr().toText());
-        System.out.println("Hardware Version: " + h.hardwareVersion());
-        System.out.println("Firmware Version: " + h.firmwareVersion());
+        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint();
+            System.out.println("RHS Address: " + h.addr().toText());
+            System.out.println(" HV version: " + h.hardwareVersion());
+            System.out.println(" VR version: " + h.firmwareVersion());
 
-        h.close();
+        lhs.close();
+        rhs.close();
     }
 }
