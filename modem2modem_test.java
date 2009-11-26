@@ -1,3 +1,4 @@
+import java.io.*;
 
 public class modem2modem_test {
     public static void main(String args[]) {
@@ -8,17 +9,16 @@ public class modem2modem_test {
                 if( !debug.equals("0") )
                     NetworkEndpointHandle.debug = true;
 
-        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint();
-            System.out.println("LHS Address: " + lhs.addr().toText());
-            System.out.println(" HV version: " + lhs.hardwareVersion());
-            System.out.println(" VR version: " + lhs.firmwareVersion());
+        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint("LHS", true);
+        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", true);
 
-        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint();
-            System.out.println("RHS Address: " + rhs.addr().toText());
-            System.out.println(" HV version: " + rhs.hardwareVersion());
-            System.out.println(" VR version: " + rhs.firmwareVersion());
+        try {
+            lhs.send( rhs.addr(), "wassup?!?" );
+        }
 
-        lhs.send( rhs.addr(), "wassup?!?" );
+        catch(IOException e) {
+            System.err.println("ERROR sending message: " + e.getMessage());
+        }
 
         lhs.close();
         rhs.close();
