@@ -129,7 +129,7 @@ public class XBeeHandle {
             if( in == null )
                 return;
 
-            // if( debug ) System.out.println("[debug] packetReader looking for packets");
+            if( debug ) System.out.println("[debug] packetReader looking for packets");
 
             try {
 
