@@ -315,10 +315,31 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // --------------------------- Handle Factories -------------------------
 
-    public static NetworkEndpointHandle configuredEndpoint() throws XBeeConfigException {
-        NetworkEndpointHandle h = new NetworkEndpointHandle();
+    NetworkEndpointHandle(String _n) {
+        name = _n;
+    }
+
+    public static NetworkEndpointHandle configuredEndpoint(String name, boolean announce) throws XBeeConfigException {
+        NetworkEndpointHandle h = new NetworkEndpointHandle(name);
         h.locateAndConfigure();
 
+        if( announce ) {
+            System.out.println(name + " Address: " + h.addr().toText());
+            System.out.println("  Hardware version: " + h.hardwareVersion());
+            System.out.println("  Firmware version: " + h.firmwareVersion());
+        }
+
         return h;
+    }
+
+    // Tx functions
+
+    public void send(Address64 dst, String message) throws IOException {
+        Queue packets = xp.tx(dst, message);
+        XBeePacket p;
+
+        while( (p = (XBeePacket) packets.poll()) != null )
+
+            xh.send_packet(p); // this throws IO Exceptions...
     }
 }
