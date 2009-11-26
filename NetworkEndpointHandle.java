@@ -13,6 +13,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static Queue<CommPortIdentifier> ports;
 
     public static boolean debug = false;
+    private String name;
     private XBeeHandle xh;
     private XBeePacketizer xp;
     private Address64 a;
@@ -112,7 +113,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
                 if( result == CONFIGURED ) {
                     try {
-                        xh = new XBeeHandle(pid, 115200, debug, this);
+                        xh = new XBeeHandle(name, pid, 115200, debug, this);
                         xp = new XBeePacketizer();
                     }
 
