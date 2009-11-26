@@ -203,12 +203,13 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         if( debug )
             p.fileDump("recv-%d.pkt");
 
-        switch(p.type()) {
+        byte bType = p.type();
+        switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:        showMessage(      (XBeeRxPacket)         p ); break;
 
             default:
-                System.err.printf("Packet type: %02x ignored — unhandled type");
+                System.err.printf("Packet type: %02x ignored -- unhandled type.%n", bType);
         }
     }
     // }}}

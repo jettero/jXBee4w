@@ -20,6 +20,8 @@ public class modem2modem_test {
             System.err.println("ERROR sending message: " + e.getMessage());
         }
 
+        try { Thread.sleep(10 * 1000); } catch (InterruptedException e) {}
+
         lhs.close();
         rhs.close();
     }
