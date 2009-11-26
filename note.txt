@@ -1,0 +1,12 @@
+
+Packet type: Exception in thread "Thread-7" java.util.MissingFormatArgumentException: Format specifier '02x'
+        at java.util.Formatter.format(Unknown Source)
+        at java.io.PrintStream.format(Unknown Source)
+        at java.io.PrintStream.printf(Unknown Source)
+        at NetworkEndpointHandle.recvPacket(NetworkEndpointHandle.java:211)
+        at XBeeHandle$PacketReader.inPkt(XBeeHandle.java:99)
+        at XBeeHandle$PacketReader._step(XBeeHandle.java:139)
+        at XBeeHandle$PacketReader.run(XBeeHandle.java:156)
+        at java.lang.Thread.run(Unknown Source)
+
+
