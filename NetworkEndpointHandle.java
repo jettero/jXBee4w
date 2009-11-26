@@ -22,6 +22,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     public static int config(CommPortIdentifier port, int speed) {
         int result = UNKNOWN;
 
+        System.out.println("Trying to configure modem on port " + port.getName() + " using linespeedspeed=" + speed);
+
         try {
             XBeeConfig c = new XBeeConfig(port, speed, debug);
 
@@ -34,8 +36,10 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                 expect[conf.length-1] = Pattern.compile("^10CD$");
 
                 String res[] = c.config(conf, expect);
-                for(int i=0; i<conf.length; i++)
-                    System.out.println(conf[i] + " result: " + res[i]);
+
+                if( debug )
+                    for(int i=0; i<conf.length; i++)
+                        System.out.println(conf[i] + " result: " + res[i]);
 
                 result = CONFIGURED; // used by the linespeed retry loop
 
@@ -44,11 +48,10 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     + ", firmware revision " + res[conf.length-1].trim() + ") configured successfully");
 
             } catch( XBeeConfigException e ) {
-                System.err.println("ERROR configuring modem: " + e.getMessage());
-                result = CONFIG_ERR;
+                if( debug )
+                    System.err.println("ERROR configuring modem: " + e.getMessage());
 
-                if( e.probably_linespeed )
-                    result = SPEED_ERR;
+                result = e.probably_linespeed ? SPEED_ERR : CONFIG_ERR;
             }
 
             c.close();
