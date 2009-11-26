@@ -186,7 +186,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
 
         if( debug )
-            system.out.println("got it");
+            System.out.println("got it");
 
         return a;
     }
