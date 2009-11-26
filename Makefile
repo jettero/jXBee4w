@@ -38,6 +38,8 @@ XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class
 XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class
 
+NetworkEndpointHandle.class:  XBeeHandle.class
+
 address_test.class:     Address64.class
 packetizer_test.class:  XBeePacketizer.class
 checksum_test.class:    XBeePacket.class
@@ -45,6 +47,7 @@ config_test.class:      XBeeConfig.class
 handle_test.class:      XBeeHandle.class XBeePacket.class
 at_cmd_test.class:      XBeePacketizer.class
 modem2modem_test.class: XBeeHandle.class XBeePacketizer.class
+neh_test.class:         NetworkEndpointHandle.class
 
 %.class: %.java RXTXcomm.jar
 	javac -cp '.;RXTXcomm.jar' $<
