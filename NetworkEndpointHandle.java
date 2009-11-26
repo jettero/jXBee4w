@@ -14,6 +14,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     public static boolean debug = false;
     private XBeeHandle xh;
+    private XBeePacketizer xp;
     private Address64 a;
     private byte[] SH, SL;
     private String hardwareVersion;
@@ -112,6 +113,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                 if( result == CONFIGURED ) {
                     try {
                         xh = new XBeeHandle(pid, 115200, debug, this);
+                        xp = new XBeePacketizer();
                     }
 
                     catch(Exception e) {
@@ -214,7 +216,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // private void sendATcmds(String cmds[][]) {{{
     private void sendATcmds(String cmds[][]) {
-        XBeePacket atp[] = (new XBeePacketizer()).at(cmds);
+        XBeePacket atp[] = xp.at(cmds);
 
         for(int i=0; i<atp.length; i++) {
             try {
