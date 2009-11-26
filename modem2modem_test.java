@@ -13,6 +13,7 @@ public class modem2modem_test {
         NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", true);
 
         try {
+            System.out.println("sending message");
             lhs.send( rhs.addr(), "wassup?!?" );
         }
 
@@ -20,6 +21,7 @@ public class modem2modem_test {
             System.err.println("ERROR sending message: " + e.getMessage());
         }
 
+        System.out.println("wating around for 10 seconds");
         try { Thread.sleep(10 * 1000); } catch (InterruptedException e) {}
 
         lhs.close();
