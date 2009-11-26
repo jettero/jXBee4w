@@ -32,9 +32,9 @@ public class XBeePacketizer {
         return p;
     }
 
-    public List tx(Address64 dst, String msg) {
-        int packets        = (int)Math.ceil(msg.length()/100.0);
-        List<XBeePacket> p = new ArrayList<XBeePacket>();
+    public Queue tx(Address64 dst, String msg) {
+        int packets         = (int)Math.ceil(msg.length()/100.0);
+        Queue<XBeePacket> q = new ArrayDeque<XBeePacket>();
 
         int hard_ending = msg.length();
 
@@ -46,7 +46,7 @@ public class XBeePacketizer {
                 ending = hard_ending;
 
             try {
-                p.add( XBeePacket.tx(this.seqno(), dst, msg.substring(beginning, ending)) );
+                q.add( XBeePacket.tx(this.seqno(), dst, msg.substring(beginning, ending)) );
             }
 
             catch(PayloadException e) {
@@ -55,6 +55,6 @@ public class XBeePacketizer {
             }
         }
 
-        return p;
+        return q;
     }
 }
