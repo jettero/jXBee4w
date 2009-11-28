@@ -12,12 +12,13 @@ run_last_test:
 	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
 	@echo " >> RUNNING $@ << "
-	@java $@; chmod 644 *.txt *.pkt &>/dev/null || /bin/true
+	@java $@; chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 config_test: config_test.class
 	@echo $@ > $(lastfile)
 	@echo " >> RUNNING $@ << "
 	@for i in `cat /tmp/p1`; do java $@ $$i; done
+	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 show show_packets:
 	(for i in *.pkt; do echo -n $$i; xxd "$$i"; done) | less -ES
