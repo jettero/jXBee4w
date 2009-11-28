@@ -141,7 +141,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     // public void recvPacket(XBeePacket p) {{{
     public void recvPacket(XBeePacket p) {
         if( debug )
-            p.fileDump("recv-%d.pkt");
+            p.fileDump(name + "-recv-%d.pkt");
 
         byte bType = p.type();
         switch(bType) {
@@ -149,7 +149,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             case XBeePacket.AMT_RX64:        showMessage(      (XBeeRxPacket)         p ); break;
 
             default:
-                System.err.printf("Packet type: %02x ignored -- unhandled type.%n", bType);
+                System.err.printf("%s Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
     }
     // }}}
