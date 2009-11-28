@@ -62,8 +62,8 @@ public class XBeeConfig {
 
         // these modems are pretty slow, wait long enough for the bytes to go out:
         int txWait = (int) Math.ceil((bLen * 8) * (1/9.6));
-        if( txWait < 100 )
-            txWait = 100;
+        if( txWait < 200 )
+            txWait = 200;
 
         if( debug )
             System.out.printf("[debug] wrote %d bytes to port, waiting for %d miliseconds to finish transmit.%n", bLen, txWait);
@@ -111,42 +111,48 @@ public class XBeeConfig {
 
                 byte response[] = this.send_and_recv(configs[cur].getBytes());
 
-                XBeePacket p = new XBeePacket(response);
-                if( p.checkPacket() ) {
-                    p = p.adapt();
+                if( response.length >= 4 ) {
+                    XBeePacket p = new XBeePacket(response);
+                    if( p.checkPacket() ) {
+                        p = p.adapt();
 
-                    if( p instanceof XBeeATResponsePacket ) {
-                        XBeeATResponsePacket r = (XBeeATResponsePacket) p;
+                        if( p instanceof XBeeATResponsePacket ) {
+                            XBeeATResponsePacket r = (XBeeATResponsePacket) p;
 
-                        if( r.cmd().equals(cmds[cur][0]) && r.statusOK() ) {
-                            byte rB[] = r.responseBytes();
-                            if( rB[rB.length-1] == val[cur] ) {
-                                cur++;
-                                continue;
+                            if( r.cmd().equals(cmds[cur][0]) && r.statusOK() ) {
+                                byte rB[] = r.responseBytes();
+                                if( rB[rB.length-1] == val[cur] ) {
+                                    cur++;
+                                    continue;
+
+                                } else {
+                                    // r.fileDump(String.format("wtf-%d-%d-packet.dat", retries, cur));
+                                    // XBeePacket.bytesToFile(String.format("wtf-%d-%d-response.dat", retries, cur), r.responseBytes());
+
+                                    if( debug )
+                                        System.out.printf("[debug] bad config result (%d vs %d), recommending reconfigure%n", r.responseBytes()[1], val[cur]);
+
+                                    return false;
+                                }
 
                             } else {
-                                // r.fileDump(String.format("wtf-%d-%d-packet.dat", retries, cur));
-                                // XBeePacket.bytesToFile(String.format("wtf-%d-%d-response.dat", retries, cur), r.responseBytes());
-
                                 if( debug )
-                                    System.out.printf("[debug] bad config result (%d vs %d), recommending reconfigure%n", r.responseBytes()[1], val[cur]);
-
-                                return false;
+                                    System.out.printf("[debug] incorrect or invalid command response (%s), retrying%n", r.cmd());
                             }
 
                         } else {
                             if( debug )
-                                System.out.printf("[debug] incorrect or invalid command response (%s), retrying%n", r.cmd());
+                                System.out.printf("[debug] received packet wasn't an AT Response, retrying%n");
                         }
 
                     } else {
                         if( debug )
-                            System.out.printf("[debug] received packet wasn't an AT Response, retrying%n");
+                            System.out.printf("[debug] didn't receive a valid packet (%d bytes), retrying%n", response.length);
                     }
 
                 } else {
                     if( debug )
-                        System.out.printf("[debug] didn't receive a valid packet (%d bytes), retrying%n", response.length);
+                        System.out.printf("[debug] didn't receive enough bytes from the modem (%d actually), retrying%n", response.length);
                 }
             }
         }
