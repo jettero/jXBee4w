@@ -46,6 +46,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         XBeeConfig.debug = debug;
 
         while( (pid = ports.poll()) != null ) {
+            System.out.println("Looking for XBee on port " + pid.getName());
 
             for(int i=0; i<speeds.length; i++) {
                 int result = XBeeConfig.config(pid, speeds[i]); // try to config
