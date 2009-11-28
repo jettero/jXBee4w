@@ -165,6 +165,16 @@ public class XBeeHandle {
         if( debug )
             System.out.println("[debug] XBeeHandle sending packet");
 
-        out.write(p.getBytes());
+        byte b[] = p.getBytes();
+        out.write(b);
+        out.flush(); // make sure we send this right away, which I think is automatic with serial, but who knows
+
+        // make sure we don't get too far ahead of the serial port
+        int txWait = (int) Math.ceil((b.length * 8) * (1/115.2));
+        if( txWait < 100 )
+            txWait = 100; // wait at least this long
+
+        try { Thread.sleep(txWait); }
+        catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
     }
 }
