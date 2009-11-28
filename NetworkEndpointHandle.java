@@ -177,7 +177,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         int retries;
 
         while( a == null ) {
-            retries = 8;
+            retries = 15;
             String cmds[][] = { { "SH" }, { "SL" } };
 
             if( debug )
@@ -186,7 +186,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             sendATcmds(cmds);
 
             while( a == null && (retries--) > 0)
-                try { Thread.sleep(1500); } catch (InterruptedException e) {}
+                try { Thread.sleep(150); } catch (InterruptedException e) {}
         }
     }
     // }}}
@@ -195,7 +195,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         int retries;
 
         while( firmwareVersion == null ) {
-            retries = 8;
+            retries = 15;
             String cmds[][] = { { "VR" } };
 
             if( debug )
@@ -204,7 +204,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             sendATcmds(cmds);
 
             while( firmwareVersion == null && (retries--) > 0)
-                try { Thread.sleep(1500); } catch (InterruptedException e) {}
+                try { Thread.sleep(150); } catch (InterruptedException e) {}
         }
     }
     // }}}
@@ -213,7 +213,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         int retries;
 
         while( hardwareVersion == null ) {
-            retries = 8;
+            retries = 15;
             String cmds[][] = { { "HV" } };
 
             if( debug )
@@ -222,7 +222,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             sendATcmds(cmds);
 
             while( hardwareVersion == null && (retries--) > 0)
-                try { Thread.sleep(1500); } catch (InterruptedException e) {}
+                try { Thread.sleep(150); } catch (InterruptedException e) {}
         }
     }
     // }}}
