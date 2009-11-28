@@ -109,6 +109,9 @@ public class XBeeConfig {
         int retries = 5;
         int cur = 0;
 
+        System.out.print("Checking QuickConfig... ");
+        System.out.flush();
+
         try {
             while( retries --> 0 && cur < configs.length ) {
                 if( debug )
@@ -164,7 +167,14 @@ public class XBeeConfig {
 
         catch( IOException e ) { /* this doesn't seem configured, fall through and return false */ }
 
-        return cur == configs.length ? true : false;
+        if( cur == configs.length ) {
+            System.out.println("OK");
+            return true;
+        }
+
+        System.out.println("FAIL");
+
+        return false;
     }
 
     public static int config(String portName, int speed) {
@@ -195,10 +205,11 @@ public class XBeeConfig {
     public static int config(CommPortIdentifier port, int speed, boolean force) {
         int result = UNKNOWN;
 
+
         try {
             XBeeConfig c = new XBeeConfig(port, speed);
 
-            if( !force && speed == 115200 ) // only bother with this test when applicable
+            if( !force && speed == 115200 ) { // only bother with this test when applicable
                 if( c.mightAlreadyBeConfigured() ) {
                     if( debug )
                         System.out.println("[debug] XBee seems to have been previously configured.");
@@ -206,6 +217,10 @@ public class XBeeConfig {
                     c.close();
                     return XBeeConfig.CONFIGURED;
                 }
+            }
+
+            System.out.print("Issueing LongConfig... ");
+            System.out.flush();
 
             try {
                 String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATVR" };
@@ -249,6 +264,9 @@ public class XBeeConfig {
             System.err.println("IO ERROR opening port: " + e.getMessage());
             result = PORT_ERR;
         }
+
+        if( result == CONFIGURED )
+            System.out.println("OK");
 
         return result;
     }
