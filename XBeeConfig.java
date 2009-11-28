@@ -208,8 +208,9 @@ public class XBeeConfig {
                 expect[conf.length-1] = Pattern.compile(FIRMWARE_REV_RE);
 
                 String res[] = c.config(conf, expect);
-                for(int i=0; i<conf.length; i++)
-                    System.out.println(conf[i] + " result: " + res[i]);
+                if( debug )
+                    for(int i=0; i<conf.length; i++)
+                        System.out.println(conf[i] + " result: " + res[i]);
 
                 result = CONFIGURED; // used by the linespeed retry loop
 
