@@ -59,7 +59,8 @@ public class XBeeConfig {
         int txWait = (int) Math.ceil((bytesToSend.length * 8) * 0.000009); // ( 1/115200 bps ) == (0.000009 seconds-per-bit)
 
         if( debug )
-            System.out.printf("[debug] waiting for %d second(s) to finish byte transmit.%n", txWait);
+            System.out.printf("[debug] wrote %d byte(s) to port, waiting for %d second(s) to finish transmit.%n",
+                bytesToSend.length, txWait);
 
         try { Thread.sleep(txWait * 1000); }
         catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
