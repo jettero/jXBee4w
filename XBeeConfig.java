@@ -57,7 +57,7 @@ public class XBeeConfig {
         this.out.flush(); // make sure they really go out before we continue
 
         // these modems are pretty slow, wait long enough for the bytes to go out:
-        int txWait = (int) Math.ceil(250 + (bytesToSend.length * 8) * (1/9.6));
+        int txWait = (int) Math.ceil(100 + (bytesToSend.length * 8) * (1/9.6));
         // 1/9.6 is miliseconds per bit at 9600 bps, roughly 0.1
 
         if( debug )
