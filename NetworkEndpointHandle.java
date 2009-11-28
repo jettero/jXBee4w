@@ -4,12 +4,6 @@ import java.util.*;
 import java.util.regex.*;
 
 public class NetworkEndpointHandle implements PacketRecvEvent {
-    public static final int UNKNOWN    = 0;
-    public static final int CONFIGURED = 1;
-    public static final int CONFIG_ERR = 2;
-    public static final int SPEED_ERR  = 4;
-    public static final int PORT_ERR   = 8;
-
     private static Queue<CommPortIdentifier> ports;
 
     public static boolean debug = false;
@@ -25,63 +19,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // --------------------------- modem locator stuff -------------------------
 
-    // public static int config(CommPortIdentifier port, int speed) {{{
-    public static int config(CommPortIdentifier port, int speed) {
-        int result = UNKNOWN;
-
-        System.out.println("Trying to configure modem on port " + port.getName() + " using linespeedspeed=" + speed);
-
-        try {
-            XBeeConfig c = new XBeeConfig(port, speed, debug);
-
-            try {
-                String conf[]    = { "ATRE", "ATBD7", "ATAP1" };
-                Pattern expect[] = new Pattern[ conf.length ];
-
-                Pattern _OK = Pattern.compile("^OK$");
-                expect[0] = expect[1] = expect[2] = _OK;
-
-                String res[] = c.config(conf, expect);
-
-                if( debug )
-                    for(int i=0; i<conf.length; i++)
-                        System.out.println("[debug] " + conf[i] + " result: " + res[i]);
-
-                result = CONFIGURED; // used by the linespeed retry loop
-
-            } catch( XBeeConfigException e ) {
-                if( debug )
-                    System.err.println("[debug] ERROR configuring modem: " + e.getMessage());
-
-                result = e.probably_linespeed ? SPEED_ERR : CONFIG_ERR;
-            }
-
-            c.close();
-        }
-
-        catch(gnu.io.NoSuchPortException e) {
-            System.err.println("ERROR opening port: No Such Port Error");
-            result = PORT_ERR;
-        }
-
-        catch(gnu.io.PortInUseException e) {
-            System.err.println("ERROR opening port: port in use");
-            result = PORT_ERR;
-        }
-
-        catch(gnu.io.UnsupportedCommOperationException e) {
-            System.err.println("ERROR opening port: unsupported operation ... " + e.getMessage());
-            result = PORT_ERR;
-        }
-
-        catch(IOException e) {
-            System.err.println("IO ERROR opening port: " + e.getMessage());
-            result = PORT_ERR;
-        }
-
-        return result;
-    }
-    // }}}
     // private static void populatePortNames() {{{
     private static void populatePortNames() {
         if( ports != null )
@@ -106,12 +43,14 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         populatePortNames();
         int speeds[] = {115200, 9600};
 
+        XBeeConfig.debug = debug;
+
         while( (pid = ports.poll()) != null ) {
 
             for(int i=0; i<speeds.length; i++) {
-                int result = config(pid, speeds[i]); // try to config
+                int result = XBeeConfig.config(pid, speeds[i]); // try to config
 
-                if( result == CONFIGURED ) {
+                if( result == XBeeConfig.CONFIGURED ) {
                     try {
                         xh = new XBeeHandle(name, pid, 115200, debug, this);
                         xp = new XBeePacketizer();
@@ -131,7 +70,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     return; // if it worked, great, return out of there
                 }
 
-                if( result != SPEED_ERR )
+                if( result != XBeeConfig.SPEED_ERR )
                     break; // as long as it's not a speed error, try the next speed
             }
 
