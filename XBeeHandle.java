@@ -152,12 +152,13 @@ public class XBeeHandle {
 
                 if( in.available() >= 1 ) {
                     while( (aByte = in.read()) > -1 ) {
-                        if( inPkt )
+                        if( inPkt ) {
                             if( inPkt(aByte) )
-                                break; // we'll come back later, but since this is synchronized, give others a turn
+                                break;
 
-                        else
+                        } else {
                             seekDelimiter(aByte);
+                        }
                     }
                 }
             }
