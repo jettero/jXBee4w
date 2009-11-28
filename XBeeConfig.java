@@ -90,9 +90,32 @@ public class XBeeConfig {
 
         try {
             byte r[] = this.send_and_recv(b);
+            byte e[] = {
+                0x7e, 0x00, 0x06, (byte) 0x88, 0x01, 0x41, 0x50, 0x00, 0x01,
+                (byte) 0xe4, 0x7e, 0x00, 0x09, (byte) 0x88, 0x02, 0x42, 0x44,
+                0x00, 0x00, 0x00, 0x00, 0x07, (byte) 0xe8, 0x7e, 0x00, 0x07,
+                (byte) 0x88, 0x03, 0x56, 0x52, 0x00, 0x10, (byte) 0xcd, (byte)
+                0xef };
 
-            System.err.println("Sent some AP-mode config packets, TODO: finish this");
-            System.exit(1);
+            if( r.length == e.length ) {
+                for(int i=0; i<e.length; i++)
+                    if( e[i] != r[i] )
+                        return false; // poo
+
+                if( debug )
+                    System.out.println("[debug] might already be configured...");
+
+                return true; // woo hoo!
+            }
+
+            //// e[], the exemplar, is generated from this super secret byte dump
+            // XBeePacket.bytesToFile("ap-mode-config-test-response.dat", r);
+            // System.exit(1);
+            ////
+            // 0000000: 7e00 0688 0141 5000 01e4 7e00 0988 0242  ~....AP...~....B
+            // 0000010: 4400 0000 0007 e87e 0007 8803 5652 0010  D......~....VR..
+            // 0000020: cdef                                     ..
+
         }
 
         catch( IOException e ) { /* this doesn't seem configured, fall through and return false */ }
@@ -109,10 +132,8 @@ public class XBeeConfig {
 
             if( !force && speed == 115200 ) // only bother with this test when applicable
                 if( c.mightAlreadyBeConfigured() ) {
-                    if( debug )
-                        System.out.println("[debug] Modem might already be configured...");
-
-                    return XBeeConfig.CONFIGURED; // NOTE: this test is fairly weak...
+                    c.close();
+                    return XBeeConfig.CONFIGURED;
                 }
 
             try {
