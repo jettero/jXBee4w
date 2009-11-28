@@ -117,12 +117,22 @@ public class XBeeConfig {
         return false;
     }
 
-    public static int config(String port, int speed) { return config(port, speed, false); }
-    public static int config(String port, int speed, boolean force) {
+    public static int config(String portName, int speed) {
+        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier(portName);
+        return config(port, speed, false);
+    }
+
+    public static int config(String portName, int speed, boolean force) {
+        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier(portName);
+        return config(port, speed, force);
+    }
+
+    public static int config(CommPortIdentifier portIdentifier, int speed) { return config(port, speed, false); }
+    public static int config(CommPortIdentifier portIdentifier, int speed, boolean force) {
         int result = UNKNOWN;
 
         try {
-            XBeeConfig c = XBeeConfig.newFromPortName(port, speed); // the last value is whether to print debugging info
+            XBeeConfig c = new XBeeConfig(port, speed); // the last value is whether to print debugging info
 
             if( !force && speed == 115200 ) // only bother with this test when applicable
                 if( c.mightAlreadyBeConfigured() ) {
