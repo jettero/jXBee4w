@@ -22,7 +22,7 @@ public class XBeeConfig {
     protected void finalize() throws Throwable { this.close(); }
     public    void close() { commPort.close(); }
 
-    XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(this.getClass().getName(), 2000);
 
         if ( commPort instanceof SerialPort ) {
@@ -83,27 +83,36 @@ public class XBeeConfig {
         };
 
         try {
-            byte r[] = this.send_and_recv(b);
-            byte e[] = {
+            byte response[] = this.send_and_recv(b);
+            byte exemplar[] = {
                 0x7e, 0x00, 0x06, (byte) 0x88, 0x01, 0x41, 0x50, 0x00, 0x01,
                 (byte) 0xe4, 0x7e, 0x00, 0x09, (byte) 0x88, 0x02, 0x42, 0x44,
                 0x00, 0x00, 0x00, 0x00, 0x07, (byte) 0xe8, 0x7e, 0x00, 0x07,
                 (byte) 0x88, 0x03, 0x56, 0x52, 0x00, 0x10, (byte) 0xcd, (byte)
                 0xef };
 
-            if( r.length == e.length ) {
-                for(int i=0; i<e.length; i++)
-                    if( e[i] != r[i] )
+            if( response.length == exemplar.length ) {
+                for(int i=0; i<exemplar.length; i++) {
+                    if( exemplar[i] != response[i] ) {
+                        if( debug )
+                            try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
+                            catch(Exception e) {/* pfft */}
+
                         return false; // poo
+                    }
+                }
 
                 if( debug )
                     System.out.println("[debug] modem is probably already configured...");
 
                 return true; // woo hoo!
+
+            } else if( debug ) {
+                System.out.printf("[debug] modem is probably isn't already configured... len(%d) vs len(%d)%n", response.length, exemplar.length);
             }
 
-            //// e[], the exemplar, is generated from this super secret byte dump
-            // XBeePacket.bytesToFile("ap-mode-config-test-response.dat", r);
+            //// the exemplar is generated from this super secret byte dump
+            // XBeePacket.bytesToFile("ap-mode-config-test-response.dat", response);
             // System.exit(1);
             ////
             // 0000000: 7e00 0688 0141 5000 01e4 7e00 0988 0242  ~....AP...~....B
@@ -118,21 +127,35 @@ public class XBeeConfig {
     }
 
     public static int config(String portName, int speed) {
-        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier(portName);
+        CommPortIdentifier port;
+        try { port = CommPortIdentifier.getPortIdentifier(portName); }
+
+        catch(gnu.io.NoSuchPortException e) {
+            System.err.println("ERROR opening port: No Such Port Error");
+            return PORT_ERR;
+        }
+
         return config(port, speed, false);
     }
 
     public static int config(String portName, int speed, boolean force) {
-        CommPortIdentifier port = CommPortIdentifier.getPortIdentifier(portName);
+        CommPortIdentifier port;
+        try { port = CommPortIdentifier.getPortIdentifier(portName); }
+
+        catch(gnu.io.NoSuchPortException e) {
+            System.err.println("ERROR opening port: No Such Port Error");
+            return PORT_ERR;
+        }
+
         return config(port, speed, force);
     }
 
-    public static int config(CommPortIdentifier portIdentifier, int speed) { return config(port, speed, false); }
-    public static int config(CommPortIdentifier portIdentifier, int speed, boolean force) {
+    public static int config(CommPortIdentifier port, int speed) { return config(port, speed, false); }
+    public static int config(CommPortIdentifier port, int speed, boolean force) {
         int result = UNKNOWN;
 
         try {
-            XBeeConfig c = new XBeeConfig(port, speed); // the last value is whether to print debugging info
+            XBeeConfig c = new XBeeConfig(port, speed);
 
             if( !force && speed == 115200 ) // only bother with this test when applicable
                 if( c.mightAlreadyBeConfigured() ) {
@@ -165,11 +188,6 @@ public class XBeeConfig {
             }
 
             c.close();
-        }
-
-        catch(gnu.io.NoSuchPortException e) {
-            System.err.println("ERROR opening port: No Such Port Error");
-            result = PORT_ERR;
         }
 
         catch(gnu.io.PortInUseException e) {
