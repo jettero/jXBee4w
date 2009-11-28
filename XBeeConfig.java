@@ -40,12 +40,6 @@ public class XBeeConfig {
         }
     }
 
-    public static XBeeConfig newFromPortName(String portName, int speed) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
-
-        return new XBeeConfig(portIdentifier, speed);
-    }
-
     public byte[] send_and_recv(String toSend) throws IOException {
         if( debug )
             System.out.println("[debug] send: " + toSend);
