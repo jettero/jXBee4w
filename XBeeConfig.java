@@ -54,15 +54,17 @@ public class XBeeConfig {
 
     public byte[] send_and_recv(byte bytesToSend[]) throws IOException {
         this.out.write(bytesToSend);
-        // these modems are pretty slow, wait long enough for the bytes to go out:
+        this.out.flush(); // make sure they really go out before we continue
 
-        int txWait = (int) Math.ceil((bytesToSend.length * 8) * 0.000009); // ( 1/115200 bps ) == (0.000009 seconds-per-bit)
+        // these modems are pretty slow, wait long enough for the bytes to go out:
+        int txWait = (int) Math.ceil(250 + (bytesToSend.length * 8) * (1/9.6));
+        // 1/9.6 is miliseconds per bit at 9600 bps, roughly 0.1
 
         if( debug )
-            System.out.printf("[debug] wrote %d byte(s) to port, waiting for %d second(s) to finish transmit.%n",
+            System.out.printf("[debug] wrote %d bytes to port, waiting for %d miliseconds to finish transmit.%n",
                 bytesToSend.length, txWait);
 
-        try { Thread.sleep(txWait * 1000); }
+        try { Thread.sleep(txWait); }
         catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
 
         int retries = 15;
