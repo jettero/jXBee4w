@@ -54,6 +54,15 @@ public class XBeeConfig {
 
     public byte[] send_and_recv(byte bytesToSend[]) throws IOException {
         this.out.write(bytesToSend);
+        // these modems are pretty slow, wait long enough for the bytes to go out:
+
+        int txWait = (int) Math.ceil((bytesToSend.length * 8) * 0.000009); // ( 1/115200 bps ) == (0.000009 seconds-per-bit)
+
+        if( debug )
+            System.out.printf("[debug] waiting for %d second(s) to finish byte transmit.%n", txWait);
+
+        try { Thread.sleep(txWait * 1000); }
+        catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
 
         int retries = 15;
         int bytes_available;
@@ -109,6 +118,8 @@ public class XBeeConfig {
 
             } else if( debug ) {
                 System.out.printf("[debug] modem is probably isn't already configured... len(%d) vs len(%d)%n", response.length, exemplar.length);
+                try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
+                catch(Exception e) {/* pfft */}
             }
 
             //// the exemplar is generated from this super secret byte dump
