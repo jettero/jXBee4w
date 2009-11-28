@@ -19,11 +19,16 @@ public class XBeeConfig {
     private OutputStream out;
     private CommPort commPort;
 
+    private static XBeePacketizer packetizer;
+
     protected void finalize() throws Throwable { this.close(); }
     public    void close() { commPort.close(); }
 
     XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(this.getClass().getName(), 2000);
+
+        if( packetizer == null )
+            packetizer = new XBeePacketizer();
 
         if ( commPort instanceof SerialPort ) {
             if( debug )
@@ -100,7 +105,7 @@ public class XBeeConfig {
         String cmds[][] = { {"AP"}, {"BD"} };
         byte val[] = { 0x01, 0x07 };
 
-        XBeePacket configs[] = (new XBeePacketizer()).at(cmds);
+        XBeePacket configs[] = packetizer.at(cmds);
         int retries = 5;
         int cur = 0;
 
