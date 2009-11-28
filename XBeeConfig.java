@@ -103,7 +103,7 @@ public class XBeeConfig {
                         return false; // poo
 
                 if( debug )
-                    System.out.println("[debug] might already be configured...");
+                    System.out.println("[debug] modem is probably already configured...");
 
                 return true; // woo hoo!
             }
