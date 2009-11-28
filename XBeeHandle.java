@@ -11,6 +11,9 @@ public class XBeeHandle {
     private CommPort commPort;
     private PacketReader packetReader;
     private Thread _prThread;
+    private String handleName;
+
+    static int bad_packet_no; // for debugging
 
     protected void finalize() throws Throwable { this.close(); }
     public void close() {
@@ -24,7 +27,8 @@ public class XBeeHandle {
 
     XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         debug = _debug;
-        commPort = portIdentifier.open(name, 2000);
+        commPort = portIdentifier.open(name, 50);
+        handleName = name;
 
         if ( commPort instanceof SerialPort ) {
             SerialPort serialPort = (SerialPort) commPort;
@@ -77,7 +81,7 @@ public class XBeeHandle {
             in = null; // this is synchronized (see below)
         }
 
-        private void inPkt(int aByte) {
+        private boolean inPkt(int aByte) {
             try { b.put( (byte) aByte ); }
             catch(BufferOverflowException e) { /* huh... just ignore this for now */ }
 
@@ -97,13 +101,22 @@ public class XBeeHandle {
                         System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
 
                     ev.recvPacket(p.adapt());
+
+                } else {
+                    if( debug )
+                        p.fileDump( String.format("bad-packet-%d", bad_packet_no ++) + "-%d");
+
+                    System.err.println("warning: found a packet, but it didn't pass basic checks, tossing");
                 }
 
                 // else
                     // log this or something ... we got a packet, but apparently it's bad. :(
 
                 inPkt = false;
+                return true; // return true when we find a packet
             }
+
+            return false; // return false until we find a packet
         }
 
         private void seekDelimiter(int aByte) {
@@ -120,6 +133,9 @@ public class XBeeHandle {
                 catch(BufferOverflowException e) {
                     System.err.println("internal error storing packet delimiter");
                 }
+
+            } else {
+                System.err.printf("warning: ignoring byte %02x while seeking start of packet%n", aByte);
             }
         }
 
@@ -129,14 +145,16 @@ public class XBeeHandle {
             if( in == null )
                 return;
 
-            // if( debug ) System.out.println("[debug] packetReader looking for packets");
+            if( debug )
+                System.out.println("[debug] packetReader looking for packets for a step (sync)");
 
             try {
 
                 if( in.available() >= 1 ) {
                     while( (aByte = in.read()) > -1 ) {
                         if( inPkt )
-                            inPkt(aByte);
+                            if( inPkt(aByte) )
+                                break; // we'll come back later, but since this is synchronized, give others a turn
 
                         else
                             seekDelimiter(aByte);
@@ -149,13 +167,15 @@ public class XBeeHandle {
                 // pfft.  Just start over.
             }
 
+            if( debug )
+                System.out.println("[debug] packetReader finished looking for packets, this step (desync)");
         }
 
         public void run() { // not synchronized so the (this).lock is cleared every _step()
             while(in != null) {
                 _step();
 
-                try { Thread.sleep(250); }
+                try { Thread.sleep(150); }
                 catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
             }
         }

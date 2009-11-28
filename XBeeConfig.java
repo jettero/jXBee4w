@@ -25,7 +25,7 @@ public class XBeeConfig {
     public    void close() { commPort.close(); }
 
     XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
-        commPort = portIdentifier.open(this.getClass().getName(), 2000);
+        commPort = portIdentifier.open(this.getClass().getName(), 50);
 
         if( packetizer == null )
             packetizer = new XBeePacketizer();
@@ -200,6 +200,9 @@ public class XBeeConfig {
 
             if( !force && speed == 115200 ) // only bother with this test when applicable
                 if( c.mightAlreadyBeConfigured() ) {
+                    if( debug )
+                        System.out.println("[debug] XBee seems to have been previously configured.");
+
                     c.close();
                     return XBeeConfig.CONFIGURED;
                 }
