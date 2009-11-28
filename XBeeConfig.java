@@ -106,9 +106,9 @@ public class XBeeConfig {
             if( response.length == exemplar.length ) {
                 for(int i=0; i<exemplar.length; i++) {
                     if( exemplar[i] != response[i] ) {
-                        if( debug )
-                            try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
-                            catch(Exception e) {/* pfft */}
+                        // if( debug )
+                        //     try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
+                        //     catch(Exception e) {/* pfft */}
 
                         return false; // poo
                     }
