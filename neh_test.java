@@ -9,9 +9,9 @@ public class neh_test {
                     NetworkEndpointHandle.debug = true;
 
         NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint("LHS", true);
-        //NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", true);
+        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", true);
 
         lhs.close();
-        //rhs.close();
+        rhs.close();
     }
 }
