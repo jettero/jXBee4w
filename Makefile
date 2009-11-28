@@ -36,7 +36,7 @@ XBeeRadio64Packet.class:    XBeePacket.class
 Address64.class:      Address64Exception.class
 XBeePacketizer.class: XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class
 XBeePacket.class:     Address64.class PayloadException.class
-XBeeConfig.class:     XBeeConfigException.class
+XBeeConfig.class:     XBeeConfigException.class XBeePacketizer.class
 XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class
 
 NetworkEndpointHandle.class:  XBeeHandle.class XBeeConfig.class

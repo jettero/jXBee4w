@@ -1,0 +1,9 @@
+
+Exception in thread "main" java.lang.NullPointerException
+        at XBeeConfig.send_and_recv(XBeeConfig.java:62)
+        at XBeeConfig.clearInput(XBeeConfig.java:94)
+        at XBeeConfig.mightAlreadyBeConfigured(XBeeConfig.java:147)
+        at XBeeConfig.config(XBeeConfig.java:188)
+        at XBeeConfig.config(XBeeConfig.java:165)
+        at config_test.main(config_test.java:16)
+

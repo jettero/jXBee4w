@@ -53,16 +53,20 @@ public class XBeeConfig {
     }
 
     public byte[] send_and_recv(byte bytesToSend[]) throws IOException {
-        this.out.write(bytesToSend);
-        this.out.flush(); // make sure they really go out before we continue
+        int bLen = 0;
+        if( bytesToSend != null ) {
+            this.out.write(bytesToSend);
+            this.out.flush(); // make sure they really go out before we continue
+            bLen = bytesToSend.length;
+        }
 
         // these modems are pretty slow, wait long enough for the bytes to go out:
-        int txWait = (int) Math.ceil(100 + (bytesToSend.length * 8) * (1/9.6));
-        // 1/9.6 is miliseconds per bit at 9600 bps, roughly 0.1
+        int txWait = (int) Math.ceil((bLen * 8) * (1/9.6));
+        if( txWait < 100 )
+            txWait = 100;
 
         if( debug )
-            System.out.printf("[debug] wrote %d bytes to port, waiting for %d miliseconds to finish transmit.%n",
-                bytesToSend.length, txWait);
+            System.out.printf("[debug] wrote %d bytes to port, waiting for %d miliseconds to finish transmit.%n", bLen, txWait);
 
         try { Thread.sleep(txWait); }
         catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
@@ -87,55 +91,69 @@ public class XBeeConfig {
         return res;
     }
 
+    public void clearInput() throws IOException {
+        // just write nothing a couple times:
+        send_and_recv((byte[]) null); send_and_recv((byte[]) null);
+    }
+
     public boolean mightAlreadyBeConfigured() {
-        byte b[] = {
-            0x7e, 0x00, 0x04, 0x08, 0x01, 0x41, 0x50, 0x65, // ~....APe
-            0x7e, 0x00, 0x04, 0x08, 0x02, 0x42, 0x44, 0x6f, // ~....BDo
-            0x7e, 0x00, 0x04, 0x08, 0x03, 0x56, 0x52, 0x4c  // ~....VRL
-        };
+        String cmds[][] = { {"AP"}, {"BD"} };
+        byte val[] = { 0x01, 0x07 };
+
+        XBeePacket configs[] = (new XBeePacketizer()).at(cmds);
+        int retries = 5;
+        int cur = 0;
 
         try {
-            byte response[] = this.send_and_recv(b);
-            byte exemplar[] = {
-                0x7e, 0x00, 0x06, (byte) 0x88, 0x01, 0x41, 0x50, 0x00, 0x01, (byte) 0xe4,
-                0x7e, 0x00, 0x09, (byte) 0x88, 0x02, 0x42, 0x44, 0x00, 0x00,        0x00, 0x00, 0x07, (byte) 0xe8,
-                0x7e, 0x00, 0x07, (byte) 0x88, 0x03, 0x56, 0x52, 0x00, 0x10, (byte) 0xcd,             (byte) 0xef };
-
-            if( response.length == exemplar.length ) {
-                for(int i=0; i<exemplar.length; i++) {
-                    if( exemplar[i] != response[i] ) {
-                        // if( debug )
-                        //     try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
-                        //     catch(Exception e) {/* pfft */}
-
-                        return false; // poo
-                    }
-                }
-
+            while( retries --> 0 && cur < configs.length ) {
                 if( debug )
-                    System.out.println("[debug] modem is probably already configured...");
+                    System.out.printf("[debug] sending %s command %n", cmds[cur][0]);
 
-                return true; // woo hoo!
+                byte response[] = this.send_and_recv(configs[cur].getBytes());
 
-            } else if( debug ) {
-                System.out.printf("[debug] modem is probably isn't already configured... len(%d) vs len(%d)%n", response.length, exemplar.length);
-                try { XBeePacket.bytesToFile("configured-test-response.dat", response); }
-                catch(Exception e) {/* pfft */}
+                XBeePacket p = new XBeePacket(response);
+                if( p.checkPacket() ) {
+                    p = p.adapt();
+
+                    if( p instanceof XBeeATResponsePacket ) {
+                        XBeeATResponsePacket r = (XBeeATResponsePacket) p;
+
+                        if( r.cmd().equals(cmds[cur][0]) && r.statusOK() ) {
+                            byte rB[] = r.responseBytes();
+                            if( rB[rB.length-1] == val[cur] ) {
+                                cur++;
+                                continue;
+
+                            } else {
+                                // r.fileDump(String.format("wtf-%d-%d-packet.dat", retries, cur));
+                                // XBeePacket.bytesToFile(String.format("wtf-%d-%d-response.dat", retries, cur), r.responseBytes());
+
+                                if( debug )
+                                    System.out.printf("[debug] bad config result (%d vs %d), recommending reconfigure%n", r.responseBytes()[1], val[cur]);
+
+                                return false;
+                            }
+
+                        } else {
+                            if( debug )
+                                System.out.printf("[debug] incorrect or invalid command response (%s), retrying%n", r.cmd());
+                        }
+
+                    } else {
+                        if( debug )
+                            System.out.printf("[debug] received packet wasn't an AT Response, retrying%n");
+                    }
+
+                } else {
+                    if( debug )
+                        System.out.printf("[debug] didn't receive a valid packet (%d bytes), retrying%n", response.length);
+                }
             }
-
-            //// the exemplar is generated from this super secret byte dump
-            // XBeePacket.bytesToFile("ap-mode-config-test-response.dat", response);
-            // System.exit(1);
-            ////
-            // 0000000: 7e00 0688 0141 5000 01e4 7e00 0988 0242  ~....AP...~....B
-            // 0000010: 4400 0000 0007 e87e 0007 8803 5652 0010  D......~....VR..
-            // 0000020: cdef                                     ..
-
         }
 
         catch( IOException e ) { /* this doesn't seem configured, fall through and return false */ }
 
-        return false;
+        return cur == configs.length ? true : false;
     }
 
     public static int config(String portName, int speed) {
