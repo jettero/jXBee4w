@@ -182,7 +182,7 @@ public class XBeeHandle {
         }
     }
 
-    public void send_packet(XBeePacket p) throws IOException {
+    public synchronized void send_packet(XBeePacket p) throws IOException {
         if( debug )
             System.out.println("[debug] XBeeHandle sending packet");
 
