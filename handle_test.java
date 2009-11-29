@@ -28,16 +28,11 @@ public class handle_test implements PacketRecvEvent {
         }
     }
 
-    public void showMessage(XBeeRxPacket p) {
-        System.out.println("rx"); // TODO: write this
-    }
-
     public void recvPacket(XBeePacket p) {
         p.fileDump("recv-%d.pkt");
 
         switch(p.type()) {
             case XBeePacket.AMT_AT_RESPONSE: showResponse( (XBeeATResponsePacket) p ); break;
-            case XBeePacket.AMT_RX64:        showMessage(  (XBeeRxPacket)         p ); break;
 
             default:
                 System.err.printf("Packet type: %02x ignored — unhandled type");
