@@ -1,16 +1,19 @@
 import java.io.*;
 
-public class modem2modem_test {
-    public static void main(String args[]) {
-        String debug = System.getenv("DEBUG");
+public class modem2modem_test implements MessageRecvEvent {
+    public void recvMessage(Address64 src, byte message[]) {
+        System.out.printf(" ***** Received message from %s, \"%s\"%n", src.toText(), new String(message));
+    }
 
-        if( debug != null )
-            if( !debug.isEmpty() )
-                if( !debug.equals("0") )
-                    NetworkEndpointHandle.debug = true;
+    public void run() {
+        boolean announce = true;
 
-        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint("LHS", true);
-        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", true);
+        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint("LHS", announce);
+        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", announce);
+
+        // tell the RHS, that received messages should go to this object:
+
+        rhs.registerMessageRecvEvent(this);
 
         try {
             System.out.println("sending message");
@@ -26,5 +29,18 @@ public class modem2modem_test {
 
         lhs.close();
         rhs.close();
+    }
+
+    public static void main(String args[]) {
+        String debug = System.getenv("DEBUG");
+
+        if( debug != null )
+            if( !debug.isEmpty() )
+                if( !debug.equals("0") )
+                    NetworkEndpointHandle.debug = true;
+
+        modem2modem_test m = new modem2modem_test();
+
+        m.run();
     }
 }

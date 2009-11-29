@@ -15,6 +15,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private String hardwareVersion;
     private String firmwareVersion;
 
+    private MessageRecvEvent messageReceiver;
+
     public void close() { xh.close(); }
 
     // --------------------------- modem locator stuff -------------------------
@@ -146,12 +148,20 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         byte bType = p.type();
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
-            case XBeePacket.AMT_RX64:        showMessage(      (XBeeRxPacket)         p ); break;
+            case XBeePacket.AMT_RX64:
+                if( messageReceiver != null )
+                    messageReceiver.receiverMessage(p.getSourceAddress(), p.getPayloadBytes());
+                break;
 
             default:
                 p.fileDump(String.format("%s-recv-%02x-%s.pkt", name, bType, "%d"));
                 System.err.printf("%s Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
+    }
+    // }}}
+    // public void registerMessageReciever(MessageRecvEvent callback) {{{
+    public void registerMessageReciever(MessageRecvEvent callback) {
+        messageReceiver = callback;
     }
     // }}}
 
