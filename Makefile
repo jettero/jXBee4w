@@ -24,6 +24,7 @@ show show_packets:
 	(for i in `ls -rt1 *.pkt`; do echo -n $$i; xxd -c 32 "$$i"; done) | less -ES
 
 clean:
+	@ echo cleaning in 2 seconds; sleep 2
 	git clean -dfx
 
 XBeeTxPacket.class:         XBeeRadio64Packet.class
