@@ -27,8 +27,8 @@ clean:
 	@ echo cleaning in 2 seconds; sleep 2
 	git clean -dfx
 
-XBeeTxPacket.class:         XBeeRadio64Packet.class
-XBeeRxPacket.class:         XBeeRadio64Packet.class
+XBeeTxPacket.class:         XBeePacket.class
+XBeeRxPacket.class:         XBeePacket.class
 XBeeATCommandPacket.class:  XBeeATPacket.class
 XBeeATResponsePacket.class: XBeeATPacket.class
 XBeeATPacket.class:         XBeePacket.class

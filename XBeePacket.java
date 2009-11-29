@@ -13,7 +13,9 @@ public class XBeePacket {
     public static final int FRAME_DELIMITER_LEN  = 1;
     public static final int FRAME_LENGTH_LEN     = 2;
     public static final int FRAME_CHECKSUM_LEN   = 1;
-    public static final int FRAME_HEADER_LEN     = FRAME_DELIMITER_LEN + FRAME_LENGTH_LEN + FRAME_CHECKSUM_LEN;
+    public static final int FRAME_HEADER_LEN     = FRAME_DELIMITER_LEN + FRAME_LENGTH_LEN;
+    public static final int FRAME_FOOTER_LEN     = FRAME_CHECKSUM_LEN;
+    public static final int FRAMING_LEN          = FRAME_HEADER_LEN + FRAME_FOOTER_LEN;
 
     public static final int API_MESSAGE_TYPE_LEN = 1;
     public static final int FRAME_ID_LEN         = 1;
@@ -98,7 +100,7 @@ public class XBeePacket {
             return (ok = false);
         }
 
-        if( packet.length < FRAME_HEADER_LEN ) {
+        if( packet.length < FRAMING_LEN ) {
             System.err.println("ERROR: invalid packet, fewer bytes than a frame header");
             return (ok = false);
         }
@@ -108,9 +110,9 @@ public class XBeePacket {
     public boolean checkFrameLength() {
         int pktlen = frameLength();
 
-        if( pktlen+FRAME_HEADER_LEN != packet.length ) {
+        if( pktlen+FRAMING_LEN != packet.length ) {
             System.err.printf("ERROR: invalid packet, packet length differs from what is specified in frame header (%d+%d vs %d)%n", 
-                pktlen, FRAME_HEADER_LEN, packet.length);
+                pktlen, FRAMING_LEN, packet.length);
             return (ok = false);
         }
         return true;
@@ -179,7 +181,7 @@ public class XBeePacket {
         if( buflen > 3 ) {
             int pktlen = b.get(1) << 8;
                 pktlen += b.get(2);
-                pktlen += FRAME_HEADER_LEN;
+                pktlen += FRAMING_LEN;
 
             // in a static method, we can't really check some global flag, so make this commentable
             // System.out.println("[debug] enoughForPacket(b)? pktlen+FHL: " + pktlen + "; bufferlen: " + buflen);
