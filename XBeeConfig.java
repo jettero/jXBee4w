@@ -208,7 +208,17 @@ public class XBeeConfig {
         return config(port, speed, force);
     }
 
-    public static int config(CommPortIdentifier port, int speed) { return config(port, speed, false); }
+    public static int config(CommPortIdentifier port, int speed) {
+        boolean force = false;
+        String _force = System.getenv("FORCE_CONFIG");
+        if( _force != null )
+            if( !_force.isEmpty() )
+                if( !_force.equals("0") )
+                    force = true;
+
+        return config(port, speed, force);
+    }
+
     public static int config(CommPortIdentifier port, int speed, boolean force) {
         int result = UNKNOWN;
 
