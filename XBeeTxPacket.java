@@ -15,7 +15,7 @@ public class XBeeTxPacket extends XBeePacket {
             throw new PayloadException("asked to packetize " + payload.length + " bytes, but payloads are restricted to " + TX64_PAYLOAD_LIMIT + " bytes");
 
         int content_length = payload.length + TX64_HEADER_LEN;
-        packet = new byte[ FRAME_HEADER_LEN + content_length ];
+        packet = new byte[ FRAMING_LEN + content_length ];
 
         // frame header:
         packet[0]  = FRAME_DELIMITER;

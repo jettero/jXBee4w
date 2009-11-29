@@ -11,7 +11,7 @@ public class XBeeATCommandPacket extends XBeeATPacket {
             throw new PayloadException("asked to packetize " + param.length + " param bytes, but param bytes are restricted to " + AT_PAYLOAD_LIMIT + " bytes");
 
         int content_length = cmd.length + param.length + AT_HEADER_LEN;
-        packet = new byte[ FRAME_HEADER_LEN + content_length ];
+        packet = new byte[ FRAMING_LEN + content_length ];
 
         // frame header:
         packet[0]  = FRAME_DELIMITER;
