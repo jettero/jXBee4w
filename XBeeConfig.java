@@ -186,7 +186,14 @@ public class XBeeConfig {
             return PORT_ERR;
         }
 
-        return config(port, speed, false);
+        boolean force = false;
+        String _force = System.getenv("FORCE_CONFIG");
+        if( _force != null )
+            if( !_force.isEmpty() )
+                if( !_force.equals("0") )
+                    force = true;
+
+        return config(port, speed, force);
     }
 
     public static int config(String portName, int speed, boolean force) {
