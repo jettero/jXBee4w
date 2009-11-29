@@ -6,8 +6,6 @@ import java.nio.*;
 public class XBeeHandle {
     private static boolean debug = false;
     private static boolean dump_outgoing_packets = false;
-    private static boolean dump_incoming_packets = false;
-    private static boolean dump_bad_packets = false;
 
     private InputStream  in;
     private OutputStream out;
@@ -34,9 +32,7 @@ public class XBeeHandle {
         handleName = name;
 
         debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
-        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS");
-        dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS");
-        dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS");
+        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
 
         if ( commPort instanceof SerialPort ) {
             SerialPort serialPort = (SerialPort) commPort;
@@ -45,8 +41,7 @@ public class XBeeHandle {
             in  = serialPort.getInputStream();
             out = serialPort.getOutputStream();
 
-            packetReader = new PacketReader(in, callback);
-            packetReader.setDebug(debug);
+            packetReader = new PacketReader(handleName, in, callback);
 
             _prThread = new Thread(packetReader);
             _prThread.start();
@@ -71,15 +66,22 @@ public class XBeeHandle {
         private InputStream in;
         private ByteBuffer b;
         private boolean inPkt;
+
+        private String handleName;
         private boolean debug;
+        private boolean dump_incoming_packets = false;
+        private boolean dump_bad_packets = false;
 
-        public void setDebug(boolean d) { debug = d; }
-
-        public PacketReader (InputStream _in, PacketRecvEvent callback) {
+        public PacketReader (String _hn, InputStream _in, PacketRecvEvent callback) {
             in = _in;
             packetReceiver = callback;
             b = ByteBuffer.wrap(new byte[1024]);
             inPkt = false;
+            handleName = _hn;
+
+            debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
+            dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS") || TestENV.test("DUMP_PACKETS");
+            dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS") || TestENV.test("DUMP_PACKETS");
         }
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
@@ -108,11 +110,14 @@ public class XBeeHandle {
                     if( debug )
                         System.out.println("[debug] packetReader completed a XBeePacket, sending to packetReceiver");
 
+                    if( debug || dump_incoming_packets )
+                        p.fileDump(handleName + "-recv-%d-%x.pkt");
+
                     packetReceiver.recvPacket(p.adapt());
 
                 } else {
-                    if( debug )
-                        p.fileDump( String.format("bad-packet-%d", bad_packet_no ++) + "-%d");
+                    if( debug || dump_bad_packets )
+                        p.fileDump(handleName + "-bad-%d-%x.pkt");
 
                     System.err.println("warning: found a packet, but it didn't pass basic checks, tossing");
                 }
@@ -195,7 +200,7 @@ public class XBeeHandle {
             System.out.println("[debug] XBeeHandle sending packet");
 
         if( dump_outgoing_packets )
-            p.fileDump(handleName + "-send-%d.pkt");
+            p.fileDump(handleName + "-send-%d-%x.pkt");
 
         byte b[] = p.getBytes();
         out.write(b);

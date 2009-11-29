@@ -7,9 +7,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static Queue<CommPortIdentifier> ports;
 
     private static boolean debug = false;
-    private static boolean dump_outgoing_packets = false;
-    private static boolean dump_incoming_packets = false;
-    private static boolean dump_bad_packets = false;
+    private static boolean dump_unhandled = false;
 
     private String name;
     private XBeeHandle xh;
@@ -144,10 +142,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void recvPacket(XBeePacket p) {{{
     public void recvPacket(XBeePacket p) {
-        if( debug || dump_incoming_packets )
-            p.fileDump(name + "-recv-%d.pkt");
-
         byte bType = p.type();
+
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
@@ -158,7 +154,9 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                 break;
 
             default:
-                p.fileDump(String.format("%s-recv-%02x-%s.pkt", name, bType, "%d"));
+                if( dump_unhandled )
+                    p.fileDump(String.format("%s-recv-%02x-%s.pkt", name, bType, "%d"));
+
                 System.err.printf("%s Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
     }
@@ -280,11 +278,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         name = _n;
 
         debug = TestENV.test("DEBUG") || TestENV.test("NEH_DEBUG");
-        dump_incoming_packets = TestENV.test("NEH_INCOMING_DUMP");
-        dump_outgoing_packets = TestENV.test("NEH_OUTGOING_DUMP");
-        dump_bad_packets      = TestENV.test("NEH_BAD_DUMP");
-
-        dump_incoming_packets = dump_outgoing_packets = dump_bad_packets = TestENV.test("NEH_DUMP");
+        dump_unhandled = TestENV.test("NEH_DUMP_UNHANDLED_PACKETS");
     }
 
     public static NetworkEndpointHandle configuredEndpoint(String name, boolean announce) throws XBeeConfigException {

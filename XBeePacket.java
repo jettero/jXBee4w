@@ -217,8 +217,10 @@ public class XBeePacket {
             return;
         }
 
-        String mod = String.format(fname, (int) this.getBytes()[4]);
-        bytesToFile(mod, packet);
+        bytesToFile(
+            fname.replaceFirst("\\%[0-9.\\-]*d", String.format("%d",   packet[4] & 0xff))
+                 .replaceFirst("\\%[0-9.\\-]*x", String.format("%02x", packet[3] & 0xff)),
+                    packet);
     }
 
 }
