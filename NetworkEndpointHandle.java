@@ -6,7 +6,11 @@ import java.util.regex.*;
 public class NetworkEndpointHandle implements PacketRecvEvent {
     private static Queue<CommPortIdentifier> ports;
 
-    public static boolean debug = false;
+    private static boolean debug = false;
+    private static boolean dump_outgoing_packets = false;
+    private static boolean dump_incoming_packets = false;
+    private static boolean dump_bad_packets = false;
+
     private String name;
     private XBeeHandle xh;
     private XBeePacketizer xp;
@@ -44,8 +48,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
         populatePortNames();
         int speeds[] = {115200, 9600};
-
-        XBeeConfig.debug = debug;
 
         while( (pid = ports.poll()) != null ) {
             System.out.println("Looking for XBee on port " + pid.getName());
@@ -142,7 +144,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void recvPacket(XBeePacket p) {{{
     public void recvPacket(XBeePacket p) {
-        if( debug )
+        if( debug || dump_incoming_packets )
             p.fileDump(name + "-recv-%d.pkt");
 
         byte bType = p.type();
@@ -276,6 +278,13 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     NetworkEndpointHandle(String _n) {
         name = _n;
+
+        debug = TestENV.test("DEBUG") || TestENV.test("NEH_DEBUG");
+        dump_incoming_packets = TestENV.test("NEH_INCOMING_DUMP");
+        dump_outgoing_packets = TestENV.test("NEH_OUTGOING_DUMP");
+        dump_bad_packets      = TestENV.test("NEH_BAD_DUMP");
+
+        dump_incoming_packets = dump_outgoing_packets = dump_bad_packets = TestENV.test("NEH_DUMP");
     }
 
     public static NetworkEndpointHandle configuredEndpoint(String name, boolean announce) throws XBeeConfigException {

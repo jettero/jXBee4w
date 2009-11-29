@@ -4,11 +4,10 @@ import java.util.*;
 import java.nio.*;
 
 public class XBeeHandle {
-    private static boolean debug;
-
-    private boolean dump_outgoing_packets;
-    private boolean dump_incoming_packets;
-    private boolean dump_bad_packets;
+    private static boolean debug = false;
+    private static boolean dump_outgoing_packets = false;
+    private static boolean dump_incoming_packets = false;
+    private static boolean dump_bad_packets = false;
 
     private InputStream  in;
     private OutputStream out;
@@ -29,29 +28,15 @@ public class XBeeHandle {
         this("<blarg>", p, s, d, c);
     }
 
-    public static boolean testENV(String varname) {
-        String _dump = System.getenv(varname);
-
-        if( debug )
-            return true;
-
-        if( _dump != null )
-            if( !_dump.isEmpty() )
-                if( !_dump.equals("0") )
-                    return true;
-
-        return false;
-    }
-
     XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         debug = _debug;
         commPort = portIdentifier.open(name, 50);
         handleName = name;
 
-        debug = testENV("DEBUG") || testENV("XBEEHANDLE_DEBUG");
-        dump_outgoing_packets = testENV("DUMP_OUTGOING_PACKETS");
-        dump_incoming_packets = testENV("DUMP_INCOMING_PACKETS");
-        dump_bad_packets      = testENV("DUMP_BAD_PACKETS");
+        debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
+        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS");
+        dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS");
+        dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS");
 
         if ( commPort instanceof SerialPort ) {
             SerialPort serialPort = (SerialPort) commPort;

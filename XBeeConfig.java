@@ -13,7 +13,7 @@ public class XBeeConfig {
 
     public static final String FIRMWARE_REV_RE = "^10CD$";
 
-    public static boolean debug;
+    private static boolean debug;
 
     private InputStream  in;
     private OutputStream out;
@@ -26,6 +26,8 @@ public class XBeeConfig {
 
     XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(this.getClass().getName(), 50);
+
+        debug = TestENV.test("DEBUG") || TestENV.test("XBEECONFIG_DEBUG");
 
         if( packetizer == null )
             packetizer = new XBeePacketizer();
