@@ -59,7 +59,7 @@ public class XBeeHandle {
     }
 
     private static class PacketReader implements Runnable {
-        private PacketRecvEvent ev;
+        private PacketRecvEvent packetReceiver;
         private InputStream in;
         private ByteBuffer b;
         private boolean inPkt;
@@ -69,7 +69,7 @@ public class XBeeHandle {
 
         public PacketReader (InputStream _in, PacketRecvEvent callback) {
             in = _in;
-            ev = callback;
+            packetReceiver = callback;
             b = ByteBuffer.wrap(new byte[1024]);
             inPkt = false;
         }
@@ -98,9 +98,9 @@ public class XBeeHandle {
 
                 if( p.checkPacket() ) {
                     if( debug )
-                        System.out.println("[debug] packetReader completed a XBeePacket, sending to ev");
+                        System.out.println("[debug] packetReader completed a XBeePacket, sending to packetReceiver");
 
-                    ev.recvPacket(p.adapt());
+                    packetReceiver.recvPacket(p.adapt());
 
                 } else {
                     if( debug )
