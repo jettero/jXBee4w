@@ -4,7 +4,11 @@ import java.util.*;
 import java.nio.*;
 
 public class XBeeHandle {
-    boolean debug;
+    private static boolean debug;
+
+    private boolean dump_outgoing_packets;
+    private boolean dump_incoming_packets;
+    private boolean dump_bad_packets;
 
     private InputStream  in;
     private OutputStream out;
@@ -13,7 +17,7 @@ public class XBeeHandle {
     private Thread _prThread;
     private String handleName;
 
-    static int bad_packet_no; // for debugging
+    private static int bad_packet_no; // for debugging
 
     protected void finalize() throws Throwable { this.close(); }
     public void close() {
@@ -25,10 +29,29 @@ public class XBeeHandle {
         this("<blarg>", p, s, d, c);
     }
 
+    public static boolean testENV(String varname) {
+        String _dump = System.getenv(varname);
+
+        if( debug )
+            return true;
+
+        if( _dump != null )
+            if( !_dump.isEmpty() )
+                if( !_dump.equals("0") )
+                    return true;
+
+        return false;
+    }
+
     XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         debug = _debug;
         commPort = portIdentifier.open(name, 50);
         handleName = name;
+
+        debug = testENV("DEBUG") || testENV("XBEEHANDLE_DEBUG");
+        dump_outgoing_packets = testENV("DUMP_OUTGOING_PACKETS");
+        dump_incoming_packets = testENV("DUMP_INCOMING_PACKETS");
+        dump_bad_packets      = testENV("DUMP_BAD_PACKETS");
 
         if ( commPort instanceof SerialPort ) {
             SerialPort serialPort = (SerialPort) commPort;
@@ -186,11 +209,8 @@ public class XBeeHandle {
         if( debug )
             System.out.println("[debug] XBeeHandle sending packet");
 
-        String _dump = System.getenv("DUMP_OUTGOING_PACKETS");
-        if( _dump != null )
-            if( !_dump.isEmpty() )
-                if( !_dump.equals("0") )
-                    p.fileDump(handleName + "-send-%d.pkt");
+        if( dump_outgoing_packets )
+            p.fileDump(handleName + "-send-%d.pkt");
 
         byte b[] = p.getBytes();
         out.write(b);
