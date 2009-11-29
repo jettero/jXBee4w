@@ -1,15 +1,18 @@
 import java.io.*;
 
 public class modem2modem_test implements MessageRecvEvent {
-    public void recvMessage(Address64 src, byte message[]) {
-        System.out.printf(" ***** Received message from %s, \"%s\"%n", src.toText(), new String(message));
+    NetworkEndpointHandle lhs, rhs;
+
+    public void recvMessage(NetworkEndpointHandle handle, Address64 src, byte message[]) {
+        System.out.printf("%s Received message from %s, \"%s\"%n",
+            handle.getName(), src.toText(), new String(message));
     }
 
     public void run() {
         boolean announce = true;
 
-        NetworkEndpointHandle lhs = NetworkEndpointHandle.configuredEndpoint("LHS", announce);
-        NetworkEndpointHandle rhs = NetworkEndpointHandle.configuredEndpoint("RHS", announce);
+        lhs = NetworkEndpointHandle.configuredEndpoint("LHS", announce);
+        rhs = NetworkEndpointHandle.configuredEndpoint("RHS", announce);
 
         // tell the RHS, that received messages should go to this object:
 

@@ -151,7 +151,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             case XBeePacket.AMT_RX64:
                 if( messageReceiver != null ) {
                     XBeeRxPacket rx = (XBeeRxPacket) p;
-                    messageReceiver.recvMessage(rx.getSourceAddress(), rx.getPayloadBytes());
+                    messageReceiver.recvMessage(this, rx.getSourceAddress(), rx.getPayloadBytes());
                 }
                 break;
 
@@ -240,7 +240,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     }
     // }}}
 
-    // --------------------------- Modem Accessors -------------------------
+    // --------------------------- Object Accessors -------------------------
 
     // public String firmwareVersion() {{{
     public String firmwareVersion() {
@@ -264,6 +264,11 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             getAddress();
 
         return a;
+    }
+    // }}}
+    // public name getName() {{{
+    public String getName() {
+        return name;
     }
     // }}}
 
