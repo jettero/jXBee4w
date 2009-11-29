@@ -19,8 +19,9 @@ public class modem2modem_test implements MessageRecvEvent {
         rhs.registerMessageReceiver(this);
 
         try {
-            System.out.println("sending message");
-            lhs.send( rhs.addr(), "wassup?!?" );
+            System.out.println("sending messages");
+            for(int i=0; i<10; i++)
+                lhs.send( rhs.addr(), String.format("This is a test message: test #%d.", i) );
         }
 
         catch(IOException e) {
