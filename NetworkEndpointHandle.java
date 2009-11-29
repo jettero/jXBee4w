@@ -161,8 +161,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
     }
     // }}}
-    // public void registerMessageReciever(MessageRecvEvent callback) {{{
-    public void registerMessageReciever(MessageRecvEvent callback) {
+    // public void registerMessageReceiver(MessageRecvEvent callback) {{{
+    public void registerMessageReceiver(MessageRecvEvent callback) {
         messageReceiver = callback;
     }
     // }}}

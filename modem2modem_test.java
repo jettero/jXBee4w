@@ -13,7 +13,7 @@ public class modem2modem_test implements MessageRecvEvent {
 
         // tell the RHS, that received messages should go to this object:
 
-        rhs.registerMessageRecvEvent(this);
+        rhs.registerMessageReceiver(this);
 
         try {
             System.out.println("sending message");
