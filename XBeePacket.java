@@ -4,7 +4,7 @@ import java.nio.*;
 public class XBeePacket {
     public static final byte FRAME_DELIMITER = (byte) 0x7e;
     public static final byte AMT_TX64        = (byte) 0x00;
-    public static final byte AMT_TX64_STATUS = (byte) 0x89;
+    public static final byte AMT_TX_STATUS   = (byte) 0x89;
     public static final byte AMT_RX64        = (byte) 0x80;
     public static final byte AMT_RX16        = (byte) 0x81;
     public static final byte AMT_AT_COMMAND  = (byte) 0x08;
@@ -40,7 +40,7 @@ public class XBeePacket {
         switch(type()) {
             case AMT_RX64:        return new XBeeRxPacket(packet);
             case AMT_AT_RESPONSE: return new XBeeATResponsePacket(packet);
-            case AMT_TX64_STATUS: return new XBeeTxStatusPacket(packet);
+            case AMT_TX_STATUS:   return new XBeeTxStatusPacket(packet);
 
             /* TODO:
             case AMT_TX64:        return new XBeeTxPacket(packet);
