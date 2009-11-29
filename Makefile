@@ -11,11 +11,13 @@ run_last_test:
 %_test:
 	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
+	@-rm -f *.pkg *.dat
 	@echo " >> RUNNING $@ << "
 	@java $@; chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 config_test: config_test.class
 	@echo $@ > $(lastfile)
+	@-rm -f *.pkg *.dat
 	@echo " >> RUNNING $@ << "
 	@for i in `cat /tmp/p1`; do java $@ $$i; done
 	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
@@ -32,10 +34,10 @@ XBeeRxPacket.class:         XBeePacket.class
 XBeeATCommandPacket.class:  XBeeATPacket.class
 XBeeATResponsePacket.class: XBeeATPacket.class
 XBeeATPacket.class:         XBeePacket.class
-XBeeRadio64Packet.class:    XBeePacket.class
+XBeeTxStatusPacket.class:   XBeePacket.class
 
 Address64.class:      Address64Exception.class
-XBeePacketizer.class: XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class
+XBeePacketizer.class: XBeeRxPacket.class XBeeTxPacket.class XBeeATResponsePacket.class XBeeATCommandPacket.class XBeeTxStatusPacket.class
 XBeePacket.class:     Address64.class PayloadException.class
 XBeeConfig.class:     XBeeConfigException.class XBeePacketizer.class TestENV.class
 XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class TestENV.class
