@@ -149,8 +149,10 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
-                if( messageReceiver != null )
-                    messageReceiver.receiverMessage(p.getSourceAddress(), p.getPayloadBytes());
+                if( messageReceiver != null ) {
+                    XBeeRxPacket rx = (XBeeRxPacket) p;
+                    messageReceiver.recvMessage(rx.getSourceAddress(), rx.getPayloadBytes());
+                }
                 break;
 
             default:
