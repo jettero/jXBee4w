@@ -21,7 +21,7 @@ config_test: config_test.class
 	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 show show_packets:
-	(for i in *.pkt; do echo -n $$i; xxd "$$i"; done) | less -ES
+	(for i in `ls -rt1 *.pkt`; do echo -n $$i; xxd -c 32 "$$i"; done) | less -ES
 
 clean:
 	git clean -dfx
