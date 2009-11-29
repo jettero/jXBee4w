@@ -186,6 +186,12 @@ public class XBeeHandle {
         if( debug )
             System.out.println("[debug] XBeeHandle sending packet");
 
+        String _dump = System.getenv("DUMP_OUTING_PACKETS");
+        if( _dump != null )
+            if( !_dump.isEmpty() )
+                if( !_dump.equals("0") )
+                    p.fileDump(handleName + "-send-%d.pkt");
+
         byte b[] = p.getBytes();
         out.write(b);
         out.flush(); // make sure we send this right away, which I think is automatic with serial, but who knows
