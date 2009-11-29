@@ -230,7 +230,7 @@ public class XBeeConfig {
             System.out.flush();
 
             try {
-                String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATVR" };
+                String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATMYFFFF", "ATVR" };
                 Pattern expect[] = new Pattern[ conf.length ];
 
                 Pattern _OK = Pattern.compile("^OK$");
