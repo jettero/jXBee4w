@@ -143,13 +143,26 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     // public void recvPacket(XBeePacket p) {{{
     public void recvPacket(XBeePacket p) {
         byte bType = p.type();
+        XBeeRxPacket rx;
+        XBeeTxStatusPacket st;
 
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
                 if( messageReceiver != null ) {
-                    XBeeRxPacket rx = (XBeeRxPacket) p;
+                    rx = (XBeeRxPacket) p;
                     messageReceiver.recvMessage(this, rx.getSourceAddress(), rx.getPayloadBytes());
+                }
+                break;
+
+            case XBeePacket.AMT_TX_STATUS:
+                st = (XBeeTxStatusPacket) p;
+                if( st.statusOK() ) {
+                    //if( debug )
+                        System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
+
+                } else {
+                    System.err.printf("ERROR Rx did not say it received packet-%d%n", st.frameID());
                 }
                 break;
 
