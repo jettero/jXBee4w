@@ -28,8 +28,8 @@ public class modem2modem_test implements MessageRecvEvent {
             System.err.println("ERROR sending message: " + e.getMessage());
         }
 
-        System.out.println("wating around for 10 seconds");
-        try { Thread.sleep(10 * 1000); } catch (InterruptedException e) {}
+        System.out.println("wating around for 2 seconds");
+        try { Thread.sleep(2 * 1000); } catch (InterruptedException e) {}
 
         lhs.close();
         rhs.close();
