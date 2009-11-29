@@ -34,6 +34,10 @@ public class Address64 {
         return n;
     }
 
+    Address64(byte _addr[]) throws Address64Exception {
+        addr = padaddr(_addr, 8);
+    }
+
     Address64(byte SH[], byte SL[]) throws Address64Exception {
         if( SL.length < 4 ) SL = padaddr(SL, 4);
         if( SH.length < 4 ) SH = padaddr(SH, 4);
