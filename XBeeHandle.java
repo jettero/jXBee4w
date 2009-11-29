@@ -9,10 +9,12 @@ public class XBeeHandle {
 
     private InputStream  in;
     private OutputStream out;
-    private CommPort commPort;
     private PacketReader packetReader;
     private Thread _prThread;
     private String handleName;
+
+    private CommPort   commPort;   // these two objects are just two views of the same thing
+    private SerialPort serialPort; // we close the comm port, but we setRTS and isCTS on the serial port
 
     private static int bad_packet_no; // for debugging
     private static int unknownHandleNo; // for debugging
@@ -36,7 +38,7 @@ public class XBeeHandle {
         dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
 
         if ( commPort instanceof SerialPort ) {
-            SerialPort serialPort = (SerialPort) commPort;
+            serialPort = (SerialPort) commPort;
             serialPort.setSerialPortParams(speed, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
             in  = serialPort.getInputStream();
@@ -204,15 +206,20 @@ public class XBeeHandle {
             p.fileDump(handleName + "-send-%d-%x.pkt");
 
         byte b[] = p.getBytes();
-        out.write(b);
-        out.flush(); // make sure we send this right away, which I think is automatic with serial, but who knows
 
-        // make sure we don't get too far ahead of the serial port
-        int txWait = (int) Math.ceil((b.length * 8) * (1/115.2));
-        if( txWait < 100 )
-            txWait = 100; // wait at least this long
+        serialPort.setRTS(true);
 
-        try { Thread.sleep(txWait); }
-        catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
+        for(int i=0; i<b.length; i++) {
+
+            while(!serialPort.isCTS()) {
+                System.out.println(" ----------------------------------- waiting for cts ----------------------------- ");
+                try { Thread.sleep(100); }
+                catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
+            }
+
+            out.write(b[i]);
+        }
+
+        serialPort.setRTS(false);
     }
 }
