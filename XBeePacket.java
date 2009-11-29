@@ -40,10 +40,10 @@ public class XBeePacket {
         switch(type()) {
             case AMT_RX64:        return new XBeeRxPacket(packet);
             case AMT_AT_RESPONSE: return new XBeeATResponsePacket(packet);
+            case AMT_TX64_STATUS: return new XBeeTxStatusPacket(packet);
 
             /* TODO:
             case AMT_TX64:        return new XBeeTxPacket(packet);
-            case AMT_TX64_STATUS: return new XBeeTxStatusPacket(packet);
             case AMT_AT_COMMAND:  return new XBeeATCommandPacket(packet);
             */
         }
