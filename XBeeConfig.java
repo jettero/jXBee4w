@@ -102,8 +102,8 @@ public class XBeeConfig {
     }
 
     public boolean mightAlreadyBeConfigured() {
-        String cmds[][] = { {"AP"}, {"BD"} };
-        byte val[] = { 0x01, 0x07 };
+        String cmds[][] = { {"AP"}, {"BD"}, {"MY"} };
+        byte val[][] = { {0x01}, {0x07}, {(byte)0xff, (byte)0xff} };
 
         XBeePacket configs[] = packetizer.at(cmds);
         int retries = 5;
@@ -129,14 +129,21 @@ public class XBeeConfig {
 
                             if( r.cmd().equals(cmds[cur][0]) && r.statusOK() ) {
                                 byte rB[] = r.responseBytes();
-                                if( rB[rB.length-1] == val[cur] ) {
+                                int j = rB.length - val[cur].length;
+                                boolean match = true;
+
+                                if( j < 0 )
+                                    match = false;
+
+                                for(int i=0; match && i<val[cur].length; i++)
+                                    if( rB[j+i] != val[cur][i] )
+                                        match = false;
+
+                                if( match ) {
                                     cur++;
                                     continue;
 
                                 } else {
-                                    // r.fileDump(String.format("wtf-%d-%d-packet.dat", retries, cur));
-                                    // XBeePacket.bytesToFile(String.format("wtf-%d-%d-response.dat", retries, cur), r.responseBytes());
-
                                     if( debug )
                                         System.out.printf("[debug] bad config result (%d vs %d), recommending reconfigure%n", r.responseBytes()[1], val[cur]);
 
