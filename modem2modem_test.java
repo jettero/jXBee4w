@@ -35,13 +35,6 @@ public class modem2modem_test implements MessageRecvEvent {
     }
 
     public static void main(String args[]) {
-        String debug = System.getenv("DEBUG");
-
-        if( debug != null )
-            if( !debug.isEmpty() )
-                if( !debug.equals("0") )
-                    NetworkEndpointHandle.debug = true;
-
         modem2modem_test m = new modem2modem_test();
 
         m.run();
