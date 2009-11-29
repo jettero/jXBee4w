@@ -186,7 +186,7 @@ public class XBeeHandle {
         if( debug )
             System.out.println("[debug] XBeeHandle sending packet");
 
-        String _dump = System.getenv("DUMP_OUTING_PACKETS");
+        String _dump = System.getenv("DUMP_OUTGOING_PACKETS");
         if( _dump != null )
             if( !_dump.isEmpty() )
                 if( !_dump.equals("0") )
