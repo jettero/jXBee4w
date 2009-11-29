@@ -149,6 +149,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             case XBeePacket.AMT_RX64:        showMessage(      (XBeeRxPacket)         p ); break;
 
             default:
+                p.fileDump(String.format("%s-recv-%02x-%s.pkt", name, bType, "%d"));
                 System.err.printf("%s Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
     }
