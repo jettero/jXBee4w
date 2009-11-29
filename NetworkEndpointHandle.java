@@ -158,7 +158,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             case XBeePacket.AMT_TX_STATUS:
                 st = (XBeeTxStatusPacket) p;
                 if( st.statusOK() ) {
-                    //if( debug )
+                    if( debug )
                         System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
 
                 } else {
