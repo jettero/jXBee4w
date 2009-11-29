@@ -15,6 +15,7 @@ public class XBeeHandle {
     private String handleName;
 
     private static int bad_packet_no; // for debugging
+    private static int unknownHandleNo; // for debugging
 
     protected void finalize() throws Throwable { this.close(); }
     public void close() {
@@ -23,7 +24,7 @@ public class XBeeHandle {
     }
 
     XBeeHandle(CommPortIdentifier p, int s, boolean d, PacketRecvEvent c) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        this("<blarg>", p, s, d, c);
+        this(String.format("Handle-%d", ++unknownHandleNo), p, s, d, c);
     }
 
     XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
@@ -52,7 +53,7 @@ public class XBeeHandle {
     }
 
     public static XBeeHandle newFromPortName(String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        return XBeeHandle.newFromPortName("<blarg>", portName, speed, debug, callback);
+        return XBeeHandle.newFromPortName(String.format("Handle-%d", ++unknownHandleNo), portName, speed, debug, callback);
     }
 
     public static XBeeHandle newFromPortName(String handleName, String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
