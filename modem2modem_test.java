@@ -14,22 +14,19 @@ public class modem2modem_test implements MessageRecvEvent {
         lhs = NetworkEndpointHandle.configuredEndpoint("LHS", announce);
         rhs = NetworkEndpointHandle.configuredEndpoint("RHS", announce);
 
-        // tell the RHS, that received messages should go to this object:
 
+        // tell the RHS, that received messages should go to this object:
         rhs.registerMessageReceiver(this);
 
-        try {
-            System.out.println("sending messages");
-            for(int i=0; i<10; i++)
-                lhs.send( rhs.addr(), String.format("This is a test message: test #%d.", i) );
-        }
 
-        catch(IOException e) {
-            System.err.println("ERROR sending message: " + e.getMessage());
-        }
+        System.out.println("sending messages");
+        for(int i=0; i<10; i++)
+            lhs.send( rhs.addr(), String.format("This is a test message: test #%d.", i) );
+
 
         System.out.println("wating around for 2 seconds");
         try { Thread.sleep(2 * 1000); } catch (InterruptedException e) {}
+
 
         lhs.close();
         rhs.close();
