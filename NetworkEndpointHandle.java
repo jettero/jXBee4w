@@ -9,17 +9,19 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static boolean debug = false;
     private static boolean dump_unhandled = false;
 
-    private String name;
+    private PacketQueueWriter QoQ;
     private XBeeHandle xh;
     private XBeePacketizer xp;
     private Address64 a;
+
+    private String name;
     private byte[] SH, SL;
     private String hardwareVersion;
     private String firmwareVersion;
 
     private MessageRecvEvent messageReceiver;
 
-    public void close() { xh.close(); }
+    private _qThread; // keep a ref to the QoQ thread here
 
     // --------------------------- modem locator stuff -------------------------
 
@@ -69,6 +71,11 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
                         throw new XBeeConfigException("Unexpected error creating XBeeHandle on configured port: " + msg);
                     }
+
+                    QoQ = new PacketQueueWriter(xh); // start our QoQ writer
+
+                    _qThread = new Thread(QoQ);
+                    _qThread.start();
 
                     return; // if it worked, great, return out of there
                 }
@@ -285,6 +292,73 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     }
     // }}}
 
+    // public void send(Address64 dst, String message) {{{
+    public void send(Address64 dst, String message) {
+        QoQ.append( xp.tx(dst, message) );
+    }
+    // }}}
+    // public void close() {{{
+    public void close() {
+        if( QoQ != null ) QoQ.close();
+        if( xh  != null ) xh.close();
+    }
+    // }}}
+
+    // -------------------- Outbound Queue Delivery (QoQ) -------------------
+
+    private static class PacketQueueWriter implements Runnable {
+        XBeeHandle xh;
+        XBeePacket currentDatagram[];
+        Queue OutboundQueue;
+        boolean closed = false;
+
+        public void close() { closed = true; }
+
+        public void append(Queue incoming) {
+            // block while we've already got enough to do
+            while(OutboundQueue.size() > 50)
+                try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
+
+            OutboundQueue.add(incoming);
+        }
+
+        public PacketQueueWriter(XBeeHandle _xh) {
+            xh = _xh;
+            OutboundQueue = new ArrayDeque<Queue>();
+        }
+
+        public void receiveACK(int frameID) {
+            // TODO remove ACKed packets from currentDatagram[]
+        }
+
+        private void dealWithDatagram() {
+            for( XBeePacket p ; currentDatagram ) {
+                try {
+                    xh.send_packet(p);
+                }
+
+                catch(IOException e) {
+                    // Ucky, try again in a couple seconds
+                    try { Thread.sleep(2 * 1000); } catch(InterruptedException e) {/* we go around again either way */}
+                }
+            }
+
+            // TODO: check to make sure each segment was ACKed before returning
+        }
+
+        public void run() {
+            while(!closed) {
+
+                while( !closed && (tmp = (Queue) OutboundQueue.poll()) != null )
+                    while( !closed && (currentDatagram = (XBeePacket[]) tmp.toArray()) != null )
+                        dealWithDatagram();
+
+                try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
+            }
+        }
+
+    }
+
     // --------------------------- Handle Factories -------------------------
 
     NetworkEndpointHandle(String _n) {
@@ -307,14 +381,4 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         return h;
     }
 
-    // Tx functions
-
-    public void send(Address64 dst, String message) throws IOException {
-        Queue packets = xp.tx(dst, message);
-        XBeePacket p;
-
-        while( (p = (XBeePacket) packets.poll()) != null )
-
-            xh.send_packet(p); // this throws IO Exceptions...
-    }
 }
