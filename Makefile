@@ -43,6 +43,7 @@ XBeeConfig.class:     XBeeConfigException.class XBeePacketizer.class TestENV.cla
 XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class TestENV.class
 
 ACKQueue.class: XBeePacket.class
+Message.class:  PayloadException.class
 
 NetworkEndpointHandle.class:  XBeeHandle.class XBeeConfig.class MessageRecvEvent.class
 
