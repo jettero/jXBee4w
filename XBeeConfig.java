@@ -18,14 +18,15 @@ public class XBeeConfig {
     private InputStream  in;
     private OutputStream out;
     private CommPort commPort;
+    private SerialPort serialPort;
 
     private static XBeePacketizer packetizer;
 
-    protected void finalize() throws Throwable { this.close(); }
+    protected void finalize() throws Throwable { close(); }
     public    void close() { commPort.close(); }
 
     XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
-        commPort = portIdentifier.open(this.getClass().getName(), 50);
+        commPort = portIdentifier.open(getClass().getName(), 50);
 
         debug = TestENV.test("DEBUG") || TestENV.test("XBEECONFIG_DEBUG");
 
@@ -36,7 +37,7 @@ public class XBeeConfig {
             if( debug )
                 System.out.println("[debug] opening port: " + portIdentifier.getName() + " at " + speed);
 
-            SerialPort serialPort = (SerialPort) commPort;
+            serialPort = (SerialPort) commPort;
             serialPort.setSerialPortParams(speed, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
             in  = serialPort.getInputStream();
@@ -51,7 +52,7 @@ public class XBeeConfig {
         if( debug )
             System.out.println("[debug] send: " + toSend);
 
-        byte res[] = this.send_and_recv(toSend.getBytes());
+        byte res[] = send_and_recv(toSend.getBytes());
 
         if( debug )
             System.out.println( "[debug] recv: \"" + (new String(res)).trim() + "\"" );
@@ -61,33 +62,39 @@ public class XBeeConfig {
 
     public byte[] send_and_recv(byte bytesToSend[]) throws IOException {
         int bLen = 0;
+
         if( bytesToSend != null ) {
-            this.out.write(bytesToSend);
-            this.out.flush(); // make sure they really go out before we continue
-            bLen = bytesToSend.length;
+            bLen =bytesToSend.length;
+
+            serialPort.setRTS(true);
+
+            for(int i=0; i<bLen; i++) {
+
+                while(!serialPort.isCTS()) {
+                    System.out.println("[debug] ----------------------------------- waiting for cts ----------------------------- ");
+                    try { Thread.sleep(100); }
+                    catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
+                }
+
+                out.write(bytesToSend[i]);
+            }
+
+            serialPort.setRTS(false);
         }
 
-        // these modems are pretty slow, wait long enough for the bytes to go out:
-        int txWait = (int) Math.ceil((bLen * 8) * (1/9.6));
-        if( txWait < 200 )
-            txWait = 200;
-
         if( debug )
-            System.out.printf("[debug] wrote %d bytes to port, waiting for %d miliseconds to finish transmit.%n", bLen, txWait);
-
-        try { Thread.sleep(txWait); }
-        catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
+            System.out.printf("[debug] wrote %d bytes to port.%n", bLen);
 
         int retries = 15;
         int bytes_available;
-        while( (bytes_available = this.in.available()) < 1 && retries-->0 )
+        while( (bytes_available = in.available()) < 1 && retries-->0 )
             try { Thread.sleep(100); }
             catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
 
         ByteBuffer b = ByteBuffer.wrap(new byte[1024]);
 
         int aByte;
-        while( (aByte = this.in.read()) > -1 )
+        while( (aByte = in.read()) > -1 )
             try { b.put( (byte) aByte ); }
             catch(BufferOverflowException e) { /* huh... just ignore this and return what we can */ }
 
@@ -119,7 +126,7 @@ public class XBeeConfig {
                 if( debug )
                     System.out.printf("[debug] sending %s command %n", cmds[cur][0]);
 
-                byte response[] = this.send_and_recv(configs[cur].getBytes());
+                byte response[] = send_and_recv(configs[cur].getBytes());
 
                 if( response.length >= 4 ) {
                     XBeePacket p = new XBeePacket(response);
@@ -300,7 +307,7 @@ public class XBeeConfig {
     public String[] config(String settings[], Pattern expect[]) throws IOException, XBeeConfigException {
         try { Thread.sleep(1000); } catch (InterruptedException e) {} // just ignore it if it gets interrupted
 
-        byte b[] = this.send_and_recv("+++");
+        byte b[] = send_and_recv("+++");
         if( !(new String(b)).trim().equals("OK") ) {
             XBeeConfigException x = new XBeeConfigException("coulnd't get the modem to drop into config mode ... linespeed issue?");
             x.probably_linespeed = true;
@@ -311,7 +318,7 @@ public class XBeeConfig {
 
         for(int i=0; i<settings.length; i++) {
 
-            responses[i] = new String(this.send_and_recv(settings[i]+"\r"));
+            responses[i] = new String(send_and_recv(settings[i]+"\r"));
 
             if( expect[i] != null ) {
                 Matcher m = expect[i].matcher(responses[i]);
@@ -325,7 +332,7 @@ public class XBeeConfig {
             }
         }
 
-        b = this.send_and_recv("ATWR\r");
+        b = send_and_recv("ATWR\r");
         if( !(new String(b)).trim().equals("OK") ) {
             XBeeConfigException x = new XBeeConfigException("there was some problem writing the new configs to NV ram");
             x.command_mode = true;
@@ -334,7 +341,7 @@ public class XBeeConfig {
 
                                 // OK\n with:       modem status watchdog timer reset
         byte ok_with_status[] = { 0x4f, 0x4b, 0x0d, 0x7e, 0x00, 0x02, (byte) 0x8a, 0x01, 0x74 };
-        b = this.send_and_recv("ATFR\r"); // restart under the new settings
+        b = send_and_recv("ATFR\r"); // restart under the new settings
         if( !(new String(b)).equals(new String(ok_with_status)) ) {
             XBeeConfigException x = new XBeeConfigException("there was some problem rebooting from command mode");
             x.command_mode = true;
