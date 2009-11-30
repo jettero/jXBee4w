@@ -1,12 +1,8 @@
 
 public class fragment_test {
     public static void main(String s[]) {
-        String longString = "longString0 ";
-        int i;
-
-        for(i=1; i<=100; i++)
-            longString += "longString" + i + " ";
-
-        byte b[][] = Message.fragmentMessage(longString, 100);
+        String longString = "Hello mang, this is my string.";
+        System.out.printf("--fragmenting %d bytes:%n", longString.length());
+        byte b[][] = Message.fragmentMessage(longString, 7);
     }
 }
