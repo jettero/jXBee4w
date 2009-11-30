@@ -21,7 +21,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     private MessageRecvEvent messageReceiver;
 
-    private _qThread; // keep a ref to the QoQ thread here
+    private Thread _qThread; // keep a ref to the QoQ thread here
 
     // --------------------------- modem locator stuff -------------------------
 
@@ -309,7 +309,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
         XBeePacket currentDatagram[];
-        Queue OutboundQueue;
+        Queue OutboundQueue, tmp;
         boolean closed = false;
 
         public void close() { closed = true; }
@@ -317,7 +317,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         public void append(Queue incoming) {
             // block while we've already got enough to do
             while(OutboundQueue.size() > 50)
-                try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
+                try { Thread.sleep(150); }
+                catch(InterruptedException e) {/* we go around again either way */}
 
             OutboundQueue.add(incoming);
         }
@@ -332,14 +333,15 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         private void dealWithDatagram() {
-            for( XBeePacket p ; currentDatagram ) {
+            for( int i=0; i<currentDatagram.length; i++ ) {
                 try {
-                    xh.send_packet(p);
+                    xh.send_packet(currentDatagram[i]);
                 }
 
                 catch(IOException e) {
                     // Ucky, try again in a couple seconds
-                    try { Thread.sleep(2 * 1000); } catch(InterruptedException e) {/* we go around again either way */}
+                    try { Thread.sleep(2 * 1000); }
+                    catch(InterruptedException f) {/* we go around again either way */}
                 }
             }
 
