@@ -2,6 +2,8 @@
 public class Address64 {
     byte addr[];
 
+    Address64() { this(new byte[0], new byte[0]); }
+
     Address64(String s) throws Address64Exception {
         String a[] = s.split(":");
 
