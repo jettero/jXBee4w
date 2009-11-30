@@ -212,7 +212,7 @@ public class XBeeHandle {
         for(int i=0; i<b.length; i++) {
 
             while(!serialPort.isCTS()) {
-                System.out.println(" ----------------------------------- waiting for cts ----------------------------- ");
+                System.out.println("[debug] ----------------------------------- waiting for cts ----------------------------- ");
                 try { Thread.sleep(100); }
                 catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
             }
