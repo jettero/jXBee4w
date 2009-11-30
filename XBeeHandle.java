@@ -75,7 +75,7 @@ public class XBeeHandle {
         private boolean dump_incoming_packets = false;
         private boolean dump_bad_packets = false;
 
-        public PacketReader (String _hn, InputStream _in, PacketRecvEvent callback) {
+        public PacketReader(String _hn, InputStream _in, PacketRecvEvent callback) {
             in = _in;
             packetReceiver = callback;
             b = ByteBuffer.wrap(new byte[1024]);
