@@ -16,7 +16,13 @@ public class ACKQueue {
     }
 
     public XBeePacket[] packets() {
-        return (XBeePacket[]) Q.values().toArray();
+        Object a[] = Q.values().toArray();
+        XBeePacket p[] = new XBeePacket[a.length];
+
+        for(int i=0; i<a.length; i++)
+            p[i] = (XBeePacket) a[i];
+
+        return p;
     }
 
     public synchronized void ACK(int frameID) {
