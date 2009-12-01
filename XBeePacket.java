@@ -53,7 +53,11 @@ public class XBeePacket {
 
     // Tx packet factory
     public static XBeeTxPacket tx(byte seqno, Address64 dst, String payload) throws PayloadException {
-        return new XBeeTxPacket(seqno, dst, payload.getBytes());
+        return tx(seqno, dst, payload.getBytes());
+    }
+
+    public static XBeeTxPacket tx(byte seqno, Address64 dst, byte block[]) throws PayloadException {
+        return new XBeeTxPacket(seqno, dst, block);
     }
 
     // AT command factories
