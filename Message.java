@@ -7,6 +7,7 @@ public class Message {
     public static int FRAGMENTED = 0x8000; // 0b1000_0000_0000_0000
     public static int MORE_FRAGS = 0x4000; // 0b0100_0000_0000_0000
 
+    boolean checked, wholeMessage;
     TreeMap message;
 
     private static class Block {
@@ -28,23 +29,49 @@ public class Message {
         }
     }
 
-    // Message() { message = new TreeMap<(); }
-    // public void addBlock(byte b[]) { }
+    Message() {
+        message = new TreeMap<Integer,Block>();
+        checked = false;
+    }
 
-    // public static boolean wholeMessage(byte b[][]) {
-    //     if( b.length < 1 )
-    //         return false;
+    public void addBlock(byte b[]) throws PayloadException {
+        Block   B = new Block(b);
+        Integer I = new Integer(b.offset);
 
-    //     if( moreFragsFlag(b[b.length-1]) )
-    //         return false;
+        message.put(I,B);
+        checked = false;
+    }
 
-    //     for(int i=0; i<b.length; i++) {
-    //         if( blockOffset(b[i]) != i )
-    //             return false;
-    //     }
+    public boolean wholeMessage() {
+        if( checked )
+            return wholeMessage;
 
-    //     return true;
-    // }
+        checked = true;
+
+        Block v[] = message.values().toArray(new Block v[message.size()]);
+
+        if( v.length < 1 )
+            return (wholeMessage=false);
+
+        if( v[v.length-1].moreFrags )
+            return (wholeMessage=false);
+
+        if( !v[0].fragmented && v.length == 1 )
+            return (wholeMessage=true);
+
+        for(int i=0; i<v.length; i++)
+            if( v.offset != i )
+                return false;
+
+        for(int i=1; i<v.length-1; i++)
+            if( !v.moreFrags )
+                return false;
+
+        // TODO: this is probably pretty close, but we need some way to detect invalid messages,
+        // so we can discard and start from scratch... DDO
+
+        return (wholeMessage=true);
+    }
 
     public static int blockOffset(byte b[]) { Block B = new Block(b); return B.offset; }
 
