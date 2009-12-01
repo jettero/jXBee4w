@@ -38,6 +38,10 @@ public class Message {
         checked = false;
     }
 
+    public byte[] reconstructMessage() {
+        return new byte[0];
+    }
+
     public void addBlock(int frameID, byte b[]) throws IOException {
         Block   B = new Block(b);
         Integer I = new Integer(B.offset);
