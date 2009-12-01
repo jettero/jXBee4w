@@ -6,6 +6,14 @@ public class Message {
     public static int FRAGMENTED = 0x8000; // 0b1000_0000_0000_0000
     public static int MORE_FRAGS = 0x4000; // 0b0100_0000_0000_0000
 
+    public static int blockOffset(byte block[]) {
+        int fo  = (block[block.length-2] & 0xff) << 8;
+            fo += (block[block.length-1] & 0xff);
+            fo &= Message.OFSET_MASK;
+
+        return fo;
+    }
+
     public static byte[][] fragmentMessage(String m, int maxSize) throws PayloadException
         { return fragmentMessage(m.getBytes(), maxSize); }
 
