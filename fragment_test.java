@@ -4,7 +4,7 @@ public class fragment_test {
     public static void main(String s[]) {
         String longString = "Hello mang, this is my string.";
 
-        for(int dupy=0; dupy<1000; dupy++)
+        for(int dupy=0; dupy<100; dupy++)
             longString += " Hello mang, this is my string.";
 
         for(int maxSize=3; maxSize<200; maxSize++) {
