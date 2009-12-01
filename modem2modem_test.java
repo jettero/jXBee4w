@@ -25,11 +25,14 @@ public class modem2modem_test implements MessageRecvEvent {
         rhs.registerMessageReceiver(this);
 
 
+        String extra = System.getenv("EXTRA_MSG");
+        if( extra == null )
+            extra = "";
 
 
         System.out.println("sending messages");
         for(int i=0; i<num(); i++)
-            lhs.send( rhs.addr(), String.format("This is a test message: test #%d.", i) );
+            lhs.send( rhs.addr(), String.format("This is a test message: test #%d.%s", i, extra) );
 
 
         System.out.println("wating around for 2 seconds");
