@@ -5,7 +5,10 @@ public class fragment_test {
         System.out.printf("--fragmenting %d bytes:%n", longString.length());
         byte b[][] = Message.fragmentMessage(longString, 7);
 
-        for(int i=0; i<b.length; i++)
-            XBeePacket.bytesToFile( String.format("fragment-%02x.dat", b[i][b[i].length-1]), b[i] );
+        for(int i=0; i<b.length; i++) {
+            byte c[] = b[i];
+
+            XBeePacket.bytesToFile( String.format("fragment-%02x%02x.dat", c[c.length-2], c[c.length-1]), c);
+        }
     }
 }
