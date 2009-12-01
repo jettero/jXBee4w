@@ -8,7 +8,7 @@ public class Message {
     public static int MORE_FRAGS = 0x4000; // 0b0100_0000_0000_0000
 
     boolean checked, wholeMessage;
-    TreeMap message;
+    TreeMap <Integer, Block> message;
 
     private static class Block {
         public byte block[];
@@ -36,7 +36,7 @@ public class Message {
 
     public void addBlock(byte b[]) throws PayloadException {
         Block   B = new Block(b);
-        Integer I = new Integer(b.offset);
+        Integer I = new Integer(B.offset);
 
         message.put(I,B);
         checked = false;
@@ -48,7 +48,7 @@ public class Message {
 
         checked = true;
 
-        Block v[] = message.values().toArray(new Block v[message.size()]);
+        Block v[] = message.values().toArray(new Block[message.size()]);
 
         if( v.length < 1 )
             return (wholeMessage=false);
@@ -60,11 +60,11 @@ public class Message {
             return (wholeMessage=true);
 
         for(int i=0; i<v.length; i++)
-            if( v.offset != i )
+            if( v[i].offset != i )
                 return false;
 
         for(int i=1; i<v.length-1; i++)
-            if( !v.moreFrags )
+            if( !v[i].moreFrags )
                 return false;
 
         // TODO: this is probably pretty close, but we need some way to detect invalid messages,
