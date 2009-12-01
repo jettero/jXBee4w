@@ -386,7 +386,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             Queue <XBeePacket> tmp = OutboundQueue.poll();
 
             if( tmp != null )
-                currentDatagram = new ACKQueue(tmp.toArray(new XBeePacket[tmp.size()]))
+                currentDatagram = new ACKQueue(tmp);
         }
 
         public void run() {

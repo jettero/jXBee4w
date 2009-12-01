@@ -3,7 +3,7 @@ import java.util.*;
 public class ACKQueue {
     private TreeMap <Integer, XBeePacket> Q = new TreeMap<Integer, XBeePacket>();
 
-    ACKQueue(Queue packets) {
+    ACKQueue(Queue <XBeePacket> packets) {
         XBeePacket p;
 
         while( (p = (XBeePacket) packets.poll()) != null )
