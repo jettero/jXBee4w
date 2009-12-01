@@ -27,6 +27,11 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // private static void populatePortNames() {{{
     private static void populatePortNames() {
+        String skip    = System.getenv("NEH_SKIP_PORT");
+        String skips[] = new String[0];
+        if( skip != null )
+            skips = skip.split(",\\s*");
+
         if( ports != null )
             return;
 
@@ -36,9 +41,15 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         while (portIdentifiers.hasMoreElements()) {
             CommPortIdentifier pid = (CommPortIdentifier) portIdentifiers.nextElement();
 
-            if(pid.getPortType() == CommPortIdentifier.PORT_SERIAL )
+            if(pid.getPortType() == CommPortIdentifier.PORT_SERIAL ) {
+                boolean ok = true;
+                for(int i=0; i<skips.length; i++)
+                    if( skips[i].equals(pid.getName()) )
+                        ok = false;
 
-                ports.offer(pid); // returns false if it's full, but who cares, we're expecting like 8 things tops
+                if( ok )
+                    ports.offer(pid); // returns false if it's full, but who cares, we're expecting like 8 things tops
+            }
         }
     }
     // }}}
