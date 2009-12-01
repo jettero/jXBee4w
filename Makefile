@@ -59,5 +59,5 @@ ackq_test.class:        ACKQueue.class
 fragment_test.class:    Message.class
 
 %.class: %.java RXTXcomm.jar
-	javac -cp '.;RXTXcomm.jar' $<
+	javac -Xlint:unchecked -cp '.;RXTXcomm.jar' $<
 	@chmod 644 *.class

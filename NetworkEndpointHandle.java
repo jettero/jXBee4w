@@ -305,7 +305,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
-        QoQ.append( xp.tx(dst, message) );
+        Queue <XBeePacket> q = (Queue <XBeePacket>) xp.tx(dst,message);
+        QoQ.append(q);
     }
     // }}}
     // public void close() {{{
@@ -320,23 +321,24 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
         XBeePacket currentDatagram[];
-        Queue OutboundQueue, tmp;
+        Queue <Queue <XBeePacket>> OutboundQueue;
+        Queue <XBeePacket> tmp;
         boolean closed = false;
 
         public void close() { closed = true; }
 
-        public void append(Queue incoming) {
+        public synchronized void append(Queue <XBeePacket> q) {
             // block while we've already got enough to do
             while(OutboundQueue.size() > 50)
                 try { Thread.sleep(150); }
                 catch(InterruptedException e) {/* we go around again either way */}
 
-            OutboundQueue.add(incoming);
+            OutboundQueue.add(q);
         }
 
         public PacketQueueWriter(XBeeHandle _xh) {
             xh = _xh;
-            OutboundQueue = new ArrayDeque<Queue>();
+            OutboundQueue = new ArrayDeque< Queue <XBeePacket> >();
         }
 
         public void receiveACK(int frameID) {
@@ -362,8 +364,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         public void run() {
             while(!closed) {
 
-                while( !closed && (tmp = (Queue) OutboundQueue.poll()) != null )
-                    while( !closed && (currentDatagram = (XBeePacket[]) tmp.toArray()) != null )
+                while( !closed && (tmp = OutboundQueue.poll()) != null )
+                    while( !closed && (currentDatagram = tmp.toArray(new XBeePacket[tmp.size()])) != null )
                         dealWithDatagram();
 
                 try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
