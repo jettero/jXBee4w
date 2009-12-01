@@ -56,7 +56,7 @@ at_cmd_test.class:      XBeePacketizer.class
 modem2modem_test.class: NetworkEndpointHandle.class
 neh_test.class:         NetworkEndpointHandle.class
 ackq_test.class:        ACKQueue.class
-fragment_test.class:    Message.class XBeePacket.class
+fragment_test.class:    Message.class
 
 %.class: %.java RXTXcomm.jar
 	javac -cp '.;RXTXcomm.jar' $<

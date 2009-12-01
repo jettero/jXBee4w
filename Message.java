@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 public class Message {
@@ -9,6 +10,7 @@ public class Message {
 
     boolean checked, wholeMessage;
     TreeMap <Integer, Block> message;
+    HashMap <Integer, Integer> fr2fr;
 
     private static class Block {
         public byte block[];
@@ -31,18 +33,26 @@ public class Message {
 
     Message() {
         message = new TreeMap<Integer,Block>();
+        fr2fr   = new HashMap<Integer,Integer>();
+
         checked = false;
     }
 
-    public void addBlock(byte b[]) throws PayloadException {
+    public void addBlock(int frameID, byte b[]) throws IOException {
         Block   B = new Block(b);
         Integer I = new Integer(B.offset);
 
+        if( message.containsKey(I) )
+            if( fr2fr.get(I).intValue() != frameID )
+                throw new IOException("Block collision detected, apparently something is wrong.");
+
         message.put(I,B);
+        fr2fr.put(I, new Integer(frameID));
+
         checked = false;
     }
 
-    public boolean wholeMessage() {
+    public boolean wholeMessage() throws IOException {
         if( checked )
             return wholeMessage;
 
@@ -51,24 +61,21 @@ public class Message {
         Block v[] = message.values().toArray(new Block[message.size()]);
 
         if( v.length < 1 )
-            return (wholeMessage=false);
+            return (wholeMessage=false); // we don't have any pieces yet
 
         if( v[v.length-1].moreFrags )
-            return (wholeMessage=false);
+            return (wholeMessage=false); // the last peice we have says there's more
 
         if( !v[0].fragmented && v.length == 1 )
-            return (wholeMessage=true);
+            return (wholeMessage=true); // we only have one peice and this is it
 
         for(int i=0; i<v.length; i++)
             if( v[i].offset != i )
-                return false;
+                return false; // we're probably missing some of the pieces
 
         for(int i=1; i<v.length-1; i++)
-            if( !v[i].moreFrags )
-                return false;
-
-        // TODO: this is probably pretty close, but we need some way to detect invalid messages,
-        // so we can discard and start from scratch... DDO
+            if( !v[i].moreFrags ) // that's odd, some of the middle pieces don't have the more-pieces bit
+                throw new IOException("Inconsistent fragmentation state detected, something is wrong");
 
         return (wholeMessage=true);
     }
