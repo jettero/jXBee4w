@@ -176,6 +176,9 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             case XBeePacket.AMT_TX_STATUS:
                 st = (XBeeTxStatusPacket) p;
                 if( st.statusOK() ) {
+
+                    pw.receiveACK(st.frameID());
+
                     if( debug )
                         System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
 
@@ -343,7 +346,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             if( currentDatagram == null )
                 return;
 
-            System.out.printf("[debug] PacketWriter - receiveACK(%d)%n", frameID);
+            if( debug )
+                System.out.printf("[debug] PacketWriter - receiveACK(%d)%n", frameID);
 
             currentDatagram.ACK(frameID);
         }
@@ -356,7 +360,9 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     return;
 
                 try {
-                    System.out.printf("[debug] PacketWriter - sendCurrentDatagram(%d)%n", i);
+                    if( debug )
+                        System.out.printf("[debug] PacketWriter - sendCurrentDatagram(%d)%n", i);
+
                     xh.send_packet(datagram[i]);
                 }
 
@@ -372,7 +378,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             if( closed || currentDatagram == null )
                 return;
 
-            System.out.println("[debug] PacketWriter - dealWithCurrentDatagram()");
+            if( debug )
+                System.out.println("[debug] PacketWriter - dealWithCurrentDatagram()");
 
             while( !closed && currentDatagram.size() > 0 ) {
                 sendCurrentDatagram();
@@ -384,7 +391,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         private synchronized void clearCurrentDatagram() {
-            System.out.println("[debug] PacketWriter - clearCurrentDatagram()");
+            if( debug )
+                System.out.println("[debug] PacketWriter - clearCurrentDatagram()");
 
             currentDatagram = null;
         }
