@@ -7,7 +7,7 @@ public class fragment_test {
         for(int maxSize=3; maxSize<200; maxSize++) {
             byte b[][] = Message.fragmentMessage(longString.getBytes(), maxSize);
 
-            System.out.printf("fragmented %d bytes into %d peices (maxSize=%d)",
+            System.out.printf("fragmented %d bytes into %3d peices (maxSize=%3d)",
                 longString.length(), b.length, maxSize);
 
 
