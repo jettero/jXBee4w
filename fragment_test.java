@@ -25,7 +25,7 @@ public class fragment_test {
 
             try { 
                 if( m.wholeMessage() )
-                    if( longString.equals(m.reconstructMessage()) )
+                    if( longString.equals(new String(m.reconstructMessage())) )
                         ok = true;
             }
 
