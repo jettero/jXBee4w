@@ -152,11 +152,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     }
     // }}}
-    // public void showMessage(XBeeRxPacket p) {{{
-    public void showMessage(XBeeRxPacket p) {
-        System.out.println("rx"); // TODO: write this
-    }
-    // }}}
 
     // public void recvPacket(XBeePacket p) {{{
     public void recvPacket(XBeePacket p) {
