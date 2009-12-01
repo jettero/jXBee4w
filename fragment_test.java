@@ -38,7 +38,7 @@ public class fragment_test {
             System.out.println( ok ? " [ OK ]"
                                    : " [    ]" );
 
-            if( false ) {
+            if( (new Integer(System.getenv("FRAGDUMP_MAXSIZE"))).intValue() == maxSize ) {
                 for(int i=0; i<b.length; i++)
                     XBeePacket.bytesToFile( String.format("mfrag-%03x.dat", Message.blockOffset(b[i])), b[i] );
 
