@@ -8,6 +8,12 @@ public class modem2modem_test implements MessageRecvEvent {
             handle.getName(), src.toText(), new String(message));
     }
 
+    public static int num() {
+        String num = System.getenv("MESSAGES_TO_SEND");
+        if( num == null ) num = "1";
+        return (new Integer(num)).intValue();
+    }
+
     public void run() {
         boolean announce = true;
 
@@ -19,8 +25,10 @@ public class modem2modem_test implements MessageRecvEvent {
         rhs.registerMessageReceiver(this);
 
 
+
+
         System.out.println("sending messages");
-        for(int i=0; i<10; i++)
+        for(int i=0; i<num(); i++)
             lhs.send( rhs.addr(), String.format("This is a test message: test #%d.", i) );
 
 
