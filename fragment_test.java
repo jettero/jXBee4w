@@ -9,12 +9,12 @@ public class fragment_test {
             System.out.printf("fragmented %d bytes into %d peices (maxSize=%d)",
                 longString.length(), b.length, maxSize);
 
-            if( !longString.equals(Message.reconstructMessage(b))
-                System.out.println(" [ OK ]");
-            else
+            // if( !longString.equals(Message.reconstructMessage(b))
+            //     System.out.println(" [ OK ]");
+            // else
                 System.out.println(" [    ]");
 
-            if( false ) {
+            if( true ) {
                 for(int i=0; i<b.length; i++)
                     XBeePacket.bytesToFile( String.format("fragment-%03x.dat", Message.blockOffset(b[i])), b[i] );
 

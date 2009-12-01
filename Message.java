@@ -1,3 +1,4 @@
+import java.util.*;
 
 public class Message {
     public static int FLAGS_MASK = 0xc000; // 0b1100_0000_0000_0000
@@ -6,17 +7,46 @@ public class Message {
     public static int FRAGMENTED = 0x8000; // 0b1000_0000_0000_0000
     public static int MORE_FRAGS = 0x4000; // 0b0100_0000_0000_0000
 
-    public static byte[] reconstructMessage(byte b[][]) {
-        return new byte[0];
+    TreeMap message;
+
+    private static class Block {
+        public byte block[];
+        int offset;
+        boolean fragmented, moreFrags;
+
+        Block(byte b[]) {
+            int f1 = (b[b.length-2] & 0xff) << 8;
+            int f2 = (b[b.length-1] & 0xff);
+
+            fragmented = (f1 & FRAGMENTED)>0 ? true : false;
+            moreFrags  = (f1 & MORE_FRAGS)>0 ? true : false;
+
+            offset  = f1 + f2;
+            offset &= Message.OFSET_MASK;
+
+            block = b;
+        }
     }
 
-    public static int blockOffset(byte block[]) {
-        int fo  = (block[block.length-2] & 0xff) << 8;
-            fo += (block[block.length-1] & 0xff);
-            fo &= Message.OFSET_MASK;
+    // Message() { message = new TreeMap<(); }
+    // public void addBlock(byte b[]) { }
 
-        return fo;
-    }
+    // public static boolean wholeMessage(byte b[][]) {
+    //     if( b.length < 1 )
+    //         return false;
+
+    //     if( moreFragsFlag(b[b.length-1]) )
+    //         return false;
+
+    //     for(int i=0; i<b.length; i++) {
+    //         if( blockOffset(b[i]) != i )
+    //             return false;
+    //     }
+
+    //     return true;
+    // }
+
+    public static int blockOffset(byte b[]) { Block B = new Block(b); return B.offset; }
 
     public static byte[][] fragmentMessage(byte input[], int maxSize) throws PayloadException {
         int msmo = maxSize - 2;
