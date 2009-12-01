@@ -46,6 +46,12 @@ public class fragment_test {
                 for(int i=0; i<b.length; i++)
                     XBeePacket.bytesToFile( String.format("mfrag-%03x.dat", Message.blockOffset(b[i])), b[i] );
 
+                try {
+                    XBeePacket.bytesToFile( "message.dat", longString.getBytes() );
+                    XBeePacket.bytesToFile( "egassem.dat", m.reconstructMessage() );
+
+                } catch (IOException e) { /* who cares */ }
+
                 System.exit(0);
             }
         }
