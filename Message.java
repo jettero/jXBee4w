@@ -6,6 +6,10 @@ public class Message {
     public static int FRAGMENTED = 0x8000; // 0b1000_0000_0000_0000
     public static int MORE_FRAGS = 0x4000; // 0b0100_0000_0000_0000
 
+    public static byte[] reconstructMessage(byte b[][]) {
+        return new byte[0];
+    }
+
     public static int blockOffset(byte block[]) {
         int fo  = (block[block.length-2] & 0xff) << 8;
             fo += (block[block.length-1] & 0xff);

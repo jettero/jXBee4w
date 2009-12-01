@@ -9,8 +9,10 @@ public class fragment_test {
             System.out.printf("fragmented %d bytes into %d peices (maxSize=%d)",
                 longString.length(), b.length, maxSize);
 
-            if( !longString.equals(Message.reconstruct(b)) System.out.println(" [ OK ]");
-            else                                           System.out.println(" [    ]");
+            if( !longString.equals(Message.reconstructMessage(b))
+                System.out.println(" [ OK ]");
+            else
+                System.out.println(" [    ]");
 
             if( false ) {
                 for(int i=0; i<b.length; i++)
