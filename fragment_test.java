@@ -1,3 +1,4 @@
+import java.io.*;
 
 public class fragment_test {
     public static void main(String s[]) {
@@ -9,12 +10,35 @@ public class fragment_test {
             System.out.printf("fragmented %d bytes into %d peices (maxSize=%d)",
                 longString.length(), b.length, maxSize);
 
-            // if( !longString.equals(Message.reconstructMessage(b))
-            //     System.out.println(" [ OK ]");
-            // else
-                System.out.println(" [    ]");
 
-            if( true ) {
+
+            boolean ok = false;
+            Message m = new Message();
+            for(int i=0; i<b.length; i++)
+                try {
+                    m.addBlock(0, b[i]);
+
+                } catch(IOException e) {
+                    System.err.println("fatal error adding block: " + e.getMessage());
+                    System.exit(1);
+                }
+
+            try { 
+                if( m.wholeMessage() )
+                    if( longString.equals(Message.reconstructMessage()) )
+                        ok = true;
+            }
+
+            catch(IOException e) {
+                System.err.println("fatal error rebuilding message: " + e.getMessage());
+                System.exit(1);
+            }
+
+
+            System.out.println( ok ? " [ OK ]"
+                                   : " [    ]" );
+
+            if( false ) {
                 for(int i=0; i<b.length; i++)
                     XBeePacket.bytesToFile( String.format("mfrag-%03x.dat", Message.blockOffset(b[i])), b[i] );
 
