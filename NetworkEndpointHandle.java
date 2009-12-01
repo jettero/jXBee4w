@@ -9,7 +9,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private static boolean debug = false;
     private static boolean dump_unhandled = false;
 
-    private PacketQueueWriter QoQ;
+    private PacketQueueWriter pw;
     private XBeeHandle xh;
     private XBeePacketizer xp;
     private Address64 a;
@@ -21,7 +21,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     private MessageRecvEvent messageReceiver;
 
-    private Thread _qThread; // keep a ref to the QoQ thread here
+    private Thread _qThread; // keep a ref to the pw thread here
 
     // --------------------------- modem locator stuff -------------------------
 
@@ -83,9 +83,9 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                         throw new XBeeConfigException("Unexpected error creating XBeeHandle on configured port: " + msg);
                     }
 
-                    QoQ = new PacketQueueWriter(xh); // start our QoQ writer
+                    pw = new PacketQueueWriter(xh); // start our pw writer
 
-                    _qThread = new Thread(QoQ);
+                    _qThread = new Thread(pw);
                     _qThread.start();
 
                     return; // if it worked, great, return out of there
@@ -305,17 +305,17 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
-        QoQ.append( xp.tx(dst,message) );
+        pw.append( xp.tx(dst,message) );
     }
     // }}}
     // public void close() {{{
     public void close() {
-        if( QoQ != null ) QoQ.close();
-        if( xh  != null ) xh.close();
+        if( pw != null ) pw.close();
+        if( xh != null ) xh.close();
     }
     // }}}
 
-    // -------------------- Outbound Queue Delivery (QoQ) -------------------
+    // -------------------- Outbound Queue Delivery (pw) -------------------
 
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
@@ -343,6 +343,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             if( currentDatagram == null )
                 return;
 
+            System.out.printf("[debug] PacketWriter - receiveACK(%d)%n", frameID);
+
             currentDatagram.ACK(frameID);
         }
 
@@ -354,6 +356,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     return;
 
                 try {
+                    System.out.printf("[debug] PacketWriter - sendCurrentDatagram(%d)%n", i);
                     xh.send_packet(datagram[i]);
                 }
 
@@ -366,10 +369,12 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         private void dealWithDatagram() {
-            if( currentDatagram == null )
+            if( closed || currentDatagram == null )
                 return;
 
-            while( currentDatagram.size() > 0 ) {
+            System.out.println("[debug] PacketWriter - dealWithCurrentDatagram()");
+
+            while( !closed && currentDatagram.size() > 0 ) {
                 sendCurrentDatagram();
 
                 try { Thread.sleep(250); } catch(InterruptedException e) {/* we go around again either way */}
@@ -379,6 +384,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         private synchronized void clearCurrentDatagram() {
+            System.out.println("[debug] PacketWriter - clearCurrentDatagram()");
+
             currentDatagram = null;
         }
 
