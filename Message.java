@@ -38,8 +38,22 @@ public class Message {
         checked = false;
     }
 
-    public byte[] reconstructMessage() {
-        return new byte[0];
+    public byte[] reconstructMessage() throws IOException {
+        if( !wholeMessage() ) // this can throw various exceptions too, but they're all IOExceptions
+            throw new IOException("We don't seem to have a whole message yet");
+
+        Block v[] = message.values().toArray(new Block[message.size()]);
+        int total_size = 0;
+        for(int i=0; i<v.length; i++)
+            total_size += v[i].block.length -2;
+
+        int cur = 0;
+        byte m[] = new byte[ total_size ];
+        for(int i=0; i<v.length; i++)
+            for(int j=0; j<v[i].block.length-2; j++)
+                m[cur++] = v[i].block[j];
+
+        return m; // BAM, that just happened
     }
 
     public void addBlock(int frameID, byte b[]) throws IOException {
