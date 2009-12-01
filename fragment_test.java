@@ -16,7 +16,7 @@ public class fragment_test {
 
             if( true ) {
                 for(int i=0; i<b.length; i++)
-                    XBeePacket.bytesToFile( String.format("fragment-%03x.dat", Message.blockOffset(b[i])), b[i] );
+                    XBeePacket.bytesToFile( String.format("mfrag-%03x.dat", Message.blockOffset(b[i])), b[i] );
 
                 System.exit(0);
             }
