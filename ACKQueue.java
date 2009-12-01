@@ -15,7 +15,7 @@ public class ACKQueue {
         return Q.size();
     }
 
-    public XBeePacket[] packets() {
+    public synchronized XBeePacket[] packets() {
         return Q.values().toArray(new XBeePacket[Q.size()]);
     }
 

@@ -305,8 +305,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
-        Queue <XBeePacket> q = (Queue <XBeePacket>) xp.tx(dst,message);
-        QoQ.append(q);
+        QoQ.append( xp.tx(dst,message) );
     }
     // }}}
     // public void close() {{{
@@ -320,9 +319,8 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
-        XBeePacket currentDatagram[];
-        Queue <Queue <XBeePacket>> OutboundQueue;
-        Queue <XBeePacket> tmp;
+        Queue <Queue <XBeePacket>> OutboundQueue; // not synched, so the append and pop functions must be
+        ACKQueue currentDatagram; // this is object synched so the ACK and send functions do not need to be
         boolean closed = false;
 
         public void close() { closed = true; }
@@ -342,13 +340,21 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         public void receiveACK(int frameID) {
-            // TODO remove ACKed packets from currentDatagram[]
+            if( currentDatagram == null )
+                return;
+
+            currentDatagram.ACK(frameID);
         }
 
-        private void dealWithDatagram() {
-            for( int i=0; i<currentDatagram.length; i++ ) {
+        private void sendCurrentDatagram() {
+            XBeePacket datagram[] = currentDatagram.packets();
+
+            for( int i=0; i<datagram.length; i++ ) {
+                if( closed )
+                    return;
+
                 try {
-                    xh.send_packet(currentDatagram[i]);
+                    xh.send_packet(datagram[i]);
                 }
 
                 catch(IOException e) {
@@ -357,16 +363,36 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     catch(InterruptedException f) {/* we go around again either way */}
                 }
             }
+        }
 
-            // TODO: check to make sure each segment was ACKed before returning
+        private void dealWithDatagram() {
+            if( currentDatagram == null )
+                return;
+
+            while( currentDatagram.size() > 0 ) {
+                sendCurrentDatagram();
+
+                try { Thread.sleep(250); } catch(InterruptedException e) {/* we go around again either way */}
+            }
+
+            clearCurrentDatagram();
+        }
+
+        private synchronized void clearCurrentDatagram() {
+            currentDatagram = null;
+        }
+
+        private synchronized void lookForDatagram() {
+            Queue <XBeePacket> tmp = OutboundQueue.poll();
+
+            if( tmp != null )
+                currentDatagram = new ACKQueue(tmp.toArray(new XBeePacket[tmp.size()]))
         }
 
         public void run() {
             while(!closed) {
-
-                while( !closed && (tmp = OutboundQueue.poll()) != null )
-                    while( !closed && (currentDatagram = tmp.toArray(new XBeePacket[tmp.size()])) != null )
-                        dealWithDatagram();
+                lookForDatagram();
+                dealWithDatagram();
 
                 try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
             }
