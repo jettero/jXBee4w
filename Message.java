@@ -14,9 +14,6 @@ public class Message {
         return fo;
     }
 
-    public static byte[][] fragmentMessage(String m, int maxSize) throws PayloadException
-        { return fragmentMessage(m.getBytes(), maxSize); }
-
     public static byte[][] fragmentMessage(byte input[], int maxSize) throws PayloadException {
         int msmo = maxSize - 2;
         int numberOfMessages = (int) Math.ceil( ((double) input.length) / msmo );
