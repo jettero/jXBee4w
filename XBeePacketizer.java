@@ -25,28 +25,25 @@ public class XBeePacketizer {
             if( s[i].length < 1 || s[i].length > 2 )
                 throw new PayloadException("commands have one or two parts: the command and the paramters (optional) -- received " + s[i].length);
 
-            if( s[i].length == 1 ) p[i] = XBeePacket.at(this.seqno(), s[i][0]);
-            else                   p[i] = XBeePacket.at(this.seqno(), s[i][0], s[i][1]);
+            if( s[i].length == 1 ) p[i] = XBeePacket.at(seqno(), s[i][0]);
+            else                   p[i] = XBeePacket.at(seqno(), s[i][0], s[i][1]);
         }
 
         return p;
     }
 
     public Queue tx(Address64 dst, String msg) {
-        int packets         = (int)Math.ceil(msg.length()/100.0);
+        return tx(dst, msg.getBytes());
+    }
+
+    public Queue tx(Address64 dst, byte input[]) {
+        byte blocks[][] = Message.fragmentMessage(input, 100);
         Queue<XBeePacket> q = new ArrayDeque<XBeePacket>();
 
-        int hard_ending = msg.length();
 
-        for(int i=0; i<packets; i++) {
-            int beginning = i*100;
-            int ending    = (i+1)*100;
-
-            if( ending > hard_ending )
-                ending = hard_ending;
-
+        for(int i=0; i<blocks.length; i++) {
             try {
-                q.add( XBeePacket.tx(this.seqno(), dst, msg.substring(beginning, ending)) );
+                q.add( XBeePacket.tx(seqno(), dst, blocks[i]) );
             }
 
             catch(PayloadException e) {
