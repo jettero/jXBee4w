@@ -108,7 +108,10 @@ public class Message {
             throw new PayloadException("maxSize must be at least 3");
 
         if( numberOfMessages > OFSET_MASK )
-            throw new PayloadException("input message is longer than can be represented in byte footers");
+            throw new PayloadException(
+                String.format("input message is longer than can be represented in byte footers -- ceil( %d/(%d-2) ) > %d",
+                    input.length, maxSize, OFSET_MASK
+            ));
 
         byte ret[][] = new byte[numberOfMessages][];
 
