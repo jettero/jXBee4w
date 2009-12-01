@@ -38,12 +38,8 @@ public class Message {
 
             byte b[] = new byte[end - start + 2];
 
-            System.out.printf("TODO(%d/%d, start=%d, end=%d, len=%d)%n", n, numberOfMessages, start, end, b.length);
-
-            for(int i=start; i<end; i++) {
-                System.out.printf("\tb[%d] = input[%d]%n", i-start, i);
+            for(int i=start; i<end; i++)
                 b[i-start] = input[i];
-            }
 
             int footer = n;
 
