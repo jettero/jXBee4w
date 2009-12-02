@@ -194,6 +194,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     }
     // }}}
 
+    // private void handleIncomingMessage( XBeeRxPacket rx ) {{{
     private void _handleIncomingMessageException( IOException e, Address64 src, int frameID, byte payload[] ) {
         System.err.println("warning: some inconsistency found, discarding current message: " + e.getMessage());
         Message m = new Message(frameID, payload);
@@ -243,6 +244,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             }
         }
     }
+    // }}}
 
     // --------------------------- Modem Accessors Support -------------------------
 
