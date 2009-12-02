@@ -12,8 +12,20 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
     }
 
     public void recvMessage(NetworkEndpointHandle handle, Address64 src, byte message[]) {
-        System.out.printf("%s Received message from %s, \"%s\"%n",
-            handle.getName(), src.toText(), new String(message));
+        System.out.printf("%s Received message from %s, \"%s\" [ %s ]%n",
+            handle.getName(), src.toText(), new String(message),
+
+             ( // This is a fairly weak test of the message consistencey, but there's also the visual check
+               // looks good.
+
+                 message[message.length-1] == '-' && message[0] == '-'
+              && message[message.length-2] == '=' && message[1] == '='
+
+             )
+
+             ? "OK" : "  "
+
+            );
     }
 
     public static int num() {
