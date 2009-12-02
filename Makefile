@@ -3,7 +3,11 @@ SHELL=/bin/bash
 default_test=handle_test
 lastfile=/tmp/.lastjxbee4w
 
-#default: XBeeHandle.class
+ifeq ($(shell uname -s),Linux)
+    CLASSPATH='.:RXTXcomm.jar'
+else
+    CLASSPATH='.;RXTXcomm.jar'
+endif
 
 run_last_test:
 	@-if [ -f $(lastfile) ]; then make --no-print-directory `cat $(lastfile)`; else make --no-print-directory $(default_test); fi
@@ -60,5 +64,5 @@ fragment_test.class:    Message.class
 hashmap_test.class:     Address64.class
 
 %.class: %.java RXTXcomm.jar
-	javac -Xlint:unchecked -cp '.;RXTXcomm.jar' $<
+	javac -Xlint:unchecked -cp $(CLASSPATH) $<
 	@chmod 644 *.class
