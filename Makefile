@@ -57,6 +57,7 @@ modem2modem_test.class: NetworkEndpointHandle.class
 neh_test.class:         NetworkEndpointHandle.class
 ackq_test.class:        ACKQueue.class
 fragment_test.class:    Message.class
+hashmap_test.class:     Address64.class
 
 %.class: %.java RXTXcomm.jar
 	javac -Xlint:unchecked -cp '.;RXTXcomm.jar' $<
