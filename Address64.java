@@ -20,6 +20,30 @@ public class Address64 {
         }
     }
 
+    public boolean equals(Object o) { // to override the Object.equals(Object o), it has to be Object, not Address64
+        if( o == null )
+            return false;
+
+        if( !( o instanceof Address64 ) )
+            return false;
+
+        byte b[] = ( (Address64) o ).getBytes();
+        for(int i=0; i<addr.length; i++)
+            if( b[i] != addr[i] )
+                return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int ret = 0;
+
+        for(int i=0; i<4; i++)
+            ret += (addr[i] << i) + (addr[i+4] << i);
+
+        return ret;
+    }
+
     private byte[] padaddr(byte b[], int l) {
         if(b.length>=l)
             return b;
