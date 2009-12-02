@@ -2,8 +2,8 @@
 
 
 public class NetworkEndpointInterface {
-    private XBeeHandle urgent;
-    private XBeeHandle mundane;
+    private NetworkEndpointHandle urgent;
+    private NetworkEndpointHandle mundane;
 
     NetworkEndpointInterface() throws XBeeNotFoundException {
         urgent  = new NetworkEndpointHandle();
