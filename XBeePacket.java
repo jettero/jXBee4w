@@ -167,15 +167,6 @@ public class XBeePacket {
         return packet[3];
     }
 
-    public int seqno() {
-        if( !conditionalCheckPacket() )
-            return -1;
-
-        return packet[4] & 0xff;
-    }
-
-    public int frameID() { return seqno(); } // technically more accurately named
-
     /////////////////////////////////////////////////////////////////////////////////
     // byte helpers
     //

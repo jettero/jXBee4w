@@ -15,4 +15,13 @@ public class XBeeTxStatusPacket extends XBeePacket {
     public boolean statusNoACK()    { return packet[TXS_STATUS_BYTE] == TXS_STATUS_NO_ACK;    }
     public boolean statusCCAError() { return packet[TXS_STATUS_BYTE] == TXS_STATUS_CCA_ERROR; }
     public boolean statusPURGED()   { return packet[TXS_STATUS_BYTE] == TXS_STATUS_PURGED;    }
+
+    public int seqno() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        return packet[4] & 0xff;
+    }
+
+    public int frameID() { return seqno(); } // technically more accurately named
 }

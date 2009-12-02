@@ -210,7 +210,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
             Address64 src  = rx.getSourceAddress();
             byte payload[] = rx.getPayloadBytes();
-            int frameID    = rx.frameID();
+            int frameID    = 0; // rx.frameID();
 
             Message m;
 
@@ -351,7 +351,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
-        pw.append( xp.tx(dst,message) );
+        pw.append( xp.tx(dst, message) );
     }
     // }}}
     // public void close() {{{
@@ -365,13 +365,13 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
-        Queue <Queue <XBeePacket>> OutboundQueue; // not synched, so the append and pop functions must be
+        Queue <Queue <XBeeTxPacket>> OutboundQueue; // not synched, so the append and pop functions must be
         ACKQueue currentDatagram; // this is object synched so the ACK and send functions do not need to be
         boolean closed = false;
 
         public void close() { closed = true; }
 
-        public synchronized void append(Queue <XBeePacket> q) {
+        public synchronized void append(Queue <XBeeTxPacket> q) {
             // block while we've already got enough to do
             while(OutboundQueue.size() > 50)
                 try { Thread.sleep(150); }
@@ -382,7 +382,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
         public PacketQueueWriter(XBeeHandle _xh) {
             xh = _xh;
-            OutboundQueue = new ArrayDeque< Queue <XBeePacket> >();
+            OutboundQueue = new ArrayDeque< Queue <XBeeTxPacket> >();
         }
 
         public void receiveACK(int frameID) {
@@ -441,7 +441,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         }
 
         private synchronized void lookForDatagram() {
-            Queue <XBeePacket> tmp = OutboundQueue.poll();
+            Queue <XBeeTxPacket> tmp = OutboundQueue.poll();
 
             if( tmp != null )
                 currentDatagram = new ACKQueue(tmp);

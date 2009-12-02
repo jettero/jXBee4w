@@ -1,12 +1,12 @@
 import java.util.*;
 
 public class ACKQueue {
-    private TreeMap <Integer, XBeePacket> Q = new TreeMap<Integer, XBeePacket>();
+    private TreeMap <Integer, XBeeTxPacket> Q = new TreeMap<Integer, XBeeTxPacket>();
 
-    ACKQueue(Queue <XBeePacket> packets) {
-        XBeePacket p;
+    ACKQueue(Queue <XBeeTxPacket> packets) {
+        XBeeTxPacket p;
 
-        while( (p = (XBeePacket) packets.poll()) != null )
+        while( (p = (XBeeTxPacket) packets.poll()) != null )
 
             Q.put( new Integer(p.frameID()), p );
     }
@@ -15,8 +15,8 @@ public class ACKQueue {
         return Q.size();
     }
 
-    public synchronized XBeePacket[] packets() {
-        return Q.values().toArray(new XBeePacket[Q.size()]);
+    public synchronized XBeeTxPacket[] packets() {
+        return Q.values().toArray(new XBeeTxPacket[Q.size()]);
     }
 
     public synchronized void ACK(int frameID) {

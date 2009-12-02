@@ -32,13 +32,13 @@ public class XBeePacketizer {
         return p;
     }
 
-    public Queue <XBeePacket> tx(Address64 dst, String msg) {
+    public Queue <XBeeTxPacket> tx(Address64 dst, String msg) {
         return tx(dst, msg.getBytes());
     }
 
-    public Queue <XBeePacket> tx(Address64 dst, byte input[]) {
+    public Queue <XBeeTxPacket> tx(Address64 dst, byte input[]) {
         byte blocks[][] = Message.fragmentMessage(input, 100);
-        Queue<XBeePacket> q = new ArrayDeque<XBeePacket>();
+        Queue<XBeeTxPacket> q = new ArrayDeque<XBeeTxPacket>();
 
 
         for(int i=0; i<blocks.length; i++) {

@@ -67,4 +67,13 @@ public class XBeeTxPacket extends XBeePacket {
         return ret;
     }
 
+    public int seqno() {
+        if( !conditionalCheckPacket() )
+            return -1;
+
+        return packet[4] & 0xff;
+    }
+
+    public int frameID() { return seqno(); } // technically more accurately named
+
 }
