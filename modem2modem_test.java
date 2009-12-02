@@ -1,17 +1,17 @@
 import java.io.*;
 
 public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
-    NetworkEndpointHandle lhs, rhs;
+    XBeeDispatcher lhs, rhs;
     public static final int MAX_WAITS = 2;
     public static final int WAIT_LEN  = 750;
     int idle_retries = MAX_WAITS;
 
-    public void recvPacket(NetworkEndpointHandle handle, XBeeRxPacket rx) {
+    public void recvPacket(XBeeDispatcher handle, XBeeRxPacket rx) {
         System.out.printf("Rx %d byte(s) at %d dBm.%n", rx.payloadLength(), rx.RSSI());
         idle_retries = MAX_WAITS;
     }
 
-    public void recvMessage(NetworkEndpointHandle handle, Address64 src, byte message[]) {
+    public void recvMessage(XBeeDispatcher handle, Address64 src, byte message[]) {
         System.out.printf("%s Received message from %s, \"%s\" [ %s ]%n",
             handle.getName(), src.toText(), new String(message),
 
@@ -37,8 +37,8 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
     public void run() {
         boolean announce = true;
 
-        lhs = NetworkEndpointHandle.configuredEndpoint("LHS", announce);
-        rhs = NetworkEndpointHandle.configuredEndpoint("RHS", announce);
+        lhs = XBeeDispatcher.configuredDispatcher("LHS", announce);
+        rhs = XBeeDispatcher.configuredDispatcher("RHS", announce);
 
 
         // tell the RHS, that received messages should go to this object:

@@ -1,5 +1,5 @@
 
 public interface RawRecvEvent {
-    public void recvPacket(NetworkEndpointHandle dst, XBeeRxPacket rx);
+    public void recvPacket(XBeeDispatcher dst, XBeeRxPacket rx);
 }
 

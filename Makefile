@@ -49,7 +49,7 @@ XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class TestENV.class
 ACKQueue.class: XBeePacket.class
 Message.class:  PayloadException.class
 
-NetworkEndpointHandle.class:  XBeeHandle.class XBeeConfig.class MessageRecvEvent.class RawRecvEvent.class ACKQueue.class
+XBeeDispatcher.class:  XBeeHandle.class XBeeConfig.class MessageRecvEvent.class RawRecvEvent.class ACKQueue.class
 
 address_test.class:     Address64.class
 packetizer_test.class:  XBeePacketizer.class
@@ -57,8 +57,8 @@ checksum_test.class:    XBeePacket.class
 config_test.class:      XBeeConfig.class
 handle_test.class:      XBeeHandle.class XBeePacket.class
 at_cmd_test.class:      XBeePacketizer.class
-modem2modem_test.class: NetworkEndpointHandle.class
-neh_test.class:         NetworkEndpointHandle.class
+modem2modem_test.class: XBeeDispatcher.class
+dispatch_test.class:    XBeeDispatcher.class
 ackq_test.class:        ACKQueue.class
 fragment_test.class:    Message.class
 hashmap_test.class:     Address64.class

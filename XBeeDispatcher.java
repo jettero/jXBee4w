@@ -1,9 +1,11 @@
+// XBee Packet message dispatch (Rx and Tx) and config handling
+
 import gnu.io.*;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class NetworkEndpointHandle implements PacketRecvEvent {
+public class XBeeDispatcher implements PacketRecvEvent {
     private static Queue<CommPortIdentifier> ports;
 
     private static boolean debug = false;
@@ -29,7 +31,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // private static void populatePortNames() {{{
     private static void populatePortNames() {
-        String skip    = System.getenv("NEH_SKIP_PORT");
+        String skip    = System.getenv("XD_SKIP_PORT");
         String skips[] = new String[0];
         if( skip != null )
             skips = skip.split(",\\s*");
@@ -473,15 +475,15 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     // --------------------------- Handle Factories -------------------------
 
-    NetworkEndpointHandle(String _n) {
+    XBeeDispatcher(String _n) {
         name = _n;
 
-        debug = TestENV.test("DEBUG") || TestENV.test("NEH_DEBUG");
-        dump_unhandled = TestENV.test("NEH_DUMP_UNHANDLED_PACKETS");
+        debug = TestENV.test("DEBUG") || TestENV.test("XD_DEBUG");
+        dump_unhandled = TestENV.test("XD_DUMP_UNHANDLED_PACKETS");
     }
 
-    public static NetworkEndpointHandle configuredEndpoint(String name, boolean announce) throws XBeeConfigException {
-        NetworkEndpointHandle h = new NetworkEndpointHandle(name);
+    public static XBeeDispatcher configuredDispatcher(String name, boolean announce) throws XBeeConfigException {
+        XBeeDispatcher h = new XBeeDispatcher(name);
         h.locateAndConfigure();
 
         if( announce ) {

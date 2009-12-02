@@ -1,3 +1,5 @@
+// Really low level IO stuff here, feeds packets to the layer above
+
 import gnu.io.*;
 import java.io.*;
 import java.util.*;
