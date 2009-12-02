@@ -222,7 +222,6 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
             Address64 src  = rx.getSourceAddress();
             byte payload[] = rx.getPayloadBytes();
-            int frameID    = 0; // rx.frameID();
 
             Message m;
 

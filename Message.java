@@ -10,7 +10,6 @@ public class Message {
 
     boolean checked, wholeMessage;
     TreeMap <Integer, Block> message;
-    HashMap <Integer, Integer> fr2fr;
 
     private static class Block {
         public byte block[];
@@ -31,20 +30,17 @@ public class Message {
         }
     }
 
-    Message(int frameID, byte b[]) {
+    Message(byte b[]) {
         this();
 
         Block   B = new Block(b);
         Integer I = new Integer(B.offset);
 
         message.put(I,B);
-        fr2fr.put(I, new Integer(frameID));
     }
 
     Message() {
         message = new TreeMap<Integer,Block>();
-        fr2fr   = new HashMap<Integer,Integer>();
-
         checked = false;
     }
 
@@ -66,16 +62,15 @@ public class Message {
         return m; // BAM, that just happened
     }
 
-    public void addBlock(int frameID, byte b[]) throws IOException {
+    public void addBlock(byte b[]) throws IOException {
         Block   B = new Block(b);
         Integer I = new Integer(B.offset);
 
         if( message.containsKey(I) )
-            if( fr2fr.get(I).intValue() != frameID )
+            if( compareBlocks(B.block, b) )
                 throw new IOException("Block collision detected, apparently something is wrong.");
 
         message.put(I,B);
-        fr2fr.put(I, new Integer(frameID));
 
         checked = false;
     }
