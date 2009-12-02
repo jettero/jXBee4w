@@ -42,4 +42,10 @@ public class XBeeRxPacket extends XBeePacket {
 
         return ret;
     }
+
+    public int RSSI() {
+        int i = 0 - (0xff & packet[12]);
+
+        return i;
+    }
 }
