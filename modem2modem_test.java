@@ -6,6 +6,8 @@ public class modem2modem_test implements MessageRecvEvent {
     public void recvMessage(NetworkEndpointHandle handle, Address64 src, byte message[]) {
         System.out.printf("%s Received message from %s, \"%s\"%n",
             handle.getName(), src.toText(), new String(message));
+
+        System.exit(0);
     }
 
     public static int num() {
@@ -35,8 +37,8 @@ public class modem2modem_test implements MessageRecvEvent {
             lhs.send( rhs.addr(), String.format("This is a test message: test #%d.%s", i, extra) );
 
 
-        System.out.println("wating around for 2 seconds");
-        try { Thread.sleep(2 * 1000); } catch (InterruptedException e) {}
+        System.out.println("wating around for 30 seconds");
+        try { Thread.sleep(30 * 1000); } catch (InterruptedException e) {}
 
 
         lhs.close();
