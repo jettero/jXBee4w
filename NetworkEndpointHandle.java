@@ -21,6 +21,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
 
     private HashMap <Address64, Message> incoming;
     private MessageRecvEvent messageReceiver;
+    private RawRecvEvent rawReceiver;
 
     private Thread _qThread; // keep a ref to the pw thread here
 
@@ -163,11 +164,16 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
-                handleIncomingMessage( (XBeeRxPacket) p );
+                rx = (XBeeRxPacket) p;
+
+                handleIncomingMessage( rx );
+                if( rawReceiver != null )
+                    rawReceiver.recvPacket(this, rx);
                 break;
 
             case XBeePacket.AMT_TX_STATUS:
                 st = (XBeeTxStatusPacket) p;
+
                 if( st.statusOK() ) {
 
                     pw.receiveACK(st.frameID());
@@ -191,6 +197,11 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     // public void registerMessageReceiver(MessageRecvEvent callback) {{{
     public void registerMessageReceiver(MessageRecvEvent callback) {
         messageReceiver = callback;
+    }
+    // }}}
+    // public void registerRawReceiver(MessageRecvEvent callback) {{{
+    public void registerRawReceiver(RawRecvEvent callback) {
+        rawReceiver = callback;
     }
     // }}}
 
