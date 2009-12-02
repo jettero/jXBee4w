@@ -248,6 +248,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                 try {
                     byte msgBytes[] = m.reconstructMessage();
                     messageReceiver.recvMessage(this, src, msgBytes);
+                    incoming.remove(src);
                 }
                 catch(IOException e) {
                     _handleIncomingMessageException(e, src, frameID, payload);
