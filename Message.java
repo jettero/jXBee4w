@@ -31,6 +31,16 @@ public class Message {
         }
     }
 
+    Message(int frameID, byte b[]) {
+        this();
+
+        Block   B = new Block(b);
+        Integer I = new Integer(B.offset);
+
+        message.put(I,B);
+        fr2fr.put(I, new Integer(frameID));
+    }
+
     Message() {
         message = new TreeMap<Integer,Block>();
         fr2fr   = new HashMap<Integer,Integer>();

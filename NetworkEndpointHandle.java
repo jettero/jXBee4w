@@ -19,6 +19,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     private String hardwareVersion;
     private String firmwareVersion;
 
+    private HashMap <Address64, Message> incoming;
     private MessageRecvEvent messageReceiver;
 
     private Thread _qThread; // keep a ref to the pw thread here
@@ -162,10 +163,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
-                if( messageReceiver != null ) {
-                    rx = (XBeeRxPacket) p;
-                    messageReceiver.recvMessage(this, rx.getSourceAddress(), rx.getPayloadBytes());
-                }
+                handleIncomingMessage( (XBeeRxPacket) p );
                 break;
 
             case XBeePacket.AMT_TX_STATUS:
@@ -195,6 +193,56 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
         messageReceiver = callback;
     }
     // }}}
+
+    private void _handleIncomingMessageException( IOException e, Address64 src, int frameID, byte payload[] ) {
+        System.err.println("warning: some inconsistency found, discarding current message: " + e.getMessage());
+        Message m = new Message(frameID, payload);
+        incoming.put( src, m );
+    }
+
+    private void handleIncomingMessage( XBeeRxPacket rx ) {
+        if( debug )
+            System.out.println("[debug] rx packet...");
+
+        if( messageReceiver != null ) {
+            if( incoming == null )
+                incoming = new HashMap<Address64, Message>();
+
+            Address64 src  = rx.getSourceAddress();
+            byte payload[] = rx.getPayloadBytes();
+            int frameID    = rx.frameID();
+
+            Message m;
+
+            if( incoming.containsKey( src ) ) {
+                m = incoming.get(src);
+
+                try                  { m.addBlock( frameID, payload ); }
+                catch(IOException e) { _handleIncomingMessageException(e, src, frameID, payload); }
+
+            } else {
+                m = new Message(frameID, payload);
+                incoming.put( src, m );
+            }
+
+            boolean whole = false;
+            try { whole = m.wholeMessage(); }
+            catch(IOException e) {
+                _handleIncomingMessageException(e, src, frameID, payload);
+                return;
+            }
+
+            if( whole ) {
+                try {
+                    byte msgBytes[] = m.reconstructMessage();
+                    messageReceiver.recvMessage(this, src, msgBytes);
+                }
+                catch(IOException e) {
+                    _handleIncomingMessageException(e, src, frameID, payload);
+                }
+            }
+        }
+    }
 
     // --------------------------- Modem Accessors Support -------------------------
 
