@@ -62,6 +62,17 @@ public class Message {
         return m; // BAM, that just happened
     }
 
+    private boolean compareBlocks(byte a[], byte b[]) {
+        if( a.length != b.length )
+            return false;
+
+        for(int i=0; i<a.length; i++)
+            if( a[i] != b[i] )
+                return false;
+
+        return true;
+    }
+
     public void addBlock(byte b[]) throws IOException {
         Block   B = new Block(b);
         Integer I = new Integer(B.offset);

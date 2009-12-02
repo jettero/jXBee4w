@@ -206,9 +206,9 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
     // }}}
 
     // private void handleIncomingMessage( XBeeRxPacket rx ) {{{
-    private void _handleIncomingMessageException( IOException e, Address64 src, int frameID, byte payload[] ) {
+    private void _handleIncomingMessageException( IOException e, Address64 src, byte payload[] ) {
         System.err.println("warning: some inconsistency found, discarding current message: " + e.getMessage());
-        Message m = new Message(frameID, payload);
+        Message m = new Message(payload);
         incoming.put( src, m );
     }
 
@@ -228,18 +228,18 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
             if( incoming.containsKey( src ) ) {
                 m = incoming.get(src);
 
-                try                  { m.addBlock( frameID, payload ); }
-                catch(IOException e) { _handleIncomingMessageException(e, src, frameID, payload); }
+                try                  { m.addBlock( payload ); }
+                catch(IOException e) { _handleIncomingMessageException(e, src, payload); }
 
             } else {
-                m = new Message(frameID, payload);
+                m = new Message(payload);
                 incoming.put( src, m );
             }
 
             boolean whole = false;
             try { whole = m.wholeMessage(); }
             catch(IOException e) {
-                _handleIncomingMessageException(e, src, frameID, payload);
+                _handleIncomingMessageException(e, src, payload);
                 return;
             }
 
@@ -250,7 +250,7 @@ public class NetworkEndpointHandle implements PacketRecvEvent {
                     incoming.remove(src);
                 }
                 catch(IOException e) {
-                    _handleIncomingMessageException(e, src, frameID, payload);
+                    _handleIncomingMessageException(e, src, payload);
                 }
             }
         }
