@@ -18,8 +18,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     private String name;
     private byte[] SH, SL;
-    private String hardwareVersion;
-    private String firmwareVersion;
+    private byte hardwareVersion[];
+    private byte firmwareVersion[];
 
     private HashMap <Address64, Message> incoming;
     private MessageRecvEvent messageReceiver;
@@ -126,10 +126,10 @@ public class XBeeDispatcher implements PacketRecvEvent {
                 System.out.println("[debug] received valid AT" + cmd + " response.");
 
             if( cmd.equals("VR") ) {
-                firmwareVersion = String.format("%02x%02x", b[0], b[1]);
+                firmwareVersion = b;
 
             } else if( cmd.equals("HV") ) {
-                hardwareVersion = String.format("%02x%02x", b[0], b[1]);
+                hardwareVersion = b;
 
             } else if( cmd.equals("SL") ) {
                 SL = b;
@@ -334,16 +334,16 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     // --------------------------- Object Accessors -------------------------
 
-    // public String firmwareVersion() {{{
-    public String firmwareVersion() {
+    // public byte[] firmwareVersion() {{{
+    public byte[] firmwareVersion() {
         if( firmwareVersion == null )
             getFirmwareVersion();
 
         return firmwareVersion;
     }
     // }}}
-    // public String hardwareVersion() {{{
-    public String hardwareVersion() {
+    // public byte[] hardwareVersion() {{{
+    public byte[] hardwareVersion() {
         if( hardwareVersion == null )
             getHardwareVersion();
 
