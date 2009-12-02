@@ -40,7 +40,7 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
 
         System.out.println("sending messages");
         for(int i=0; i<num(); i++)
-            lhs.send( rhs.addr(), String.format("This is a test message: test #%d.%s", i, extra) );
+            lhs.send( rhs.addr(), String.format("-=: This is a test message: test #%d.%s :=-", i, extra) );
 
         while( idle_retries --> 0 )
             try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
