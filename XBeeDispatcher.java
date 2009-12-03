@@ -378,6 +378,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     // -------------------- Outbound Queue Delivery (pw) -------------------
 
+    // private static class PacketQueueWriter implements Runnable {{{
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
         Queue <Queue <XBeeTxPacket>> OutboundQueue; // not synched, so the append and pop functions must be
@@ -472,9 +473,11 @@ public class XBeeDispatcher implements PacketRecvEvent {
         }
 
     }
+    // }}}
 
     // --------------------------- Radio Type Information -------------------
 
+    // public byte[] channelRange() {{{
     public byte[] channelRange() {
         byte XBee[]    = { 0xb, 0x1a };
         byte XBeePro[] = { 0xc, 0x17 };
@@ -484,7 +487,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         return XBee;
     }
-
+    // }}}
+    // public double[] frequencyRange() {{{
     public double[] frequencyRange() {
         byte ch[] = channelRange();
         double ret[] = new double[2];
@@ -494,17 +498,21 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         return ret;
     }
-
+    // }}}
+    // public boolean isPro() {{{
     public boolean isPro() {
         return isPro(hardwareVersion());
     }
-
+    // }}}
+    // public String hardwareTypeString() {{{
     public String hardwareTypeString() {
         return HW2RadioTypeString(hardwareVersion());
     }
+    // }}}
 
     // --------------------------- Static Converters ----------------------
 
+    // public static boolean isPro(byte b[]) {{{
     public static boolean isPro(byte b[]) {
         if( b[0] == 0x17 || b[0] == 0x19 )
             return false; // nope -- oddly, this has the wider range of channel choices
@@ -512,7 +520,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
         // if( b[0] == 0x18 || b[0] == 0x1a )
         return true; // techincally unknown, but the Pro has a narrower frequency range, so it's a safer guess
     }
-
+    // }}}
+    // public static String HW2RadioTypeString(byte b[]) {{{
     public static String HW2RadioTypeString(byte b[]) {
         switch(b[0]) {
             case 0x17: return "XBee24 (series 1)";    // this is what I have (paul.e.miller@wmich.edu)
@@ -524,13 +533,15 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         return "unknown";
     }
-
+    // }}}
+    // public static double CH2Freq(byte CH) {{{
     public static double CH2Freq(byte CH) {
         int ch = CH & 0xff;
 
             // GHz        MHz             1GHz/1000MHz
         return 2.405 + (((ch - 11) * 5) / 1000.0);
     }
+    // }}}
 
     // --------------------------- Handle Factories -------------------------
 
