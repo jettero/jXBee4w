@@ -410,7 +410,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
     // private static class PacketQueueWriter implements Runnable {{{
     private static class PacketQueueWriter implements Runnable {
         XBeeHandle xh;
-        Queue <Queue <XBeeTxPacket>> OutboundQueue; // not synched, so the append and pop functions must be
+        Queue <Queue <XBeeTxPacket>> outboundQueue; // not synched, so the append and pop functions must be
         ACKQueue currentDatagram; // this is object synched so the ACK and send functions do not need to be
         boolean closed = false;
 
@@ -418,16 +418,16 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         public synchronized void append(Queue <XBeeTxPacket> q) {
             // block while we've already got enough to do
-            while(OutboundQueue.size() > 50)
+            while(outboundQueue.size() > 50)
                 try { Thread.sleep(150); }
                 catch(InterruptedException e) {/* we go around again either way */}
 
-            OutboundQueue.add(q);
+            outboundQueue.add(q);
         }
 
         public PacketQueueWriter(XBeeHandle _xh) {
             xh = _xh;
-            OutboundQueue = new ArrayDeque< Queue <XBeeTxPacket> >();
+            outboundQueue = new ArrayDeque< Queue <XBeeTxPacket> >();
         }
 
         public void receiveNACK(int frameID) {
@@ -502,10 +502,20 @@ public class XBeeDispatcher implements PacketRecvEvent {
         }
 
         private synchronized void lookForDatagram() {
-            Queue <XBeeTxPacket> tmp = OutboundQueue.poll();
+            Queue <XBeeTxPacket> tmp = outboundQueue.poll();
 
             if( tmp != null )
                 currentDatagram = new ACKQueue(tmp);
+        }
+
+        public boolean allClear() {
+            if( currentDatagram != null )
+                return false;
+
+            if( outboundQueue.size() > 0 )
+                return false;
+
+            return true;
         }
 
         public void run() {
