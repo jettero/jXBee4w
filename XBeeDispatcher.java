@@ -172,9 +172,11 @@ public class XBeeDispatcher implements PacketRecvEvent {
             case XBeePacket.AMT_RX64:
                 rx = (XBeeRxPacket) p;
 
-                handleIncomingMessage( rx );
                 if( rawReceiver != null )
                     rawReceiver.recvPacket(this, rx);
+
+                handleIncomingMessage( rx );
+
                 break;
 
             case XBeePacket.AMT_TX_STATUS:
