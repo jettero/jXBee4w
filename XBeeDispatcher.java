@@ -473,6 +473,65 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     }
 
+    // --------------------------- Radio Type Information -------------------
+
+    public byte[] channelRange() {
+        byte XBee[]    = { 0xb, 0x1a };
+        byte XBeePro[] = { 0xc, 0x17 };
+
+        if( isPro() )
+            return XBeePro;
+
+        return XBee;
+    }
+
+    public double[] frequencyRange() {
+        byte ch[] = channelRange();
+        double ret[] = new double[2];
+
+        ret[0] = CH2Freq(ch[0]);
+        ret[1] = CH2Freq(ch[1]);
+
+        return ret;
+    }
+
+    public boolean isPro() {
+        return isPro(hardwareVersion());
+    }
+
+    public String hardwareTypeString() {
+        return HW2RadioTypeString(hardwareVersion());
+    }
+
+    // --------------------------- Static Converters ----------------------
+
+    public static boolean isPro(byte b[]) {
+        if( b[0] == 0x17 || b[0] == 0x19 )
+            return false; // nope -- oddly, this has the wider range of channel choices
+
+        // if( b[0] == 0x18 || b[0] == 0x1a )
+        return true; // techincally unknown, but the Pro has a narrower frequency range, so it's a safer guess
+    }
+
+    public static String HW2RadioTypeString(byte b[]) {
+        switch(b[0]) {
+            case 0x17: return "XBee24 (series 1)";    // this is what I have (paul.e.miller@wmich.edu)
+            case 0x18: return "XBeePro24 (series 1)"; // this is what Dr. Fuqaha has
+
+            case 0x19: return "XBee24 (series 2)";    // I gather these are being made now, who knows
+            case 0x1a: return "XBeePro24 (series 2)"; //
+        }
+
+        return "unknown";
+    }
+
+    public static double CH2Freq(byte CH) {
+        int ch = CH & 0xff;
+
+            // GHz        MHz             1GHz/1000MHz
+        return 2.405 + (((ch - 11) * 5) / 1000.0);
+    }
+
     // --------------------------- Handle Factories -------------------------
 
     XBeeDispatcher(String _n) {
@@ -487,9 +546,17 @@ public class XBeeDispatcher implements PacketRecvEvent {
         h.locateAndConfigure();
 
         if( announce ) {
-            System.out.println(name + " Address: " + h.addr().toText());
-            System.out.println("  Hardware version: " + h.hardwareVersion());
-            System.out.println("  Firmware version: " + h.firmwareVersion());
+            byte hv[]  = h.hardwareVersion();
+            byte vr[]  = h.firmwareVersion();
+            byte ch[]  = h.channelRange();   // differs from radio to radio (used to calculate f[])
+            double f[] = h.frequencyRange(); // differs from radio to radio
+
+            System.out.printf("%s Address: %s%n", name, h.addr().toText());
+            System.out.printf("  Hardware version: %02x%02x%n", vr[0], vr[1]);
+            System.out.printf("  Firmware version: %02x%02x%n", vr[0], vr[1]);
+            System.out.printf("  XBee Type:        %s%n", h.hardwareTypeString());
+            System.out.printf("  XBee Channels:    %02x - %02x%n", ch[0], ch[1]);
+            System.out.printf("  XBee Frequencies: %.3f - %.3f GHz%n", f[0], f[1]);
         }
 
         return h;
