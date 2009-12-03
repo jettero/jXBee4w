@@ -468,7 +468,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     firstLoop = false;
                 }
 
-                try { Thread.sleep(250); } catch(InterruptedException e) {/* we go around again either way */}
+                try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
             }
 
             clearCurrentDatagram();
