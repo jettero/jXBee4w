@@ -11,7 +11,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
     private static boolean debug = false;
     private static boolean dump_unhandled = false;
 
-    private PacketQueueWriter pw;
+    private HashMap<Address64, PacketQueueWriter> PQW;
+
     private XBeeHandle xh;
     private XBeePacketizer xp;
     private Address64 a;
@@ -24,8 +25,6 @@ public class XBeeDispatcher implements PacketRecvEvent {
     private HashMap <Address64, Message> incoming;
     private MessageRecvEvent messageReceiver;
     private RawRecvEvent rawReceiver;
-
-    private Thread _qThread; // keep a ref to the pw thread here
 
     // --------------------------- modem locator stuff -------------------------
 
@@ -87,12 +86,9 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         throw new XBeeConfigException("Unexpected error creating XBeeHandle on configured port: " + msg);
                     }
 
-                    pw = new PacketQueueWriter(xh); // start our pw writer
+                    PQW = new HashMap<Address64,PacketQueueWriter>();
 
-                    _qThread = new Thread(pw);
-                    _qThread.start();
-
-                    return; // if it worked, great, return out of there
+                    return; // it worked, great, return out of there
                 }
 
                 if( result != XBeeConfig.SPEED_ERR )
@@ -184,7 +180,11 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
                 if( st.statusOK() ) {
 
-                    pw.receiveACK(st.frameID());
+                    // XXX: Sadly, TxStatus packets *DO NOT* contain an address
+                    // at all probably, the frameID could later be used to
+                    // match the write pqw, but this is ok for now
+                    for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
+                        pw.receiveACK(st.frameID());
 
                     if( debug )
                         System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
@@ -193,7 +193,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     if( debug )
                         System.out.printf("[debug] Rx did not say it received packet-%d.%n", st.frameID());
 
-                    pw.receiveNACK(st.frameID());
+                    for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
+                        pw.receiveNACK(st.frameID());
                 }
                 break;
 
@@ -375,13 +376,32 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
+        PacketQueueWriter pw;
+
+        if( PQW.containsKey(dst) ) {
+            pw = PQW.get(dst);
+
+        } else {
+            // start new pqw for this address
+            pw = new PacketQueueWriter(xh);
+            PQW.put(dst, pw);
+
+            (new Thread(pw)).start();
+        }
+
+        // XXX: these are never cleaned up, so if you send to 10,000
+        // destinations your hashmap will have 10,000 PQWs open...
+
         pw.append( xp.tx(dst, message) );
     }
     // }}}
     // public void close() {{{
     public void close() {
-        if( pw != null ) pw.close();
-        if( xh != null ) xh.close();
+        for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
+            pw.close();
+
+        if( xh != null )
+            xh.close();
     }
     // }}}
 
