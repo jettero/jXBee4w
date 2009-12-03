@@ -142,6 +142,10 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     storeAddress(SH, SL);
             }
 
+            // this doesn't like confirm the new channel or anything... we'd
+            // probably get a status error or something if it didn't work
+            // else if( cmd.equals("CH") ) { System.out.println("[debug] channel changed"); }
+
         } else {
             if( p.statusError() ) {
                 System.err.println("Error sending " + cmd + " command.  Bad params?");
@@ -544,6 +548,17 @@ public class XBeeDispatcher implements PacketRecvEvent {
     // }}}
 
     // --------------------------- Handle Factories -------------------------
+
+    public void setChannel(int ch) throws IllegalArgumentException { setChannel( (byte) ch ); }
+    public void setChannel(byte ch) throws IllegalArgumentException {
+        byte _c[] = channelRange();
+        if( ch < _c[0] ) throw new IllegalArgumentException("channel number is too low");
+        if( ch > _c[1] ) throw new IllegalArgumentException("channel number is too high");
+
+        byte b[] = new byte[1]; b[0] = ch;
+        String cmds[][] = { { "CH", new String(b) } };
+        sendATcmds(cmds);
+    }
 
     XBeeDispatcher(String _n) {
         name = _n;
