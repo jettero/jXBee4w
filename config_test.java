@@ -14,7 +14,7 @@ public class config_test {
         if( args.length > 0 )
             port = args[0];
 
-        if( XBeeConfig.config(port, 115200) == XBeeConfig.SPEED_ERR )
-            XBeeConfig.config(port, 9600);
+        if( XBeeConfig.config(port, 115200, true) == XBeeConfig.SPEED_ERR )
+            XBeeConfig.config(port, 9600, true);
     }
 }
