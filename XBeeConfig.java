@@ -271,7 +271,7 @@ public class XBeeConfig {
                 result = CONFIGURED; // used by the linespeed retry loop
 
                 // not a debug message
-                System.out.print("firmware revision: " + conf[conf.length-1] + " ");
+                System.out.print("firmware revision: " + res[res.length-1] + " ");
 
             } catch( XBeeConfigException e ) {
                 System.err.println("ERROR configuring modem: " + e.getMessage());
