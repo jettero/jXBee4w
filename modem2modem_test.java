@@ -36,10 +36,18 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
            rhs.send( lhs.addr(), String.format("<<< reply test: %s >>>", new String(message)) );
     }
 
-    public static int num() {
-        String num = System.getenv("MESSAGES_TO_SEND");
-        if( num == null ) num = "1";
-        return (new Integer(num)).intValue();
+    public static int numberize(String var) {
+        String res = System.getenv(var);
+        if( res == null )
+            return 0;
+        return (new Integer(res)).intValue();
+    }
+
+    public boolean booleanize(String var) {
+        int i = numberize(var);
+
+        if( i != 0 ) return true;
+        return false;
     }
 
     public void run() {
@@ -57,14 +65,16 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
         rhs.registerRawReceiver(this);
 
         String extra = System.getenv("EXTRA_MSG");
-        if( extra == null )
-            extra = "";
-
+        if( extra == null ) extra = "";
 
         System.out.println("\nsending messages...\n");
 
-        for(int i=0; i<num(); i++)
-            lhs.send( rhs.addr(), String.format("-=: This is a test message: test #%d.%s :=-", i, extra) );
+        Address64 target = rhs.addr();
+        if( booleanize("FLUB_TARGET_ADDR") )
+            target.addr[3] ++;
+
+        for(int i=0; i<numberize("MESSAGES_TO_SEND"); i++)
+            lhs.send( target, String.format("-=: This is a test message: test #%d.%s :=-", i, extra) );
 
         System.out.println("\nwaiting for everything to finish up...\n\n");
 
