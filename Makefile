@@ -19,13 +19,6 @@ run_last_test:
 	@echo " >> RUNNING $@ << "
 	@java $@; chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
-config_test: config_test.class
-	@echo $@ > $(lastfile)
-	@-rm -f *.pkg *.dat
-	@echo " >> RUNNING $@ << "
-	@for i in `cat /tmp/p1`; do java $@ $$i; done
-	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
-
 show show_packets:
 	(for i in `ls -rt1 *.pkt`; do echo -n $$i; xxd -c 32 "$$i"; done) | less -ES
 
