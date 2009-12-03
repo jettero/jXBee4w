@@ -190,7 +190,10 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
 
                 } else {
-                    System.err.printf("ERROR Rx did not say it received packet-%d%n", st.frameID());
+                    if( debug )
+                        System.out.printf("[debug] Rx did not say it received packet-%d.%n", st.frameID());
+
+                    pw.receiveNACK(st.frameID());
                 }
                 break;
 
@@ -407,6 +410,16 @@ public class XBeeDispatcher implements PacketRecvEvent {
             OutboundQueue = new ArrayDeque< Queue <XBeeTxPacket> >();
         }
 
+        public void receiveNACK(int frameID) {
+            if( currentDatagram == null )
+                return;
+
+            if( debug )
+                System.out.printf("[debug] PacketWriter - receiveNACK(%d)%n", frameID);
+
+            currentDatagram.NACK(frameID);
+        }
+
         public void receiveACK(int frameID) {
             if( currentDatagram == null )
                 return;
@@ -418,7 +431,8 @@ public class XBeeDispatcher implements PacketRecvEvent {
         }
 
         private void sendCurrentDatagram() {
-            XBeePacket datagram[] = currentDatagram.packets();
+            boolean resetNACKCount = true;
+            XBeePacket datagram[] = currentDatagram.packets(resetNACKCount);
 
             for( int i=0; i<datagram.length; i++ ) {
                 if( closed )
@@ -446,8 +460,13 @@ public class XBeeDispatcher implements PacketRecvEvent {
             if( debug )
                 System.out.println("[debug] PacketWriter - dealWithCurrentDatagram()");
 
+            boolean firstLoop = true;
+
             while( !closed && currentDatagram.size() > 0 ) {
-                sendCurrentDatagram();
+                if( firstLoop || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
+                    sendCurrentDatagram();
+                    firstLoop = false;
+                }
 
                 try { Thread.sleep(250); } catch(InterruptedException e) {/* we go around again either way */}
             }
