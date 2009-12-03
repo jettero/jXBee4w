@@ -389,10 +389,26 @@ public class XBeeDispatcher implements PacketRecvEvent {
             (new Thread(pw)).start();
         }
 
-        // XXX: these are never cleaned up, so if you send to 10,000
-        // destinations your hashmap will have 10,000 PQWs open...
-
         pw.append( xp.tx(dst, message) );
+
+        // NOTE: we have to go through the hash every now and again even if the
+        // pqws exit gracefully on their own.  If they exit cleanly, we pretty
+        // much still have go through and ask if they exited ... or else have
+        // them callback home to clean up the hash or something.
+
+        // This is probably fine for now.  If the hash gets too big the
+        // frameIDs are going to roll-over and collide anyway.
+
+        for( Address64 a : PQW.keySet().toArray(new Address64[PQW.size()]) ) {
+            if( !a.equals(dst) ) {
+                pw = PQW.get(a);
+
+                if( pw.allClear() ) {
+                    pw.close();
+                    PQW.remove(dst);
+                }
+            }
+        }
     }
     // }}}
     // public void close() {{{
