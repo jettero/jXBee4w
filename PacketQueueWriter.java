@@ -18,14 +18,14 @@ public class PacketQueueWriter implements Runnable {
 
     public void close() {
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - close()%n", name);
+            System.out.printf("[debug] PacketQueueWriter(%s) - close()%n", name);
 
         closed = true;
     }
 
     public synchronized void append(Queue <XBeeTxPacket> q) {
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - append()%n", name);
+            System.out.printf("[debug] PacketQueueWriter(%s) - append()%n", name);
 
         // block while we've already got enough to do
         while(outboundQueue.size() >= MAX_QUEUE_DEPTH)
@@ -46,7 +46,7 @@ public class PacketQueueWriter implements Runnable {
             return;
 
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - receiveNACK(%d)%n", name, frameID);
+            System.out.printf("[debug] PacketQueueWriter(%s) - receiveNACK(%d)%n", name, frameID);
 
         currentDatagram.NACK(frameID);
     }
@@ -56,7 +56,7 @@ public class PacketQueueWriter implements Runnable {
             return;
 
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - receiveACK(%d)%n", name, frameID);
+            System.out.printf("[debug] PacketQueueWriter(%s) - receiveACK(%d)%n", name, frameID);
 
         currentDatagram.ACK(frameID);
     }
@@ -71,7 +71,7 @@ public class PacketQueueWriter implements Runnable {
 
             try {
                 if( debug )
-                    System.out.printf("[debug] PacketWriter(%s) - sendCurrentDatagram(%d)%n", name,
+                    System.out.printf("[debug] PacketQueueWriter(%s) - sendCurrentDatagram(%d)%n", name,
                         ((XBeeTxPacket)datagram[i]).frameID());
 
                 xh.send_packet(datagram[i]); // this method is synchronized, no worries on timing
@@ -93,7 +93,7 @@ public class PacketQueueWriter implements Runnable {
 
         while( !closed && currentDatagram.size() > 0 ) {
             if( debug )
-                System.out.printf("[debug] PacketWriter(%s) - dealWithCurrentDatagram(size=%d)%n", name, currentDatagram.size());
+                System.out.printf("[debug] PacketQueueWriter(%s) - dealWithCurrentDatagram(size=%d)%n", name, currentDatagram.size());
 
             if( firstLoop || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
                 sendCurrentDatagram();
@@ -108,14 +108,14 @@ public class PacketQueueWriter implements Runnable {
 
     private synchronized void clearCurrentDatagram() {
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - clearCurrentDatagram()%n", name);
+            System.out.printf("[debug] PacketQueueWriter(%s) - clearCurrentDatagram()%n", name);
 
         currentDatagram = null;
     }
 
     private synchronized void lookForDatagram() {
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - lookForDatagram()%n", name);
+            System.out.printf("[debug] PacketQueueWriter(%s) - lookForDatagram()%n", name);
 
         Queue <XBeeTxPacket> tmp = outboundQueue.poll();
 
@@ -131,7 +131,7 @@ public class PacketQueueWriter implements Runnable {
             return false;
 
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - allClear()%n", name);
+            System.out.printf("[debug] PacketQueueWriter(%s) - allClear()%n", name);
 
         return true;
     }
@@ -139,7 +139,7 @@ public class PacketQueueWriter implements Runnable {
     public void run() {
         while(!closed) {
             if( debug )
-                System.out.printf("[debug] PacketWriter(%s) - run()%n", name);
+                System.out.printf("[debug] PacketQueueWriter(%s) - run()%n", name);
 
             lookForDatagram();
             dealWithDatagram();
