@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
-    XBeeDispatcher x[] = new XBeeDispatcher[4];
+    XBeeDispatcher x[];
 
     public static final int MAX_WAITS = 2;
     public static final int WAIT_LEN  = 750;
@@ -43,7 +43,13 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
     public void run() {
         boolean announce = false;
 
-        for(int i=0; i<4; i++) {
+        int radios = numberize("RADIOS");
+        if( radios < 1 || radios > 4 )
+            radios = 4;
+
+        x = new XBeeDispatcher[radios];
+
+        for(int i=0; i<radios; i++) {
             x[i] = XBeeDispatcher.configuredDispatcher(String.format("X%d", i), announce);
             x[i].registerMessageReceiver(this);
             x[i].registerRawReceiver(this);
