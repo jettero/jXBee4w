@@ -1,16 +1,17 @@
 import java.util.*;
 
 public class PacketQueueWriterDestinationMap {
-    private boolean debug = false;
     private HashMap<Address64, PacketQueueWriter> hm;
     String name;
     XBeeHandle xh;
+
+    private static boolean debug = false;
+    static { debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG"); }
 
     PacketQueueWriterDestinationMap(String _n, XBeeHandle _xh) {
         hm = new HashMap<Address64,PacketQueueWriter>();
         xh = _xh;
         name = _n;
-        debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG");
     }
 
     private PacketQueueWriter[] allPQW() {

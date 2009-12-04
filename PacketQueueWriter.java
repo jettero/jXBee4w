@@ -3,7 +3,6 @@ import java.util.*;
 
 public class PacketQueueWriter implements Runnable {
     private static final int MAX_QUEUE_DEPTH = 5;
-    private static boolean debug = false;
 
     private XBeeHandle xh;
     private Queue <Queue <XBeeTxPacket>> outboundQueue; // not synched, so the append and pop functions must be
@@ -12,15 +11,14 @@ public class PacketQueueWriter implements Runnable {
 
     private String name;
 
+    private static boolean debug = false;
+    static { debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG"); }
+
     public void close() {
         if( debug )
             System.out.printf("[debug] PacketWriter(%s) - close()%n", name);
 
         closed = true;
-    }
-
-    static {
-        debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG");
     }
 
     public synchronized void append(Queue <XBeeTxPacket> q) {
