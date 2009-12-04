@@ -35,7 +35,7 @@ public class PacketQueueWriterDestinationMap {
 
         for( PacketQueueWriter pw : allPQW() ) {
             if( debug )
-                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveACK(%d) [to %d]%n", name, frameID, pw.getName());
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveACK(%d) [to %s]%n", name, frameID, pw.getName());
 
             pw.receiveACK(frameID);
         }
@@ -47,7 +47,7 @@ public class PacketQueueWriterDestinationMap {
 
         for( PacketQueueWriter pw : allPQW() ) {
             if( debug )
-                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveNACK(%d) [to %d]%n", name, frameID, pw.getName());
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveNACK(%d) [to %s]%n", name, frameID, pw.getName());
 
             pw.receiveNACK(frameID);
         }
