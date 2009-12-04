@@ -51,6 +51,7 @@ config_test.class:      XBeeConfig.class
 handle_test.class:      XBeeHandle.class XBeePacket.class
 at_cmd_test.class:      XBeePacketizer.class
 modem2modem_test.class: XBeeDispatcher.class
+randm2m_test.class:     XBeeDispatcher.class
 dispatch_test.class:    XBeeDispatcher.class
 ackq_test.class:        ACKQueue.class
 fragment_test.class:    Message.class
