@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class PacketQueueWriter implements Runnable {
+    private static final int MAX_QUEUE_DEPTH = 5;
     private static boolean debug = false;
 
     private XBeeHandle xh;
@@ -17,7 +18,7 @@ public class PacketQueueWriter implements Runnable {
 
     public synchronized void append(Queue <XBeeTxPacket> q) {
         // block while we've already got enough to do
-        while(outboundQueue.size() > 50)
+        while(outboundQueue.size() >= MAX_QUEUE_DEPTH)
             try { Thread.sleep(150); }
             catch(InterruptedException e) {/* we go around again either way */}
 
