@@ -4,8 +4,8 @@ import java.util.*;
 public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
     XBeeDispatcher x[];
 
-    public static final int MAX_WAITS = 2;
-    public static final int WAIT_LEN  = 750;
+    public static final int MAX_WAITS = 3;
+    public static final int WAIT_LEN  = 1000;
     int idle_retries = MAX_WAITS;
 
     private HashMap <String, Integer> theCounts = new HashMap <String,Integer>();
@@ -106,11 +106,15 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
         // presumably because the sending queues aren't empty... but the close
         // should still work!
 
+        System.out.println("done sending ... waiting around");
         while( idle_retries --> 0 )
             try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
 
+        System.out.println("done waiting ... closing everything");
         for(XBeeDispatcher _x : x)
             _x.close();
+
+        System.out.println("done closing ... checking the counts");
 
         int c;
         for( String k : theCounts.keySet().toArray(new String[0]) )
