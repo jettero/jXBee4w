@@ -20,7 +20,7 @@ public class PacketQueueWriter implements Runnable {
 
     public synchronized void append(Queue <XBeeTxPacket> q) {
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - receiveNACK(%d)%n", name, frameID);
+            System.out.printf("[debug] PacketWriter(%s) - append()%n", name);
 
         // block while we've already got enough to do
         while(outboundQueue.size() >= MAX_QUEUE_DEPTH)
@@ -60,14 +60,15 @@ public class PacketQueueWriter implements Runnable {
         boolean resetNACKCount = true;
         XBeePacket datagram[] = currentDatagram.packets(resetNACKCount);
 
-        if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - sendCurrentDatagram()%n", name);
-
         for( int i=0; i<datagram.length; i++ ) {
             if( closed )
                 return;
 
             try {
+                if( debug )
+                    System.out.printf("[debug] PacketWriter(%s) - sendCurrentDatagram(%d)%n", name,
+                        ((XBeeTxPacket)datagram[i]).frameID());
+
                 xh.send_packet(datagram[i]); // this method is synchronized, no worries on timing
             }
 
