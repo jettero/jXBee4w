@@ -388,7 +388,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         } else {
             // start new pqw for this address
-            pw = new PacketQueueWriter(xh);
+            pw = new PacketQueueWriter(xh, String.format("%s->%s", a.toText(), dst.toText()));
             PQW.put(dst, pw);
 
             (new Thread(pw)).start();
