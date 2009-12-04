@@ -11,7 +11,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
     private static boolean debug = false;
     private static boolean dump_unhandled = false;
 
-    private HashMap<Address64, PacketQueueWriter> PQW;
+    private PacketQueueWriterDestinationMap PQW;
 
     private XBeeHandle xh;
     private XBeePacketizer xp;
@@ -91,7 +91,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         throw new XBeeConfigException("Unexpected error creating XBeeHandle on configured port: " + msg);
                     }
 
-                    PQW = new HashMap<Address64,PacketQueueWriter>();
+                    PQW = new PacketQueueWriterDestinationMap(name, xh);
 
                     return; // it worked, great, return out of there
                 }
@@ -188,18 +188,16 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     // XXX: Sadly, TxStatus packets *DO NOT* contain an address
                     // at all probably, the frameID could later be used to
                     // match the write pqw, but this is ok for now
-                    for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
-                        pw.receiveACK(st.frameID());
+                    PQW.receiveACK(st.frameID());
 
                     if( debug )
                         System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
 
                 } else {
+                    PQW.receiveNACK(st.frameID());
+
                     if( debug )
                         System.out.printf("[debug] Rx did not say it received packet-%d.%n", st.frameID());
-
-                    for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
-                        pw.receiveNACK(st.frameID());
                 }
                 break;
 
@@ -381,45 +379,14 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     // public void send(Address64 dst, String message) {{{
     public void send(Address64 dst, String message) {
-        PacketQueueWriter pw;
-
-        if( PQW.containsKey(dst) ) {
-            pw = PQW.get(dst);
-
-        } else {
-            // start new pqw for this address
-            pw = new PacketQueueWriter(xh, String.format("%s->%s", addr().toText(), dst.toText()));
-            PQW.put(dst, pw);
-
-            (new Thread(pw)).start();
-        }
+        PacketQueueWriter pw = PQW.get(dst);
 
         pw.append( xp.tx(dst, message) );
-
-        // NOTE: we have to go through the hash every now and again even if the
-        // pqws exit gracefully on their own.  If they exit cleanly, we pretty
-        // much still have go through and ask if they exited ... or else have
-        // them callback home to clean up the hash or something.
-
-        // This is probably fine for now.  If the hash gets too big the
-        // frameIDs are going to roll-over and collide anyway.
-
-        for( Address64 a : PQW.keySet().toArray(new Address64[PQW.size()]) ) {
-            if( !a.equals(dst) ) {
-                pw = PQW.get(a);
-
-                if( pw.allClear() ) {
-                    pw.close();
-                    PQW.remove(dst);
-                }
-            }
-        }
     }
     // }}}
     // public void close() {{{
     public void close() {
-        for( PacketQueueWriter pw : PQW.values().toArray(new PacketQueueWriter[PQW.size()]) )
-            pw.close();
+        PQW.closeAll();
 
         if( xh != null )
             xh.close();
