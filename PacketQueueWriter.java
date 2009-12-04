@@ -91,7 +91,7 @@ public class PacketQueueWriter implements Runnable {
 
         while( !closed && currentDatagram.size() > 0 ) {
             if( debug )
-                System.out.printf("[debug] PacketWriter(%s) - dealWithCurrentDatagram()%n", name);
+                System.out.printf("[debug] PacketWriter(%s) - dealWithCurrentDatagram(size=%d)%n", name, currentDatagram.size());
 
             if( firstLoop || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
                 sendCurrentDatagram();
@@ -122,9 +122,6 @@ public class PacketQueueWriter implements Runnable {
     }
 
     public boolean allClear() {
-        if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - allClear()%n", name);
-
         if( currentDatagram != null )
             return false;
 
@@ -132,7 +129,7 @@ public class PacketQueueWriter implements Runnable {
             return false;
 
         if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - allClear() - [true]%n", name);
+            System.out.printf("[debug] PacketWriter(%s) - allClear()%n", name);
 
         return true;
     }
