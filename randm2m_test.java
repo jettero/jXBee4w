@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
     XBeeDispatcher x[];
@@ -7,18 +8,42 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
     public static final int WAIT_LEN  = 750;
     int idle_retries = MAX_WAITS;
 
+    private HashMap <String, Integer> theCounts = new HashMap <String,Integer>();
+
+    private String frobnicate(Address64 src, Address64 dst, String msg) {
+        return String.format("< %s, %s->%s >", msg, src.toText(), dst.toText());
+    }
+
+    private void _alt(String frob, int diff) {
+        if( theCounts.containsKey(frob) )
+            theCounts.put( frob, theCounts.get(frob) + diff );
+
+        else
+            theCounts.put( frob, new Integer(diff) );
+    }
+
+    private void inc(Address64 src, Address64 dst, String msg) { _alt(frobnicate(src,dst,msg),  1); }
+    private void dec(Address64 src, Address64 dst, String msg) { _alt(frobnicate(src,dst,msg), -1); }
+
     public void recvPacket(XBeeDispatcher handle, XBeeRxPacket rx) {
         System.out.printf("%s Rx %d byte(s) at %d dBm.%n", handle.getName(), rx.payloadLength(), rx.RSSI());
         idle_retries = MAX_WAITS;
     }
 
     public void recvMessage(XBeeDispatcher handle, Address64 src, byte message[]) {
+        Address64 dst = handle.addr();
+
         String s = new String(message);
 
-        System.out.printf("%s Rx: \"%s\"%n", handle.getName(), src.toText(), s);
+        dec(src, dst, s);
 
-        if( message[message.length-1] != 'R' )
-            handle.send( src, String.format("%s R", s) );
+        // System.out.printf("%s Rx: \"%s\" (from: %s)%n", handle.getName(), s, src.toText());
+
+        if( message[message.length-1] != 'R' ) {
+            s = String.format("%s R", s);
+            inc(dst, src, s);
+            handle.send( src, s );
+        }
     }
 
     // public static int numberize(String var) {{{
@@ -58,27 +83,39 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
 
         // ok, this isn't very random ... meh.
 
-        int test = 0;
+        int epochs = numberize("EPOCHS");
+        if( epochs < 1 )
+            epochs = 1;
 
+        for( int epoch=0; epoch<epochs; epoch++ ) { int test = 0;
         for( XBeeDispatcher lhs : x ) {
         for( XBeeDispatcher rhs : x ) {
         if( lhs != rhs ) {
+            String s = String.format("test-%d.%d", epoch, test++);
 
+            Address64 source = lhs.addr();
             Address64 target = rhs.addr();
 
-            lhs.send( target, String.format("test-%d", test++) );
+            inc(source, target, s);
 
-        }}}
+            lhs.send( target, s );
+
+        }}}}
 
         // XXX: testing bug... the close below doesn't seem to actually close
         // presumably because the sending queues aren't empty... but the close
         // should still work!
 
-        // while( idle_retries --> 0 )
-        //     try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
+        while( idle_retries --> 0 )
+            try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
 
         for(XBeeDispatcher _x : x)
             _x.close();
+
+        int c;
+        for( String k : theCounts.keySet().toArray(new String[0]) )
+            if( (c = theCounts.get(k).intValue()) != 0 )
+                System.err.printf("found a non-zero (%d) key in the double-check hashmap: %s%n", c, k);
     }
 
     public static void main(String args[]) {
