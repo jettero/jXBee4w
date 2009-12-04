@@ -42,7 +42,7 @@ XBeeHandle.class:     XBeePacketizer.class PacketRecvEvent.class TestENV.class
 ACKQueue.class: XBeePacket.class
 Message.class:  PayloadException.class
 
-XBeeDispatcher.class:  XBeeHandle.class XBeeConfig.class MessageRecvEvent.class RawRecvEvent.class ACKQueue.class
+XBeeDispatcher.class:  XBeeHandle.class XBeeConfig.class MessageRecvEvent.class RawRecvEvent.class ACKQueue.class PacketQueueWriter.class
 
 address_test.class:     Address64.class
 packetizer_test.class:  XBeePacketizer.class
