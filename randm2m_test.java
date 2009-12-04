@@ -119,7 +119,7 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
         int c;
         for( String k : theCounts.keySet().toArray(new String[0]) )
             if( (c = theCounts.get(k).intValue()) != 0 )
-                System.err.printf("found a non-zero (%d) key in the double-check hashmap: %s%n", c, k);
+                System.out.printf("found a non-zero (%d) key in the double-check hashmap: %s%n", c, k);
     }
 
     public static void main(String args[]) {
