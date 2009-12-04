@@ -15,7 +15,7 @@ run_last_test:
 %_test:
 	@echo $@ > $(lastfile)
 	@make --no-print-directory $@.class
-	@-rm -f *.pkt *.dat *.log
+	@-rm -f *.pkt *.dat
 	@echo " >> RUNNING $@ << "
 	@java $@; chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
