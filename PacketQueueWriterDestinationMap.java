@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class PacketQueueWriterDestinationMap {
+    private boolean debug = false;
     private HashMap<Address64, PacketQueueWriter> hm;
     String name;
     XBeeHandle xh;
@@ -9,6 +10,7 @@ public class PacketQueueWriterDestinationMap {
         hm = new HashMap<Address64,PacketQueueWriter>();
         xh = _xh;
         name = _n;
+        debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG");
     }
 
     private PacketQueueWriter[] allPQW() {
