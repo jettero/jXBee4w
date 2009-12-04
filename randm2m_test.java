@@ -5,7 +5,7 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
     XBeeDispatcher x[];
 
     public static final int MAX_WAITS = 3;
-    public static final int WAIT_LEN  = 1000;
+    public static final int WAIT_LEN  = 750;
     int idle_retries = MAX_WAITS;
 
     private HashMap <String, Integer> theCounts = new HashMap <String,Integer>();
