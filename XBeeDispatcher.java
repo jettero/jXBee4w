@@ -277,7 +277,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
         for(int i=0; i<atp.length; i++) {
             try {
-                xh.send_packet(atp[i]);
+                xh.send_packet(atp[i]); // this method is synchronized, no worries on timing
 
             } catch(IOException e) {
                 System.err.println("error sending at packet(" + i + "): " + e.getMessage());
@@ -478,7 +478,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     if( debug )
                         System.out.printf("[debug] PacketWriter - sendCurrentDatagram(%d)%n", i);
 
-                    xh.send_packet(datagram[i]);
+                    xh.send_packet(datagram[i]); // this method is synchronized, no worries on timing
                 }
 
                 catch(IOException e) {
