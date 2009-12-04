@@ -29,14 +29,28 @@ public class PacketQueueWriterDestinationMap {
         hm.clear();
     }
 
-    public void receiveNACK(int frameID) {
-        for( PacketQueueWriter pw : allPQW() )
+    public void receiveACK(int frameID) {
+        if( debug )
+            System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveACK(%d)%n", name, frameID);
+
+        for( PacketQueueWriter pw : allPQW() ) {
+            if( debug )
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveACK(%d) [to %d]%n", name, frameID, pw.getName());
+
             pw.receiveACK(frameID);
+        }
     }
 
-    public void receiveACK(int frameID) {
-        for( PacketQueueWriter pw : allPQW() )
-            pw.receiveACK(frameID);
+    public void receiveNACK(int frameID) {
+        if( debug )
+            System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveNACK(%d)%n", name, frameID);
+
+        for( PacketQueueWriter pw : allPQW() ) {
+            if( debug )
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - receiveNACK(%d) [to %d]%n", name, frameID, pw.getName());
+
+            pw.receiveNACK(frameID);
+        }
     }
 
     private synchronized void checkForStaleEntries(Address64 skip) {

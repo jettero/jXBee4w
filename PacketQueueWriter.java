@@ -14,6 +14,8 @@ public class PacketQueueWriter implements Runnable {
     private static boolean debug = false;
     static { debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG"); }
 
+    public String getName() { return name; }
+
     public void close() {
         if( debug )
             System.out.printf("[debug] PacketWriter(%s) - close()%n", name);
