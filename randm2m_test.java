@@ -64,8 +64,12 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
 
         }}}
 
-        while( idle_retries --> 0 )
-            try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
+        // XXX: testing bug... the close below doesn't seem to actually close
+        // presumably because the sending queues aren't empty... but the close
+        // should still work!
+
+        // while( idle_retries --> 0 )
+        //     try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
 
         for(XBeeDispatcher _x : x)
             _x.close();
