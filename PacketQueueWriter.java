@@ -124,11 +124,17 @@ public class PacketQueueWriter implements Runnable {
     }
 
     public boolean allClear() {
+        if( debug )
+            System.out.printf("[debug] PacketWriter(%s) - allClear()%n", name);
+
         if( currentDatagram != null )
             return false;
 
         if( outboundQueue.size() > 0 )
             return false;
+
+        if( debug )
+            System.out.printf("[debug] PacketWriter(%s) - allClear() - [true]%n", name);
 
         return true;
     }
