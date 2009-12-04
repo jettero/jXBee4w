@@ -12,7 +12,12 @@ public class PacketQueueWriter implements Runnable {
 
     private String name;
 
-    public void close() { closed = true; }
+    public void close() {
+        if( debug )
+            System.out.printf("[debug] PacketWriter(%s) - close()%n", name);
+
+        closed = true;
+    }
 
     static {
         debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG");
@@ -84,12 +89,12 @@ public class PacketQueueWriter implements Runnable {
         if( closed || currentDatagram == null )
             return;
 
-        if( debug )
-            System.out.printf("[debug] PacketWriter(%s) - dealWithCurrentDatagram()%n", name);
-
         boolean firstLoop = true;
 
         while( !closed && currentDatagram.size() > 0 ) {
+            if( debug )
+                System.out.printf("[debug] PacketWriter(%s) - dealWithCurrentDatagram()%n", name);
+
             if( firstLoop || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
                 sendCurrentDatagram();
                 firstLoop = false;
