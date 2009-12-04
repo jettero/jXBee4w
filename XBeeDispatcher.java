@@ -91,7 +91,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         throw new XBeeConfigException("Unexpected error creating XBeeHandle on configured port: " + msg);
                     }
 
-                    PQW = new PacketQueueWriterDestinationMap(name, xh);
+                    PQW = new PacketQueueWriterDestinationMap( String.format("%s:%s", name, addr().toText()), xh);
 
                     return; // it worked, great, return out of there
                 }
