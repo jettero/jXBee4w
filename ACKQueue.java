@@ -29,17 +29,21 @@ public class ACKQueue {
         return Q.values().toArray(new XBeeTxPacket[Q.size()]);
     }
 
-    public synchronized void ACK(int frameID) {
+    public synchronized boolean ACK(int frameID) {
         Integer F = new Integer(frameID);
 
-        Q.remove(F);
         N.remove(F);
+        return Q.remove(F) == null ? false : true;
     }
 
-    public synchronized void NACK(int frameID) {
+    public synchronized boolean NACK(int frameID) {
         Integer F = new Integer(frameID);
 
-        if( Q.containsKey(F) )
+        if( Q.containsKey(F) ) {
             N.add(new Integer(F));
+            return true;
+        }
+
+        return false;
     }
 }
