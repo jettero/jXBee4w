@@ -17,7 +17,8 @@ run_last_test:
 	@make --no-print-directory $@.class
 	@-rm -f *.pkt *.dat
 	@echo " >> RUNNING $@ << "
-	@java $@; chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
+	@-java $@;
+	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 show show_packets:
 	(for i in `ls -rt1 *.pkt`; do echo -n $$i; xxd -c 32 "$$i"; done) | less -ES
