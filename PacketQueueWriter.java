@@ -4,7 +4,9 @@ import java.util.*;
 public class PacketQueueWriter implements Runnable {
     private static final int MAX_QUEUE_DEPTH = 5;
     private static final int POLLING_WAIT    = 150;
-    private static final int POLLING_WAITS   = 9; // number of sleep(POLLING_WAIT)s before we give up and resend
+    private static final int POLLING_WAITS   = 30; // number of sleep(POLLING_WAIT)s before we give up and resend
+                                                   // the XBEE keeps track of ACKs internally, so this should be really high
+                                                   // -- by enbedded timing standards, 30*150 is practically eternity
 
     private boolean closed = false;
     private XBeeHandle xh;
