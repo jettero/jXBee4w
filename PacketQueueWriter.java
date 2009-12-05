@@ -99,7 +99,6 @@ public class PacketQueueWriter implements Runnable {
 
         while( !closed && currentDatagram.size() > 0 ) {
             if( debug )
-
                 System.out.printf("[debug] PacketQueueWriter(%s) - dealWithCurrentDatagram(nack=%d, size=%d, [%s])%n",
                     name, currentDatagram.NACKCount(), currentDatagram.size(), currentDatagram.IDsAsString());
 
@@ -130,13 +129,14 @@ public class PacketQueueWriter implements Runnable {
     }
 
     private synchronized void lookForDatagram() {
-        if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - lookForDatagram()%n", name);
-
         Queue <XBeeTxPacket> tmp = outboundQueue.poll();
 
         if( tmp != null )
             currentDatagram = new ACKQueue(tmp);
+
+        if( debug )
+            System.out.printf("[debug] PacketQueueWriter(%s) - lookForDatagram(qsize=%d, IDs=[%s])%n",
+                 name, outboundQueue.size(), tmp == null ? "n/a" : currentDatagram.IDsAsString());
     }
 
     public boolean allClear() {
