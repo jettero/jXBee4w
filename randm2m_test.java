@@ -37,6 +37,8 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
 
         dec(src, dst, s);
 
+        System.out.printf("%s received, \"%s\"%n", handle.getName(), s);
+
         if( TestENV.booleanize("REPLY") )
             if( message[message.length-1] != 'R' ) {
                 s = String.format("%s R", s);
