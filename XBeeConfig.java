@@ -158,6 +158,8 @@ public class XBeeConfig {
                                     continue;
 
                                 } else {
+
+                                    System.out.println("FAIL");
                                     return false;
                                 }
 
@@ -191,7 +193,6 @@ public class XBeeConfig {
         }
 
         System.out.println("FAIL");
-
         return false;
     }
 
