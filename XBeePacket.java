@@ -196,6 +196,8 @@ public class XBeePacket {
         // this whole function is for debugging purposes, no sense checking some global flag
         System.out.println("[debug] dumping packet bytes to " + fname);
 
+        fname = fname.replaceAll("[^a-zA-Z0-9_.-]", "-");
+
         try {
             FileOutputStream out = new FileOutputStream(fname);
 
