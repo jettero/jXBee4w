@@ -69,7 +69,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
         int speeds[] = {115200, 9600};
 
         while( (pid = ports.poll()) != null ) {
-            System.out.printf("XBeeDispatcher(%s) Looking for XBee on port %s%n", name, pid.getName());
+            System.out.printf("Looking for XBee on port %s (for %s)%n", pid.getName(), name);
 
             for(int i=0; i<speeds.length; i++) {
                 int result = XBeeConfig.config(pid, speeds[i]); // try to config
