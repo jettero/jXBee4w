@@ -58,7 +58,7 @@ public class XBeeHandle {
             in  = serialPort.getInputStream();
             out = serialPort.getOutputStream();
 
-            packetReader = new PacketReader(name, in, callback);
+            packetReader = new PacketReader(name, in, serialPort, callback);
 
             _prThread = new Thread(packetReader);
             _prThread.start();
@@ -83,6 +83,7 @@ public class XBeeHandle {
     private static class PacketReader implements Runnable {
         private PacketRecvEvent packetReceiver;
         private InputStream in;
+        private SerialPort serialPort;
         private ByteBuffer b;
         private boolean inPkt;
 
@@ -97,12 +98,13 @@ public class XBeeHandle {
             dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS") || TestENV.test("DUMP_PACKETS");
         }
 
-        public PacketReader(String _name, InputStream _in, PacketRecvEvent callback) {
+        public PacketReader(String _name, InputStream _in, SerialPort _p, PacketRecvEvent callback) {
             in = _in;
             packetReceiver = callback;
             b = ByteBuffer.wrap(new byte[1024]);
             inPkt = false;
             name = _name;
+            serialPort = _p;
         }
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
@@ -187,6 +189,8 @@ public class XBeeHandle {
 
             try {
 
+                serialPort.setRTS(true); // tell the DO to send -- this is usually disabled
+
                 if( in.available() >= 1 ) {
                     while( (aByte = in.read()) > -1 ) {
                         if( inPkt ) {
@@ -198,6 +202,8 @@ public class XBeeHandle {
                         }
                     }
                 }
+
+                serialPort.setRTS(false);
             }
 
             catch(IOException e) {
@@ -235,8 +241,6 @@ public class XBeeHandle {
 
         byte b[] = p.getBytes();
 
-        serialPort.setRTS(true);
-
         for(int i=0; i<b.length; i++) {
 
             while(!serialPort.isCTS()) {
@@ -247,8 +251,6 @@ public class XBeeHandle {
 
             out.write(b[i]);
         }
-
-        serialPort.setRTS(false);
 
         if( debug )
             System.out.printf("[debug] XBeeHandle(%s) sent packet (desync)%n", name);
