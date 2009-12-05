@@ -49,20 +49,20 @@ public class PacketQueueWriter implements Runnable {
         if( currentDatagram == null )
             return;
 
-        if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - receiveNACK(%d)%n", name, frameID);
+        boolean res = currentDatagram.NACK(frameID);
 
-        currentDatagram.NACK(frameID);
+        if( debug )
+            System.out.printf("[debug] PacketQueueWriter(%s) - receiveNACK(%d) [%s]%n", name, frameID, res ? "!" : " ");
     }
 
     public void receiveACK(int frameID) {
         if( currentDatagram == null )
             return;
 
-        if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - receiveACK(%d)%n", name, frameID);
+        boolean res = currentDatagram.ACK(frameID);
 
-        currentDatagram.ACK(frameID);
+        if( debug )
+            System.out.printf("[debug] PacketQueueWriter(%s) - receiveACK(%d) [%s]%n", name, frameID, res ? "!" : " ");
     }
 
     private void sendCurrentDatagram() {
