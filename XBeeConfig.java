@@ -111,8 +111,8 @@ public class XBeeConfig {
     }
 
     public boolean mightAlreadyBeConfigured() {
-        String cmds[][] = { {"AP"}, {"BD"}, {"MY"} };
-        byte val[][] = { {0x01}, {0x07}, {(byte)0xff, (byte)0xff} };
+        String cmds[][] = { {"AP"}, {"BD"}, {"MY"}, {"RN"} };
+        byte val[][] = { {0x01}, {0x07}, {(byte)0xff, (byte)0xff}, {0x02} };
 
         XBeePacket configs[] = packetizer.at(cmds);
         int retries = 5;
@@ -144,18 +144,20 @@ public class XBeeConfig {
                                 if( j < 0 )
                                     match = false;
 
-                                for(int i=0; match && i<val[cur].length; i++)
-                                    if( rB[j+i] != val[cur][i] )
+                                for(int i=0; match && i<val[cur].length; i++) {
+                                    if( rB[j+i] != val[cur][i] ) {
+                                        if( debug )
+                                            System.out.printf("[debug] bad config result (%02x vs %02x), recommending reconfigure%n", rB[j+i], val[cur][i]);
+
                                         match = false;
+                                    }
+                                }
 
                                 if( match ) {
                                     cur++;
                                     continue;
 
                                 } else {
-                                    if( debug )
-                                        System.out.printf("[debug] bad config result (%d vs %d), recommending reconfigure%n", r.responseBytes()[1], val[cur]);
-
                                     return false;
                                 }
 
@@ -256,7 +258,7 @@ public class XBeeConfig {
             System.out.flush();
 
             try {
-                String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATMYFFFF", "ATVR" };
+                String conf[]    = { "ATRE", "ATBD7", "ATAP1", "ATRN2", "ATMYFFFF", "ATVR" };
                 Pattern expect[] = new Pattern[ conf.length ];
 
                 Pattern _OK = Pattern.compile("^OK$");
