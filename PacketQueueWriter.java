@@ -6,15 +6,24 @@ public class PacketQueueWriter implements Runnable {
     private static final int POLLING_WAIT    = 150;
     private static final int POLLING_WAITS   = 9; // number of sleep(POLLING_WAIT)s before we give up and resend
 
-    private XBeeHandle xh;
-    private Queue <Queue <XBeeTxPacket>> outboundQueue; // not synched, so the append and pop functions must be
-    private ACKQueue currentDatagram; // this is object synched so the ACK and send functions do not need to be
     private boolean closed = false;
-
+    private XBeeHandle xh;
+    private XTPQoQ outboundQueue = new XTPQoQ(); // synched, so the append and pop functions do not need to be
+    private ACKQueue currentDatagram; // this is object synched so the ACK and send functions do not need to be
+                                      // although lookForDatagram() and clearCurrentDatagram() do have to be synched,
+                                      // see code below
     private String name;
 
     private static boolean debug = false;
     static { debug = TestENV.test("DEBUG") || TestENV.test("PQW_DEBUG"); }
+
+    private static class XTPQoQ {
+        private Queue <Queue <XBeeTxPacket>> Q = new ArrayDeque< Queue <XBeeTxPacket> >();
+
+        public int size() { return Q.size(); }
+        public synchronized void add(Queue <XBeeTxPacket> toAdd) { Q.add(toAdd); }
+        public synchronized Queue <XBeeTxPacket> poll() { return Q.poll(); }
+    }
 
     public String getName() { return name; }
 
@@ -25,9 +34,9 @@ public class PacketQueueWriter implements Runnable {
         closed = true;
     }
 
-    public synchronized void append(Queue <XBeeTxPacket> q) {
+    public void append(Queue <XBeeTxPacket> q) {
         if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [%s] (sync)%n",
+            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [%s]%n",
                 name, (new ACKQueue(q)).IDsAsString(), outboundQueue.size() >= MAX_QUEUE_DEPTH ? "waiting" : "nowait");
 
         // block while we've already got enough to do
@@ -37,14 +46,14 @@ public class PacketQueueWriter implements Runnable {
 
             if( closed ) {
                 if( debug )
-                    System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [closed, aborting] (desync)%n",
+                    System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [closed, aborting]%n",
                         name, (new ACKQueue(q)).IDsAsString());
                 return;
             }
         }
 
         if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [adding to Queue] (desync) %n",
+            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [adding to Queue]%n",
                 name, (new ACKQueue(q)).IDsAsString());
 
         outboundQueue.add(q);
@@ -53,7 +62,6 @@ public class PacketQueueWriter implements Runnable {
     public PacketQueueWriter(XBeeHandle _xh, String _name) {
         xh = _xh;
         name = _name;
-        outboundQueue = new ArrayDeque< Queue <XBeeTxPacket> >();
     }
 
     public void receiveNACK(int frameID) {
@@ -89,7 +97,7 @@ public class PacketQueueWriter implements Runnable {
                     System.out.printf("[debug] PacketQueueWriter(%s) - sendCurrentDatagram(%d)%n", name,
                         ((XBeeTxPacket)datagram[i]).frameID());
 
-                xh.send_packet(datagram[i]); // this method is synchronized, no worries on timing
+                xh.send_packet(datagram[i]); // this method is synched, no worries on timing
             }
 
             catch(IOException e) {
