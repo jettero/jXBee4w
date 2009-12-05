@@ -46,29 +46,10 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
         }
     }
 
-    // public static int numberize(String var) {{{
-    public static int numberize(String var) {
-        String res = System.getenv(var);
-
-        if( res == null )
-            return 0;
-
-        return (new Integer(res)).intValue();
-    }
-    // }}}
-    // public boolean booleanize(String var) {{{
-    public boolean booleanize(String var) {
-        int i = numberize(var);
-
-        if( i != 0 ) return true;
-        return false;
-    }
-    // }}}
-
     public void run() {
         boolean announce = false;
 
-        int radios = numberize("RADIOS");
+        int radios = TestENV.numberize("RADIOS");
         if( radios < 1 || radios > 4 )
             radios = 4;
 
@@ -83,7 +64,7 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
 
         // ok, this isn't very random ... meh.
 
-        int epochs = numberize("EPOCHS");
+        int epochs = TestENV.numberize("EPOCHS");
         if( epochs < 1 )
             epochs = 1;
 

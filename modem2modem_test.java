@@ -36,20 +36,6 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
            rhs.send( lhs.addr(), String.format("<<< reply test: %s >>>", new String(message)) );
     }
 
-    public static int numberize(String var) {
-        String res = System.getenv(var);
-        if( res == null )
-            return 0;
-        return (new Integer(res)).intValue();
-    }
-
-    public boolean booleanize(String var) {
-        int i = numberize(var);
-
-        if( i != 0 ) return true;
-        return false;
-    }
-
     public void run() {
         boolean announce = true;
 
@@ -70,10 +56,10 @@ public class modem2modem_test implements MessageRecvEvent, RawRecvEvent {
         System.out.println("\nsending messages...\n");
 
         Address64 target = rhs.addr();
-        if( booleanize("FLUB_TARGET_ADDR") )
+        if( TestENV.booleanize("FLUB_TARGET_ADDR") )
             target.addr[3] ++;
 
-        for(int i=0; i<numberize("MESSAGES_TO_SEND"); i++)
+        for(int i=0; i<TestENV.numberize("MESSAGES_TO_SEND"); i++)
             lhs.send( target, String.format("-=: This is a test message: test #%d.%s :=-", i, extra) );
 
         System.out.println("\nwaiting for everything to finish up...\n\n");
