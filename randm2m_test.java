@@ -90,9 +90,10 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
         while( idle_retries --> 0 )
             try { Thread.sleep(WAIT_LEN); } catch (InterruptedException e) {}
 
-        System.out.println("done waiting ... closing everything");
-        for(XBeeDispatcher _x : x)
+        for(XBeeDispatcher _x : x) {
+            System.out.printf("done waiting ... closing %s%n", _x.getName());
             _x.close();
+        }
 
         System.out.println("done closing ... checking the counts");
 
