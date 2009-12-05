@@ -28,7 +28,7 @@ public class PacketQueueWriterDestinationMap {
 
         for( PacketQueueWriter pw : allPQW() ) {
             if( debug )
-                System.out.printf("[debug] PacketWriterDestinationMap(%s) - close(%d)%n", name, pw.getName());
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - close(%s)%n", name, pw.getName());
 
             pw.close();
         }
