@@ -123,7 +123,7 @@ public class PacketQueueWriter implements Runnable {
 
             if( (waits >= POLLING_WAITS) || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
                 if( debug ) {
-                    if( waits < Integer.MAX_VALUE )  {
+                    if( waits >= POLLING_WAITS && waits < Integer.MAX_VALUE )  {
                         System.out.printf("[debug] PacketQueueWriter(%s) - resending current datagram -- this should be fairly rare%n", name);
                         currentDatagram.dumpPackets(name + "-resending-%d-%x.pkt");
                     }
