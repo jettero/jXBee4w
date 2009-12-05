@@ -107,7 +107,7 @@ public class XBeeHandle {
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
             if( debug )
-                System.out.printf("[debug] packetReader(%s) closing%n", name);
+                System.out.printf("[debug] packetReader(%s) s closing (sync/desync)%n", name);
 
             in = null; // this is synchronized (see below)
         }
@@ -135,6 +135,9 @@ public class XBeeHandle {
                         p.fileDump(name + "-recv-%d-%x.pkt");
 
                     packetReceiver.recvPacket(p.adapt());
+
+                    if( debug )
+                        System.out.printf("[debug] packetReader(%s) completed, adapted and sent.  Nolonger in packet%n", name);
 
                 } else {
                     if( dump_bad_packets )
@@ -217,15 +220,15 @@ public class XBeeHandle {
     }
 
     public synchronized void send_packet(XBeePacket p) throws IOException {
+        if( debug )
+            System.out.printf("[debug] XBeeHandle(%s) sending packet (sync)%n", name);
+
         if( closed ) {
             if( debug )
                 System.out.printf("[debug] XBeeHandle(%s) asked to send packet while handle closed, discarding%n", name);
 
             return;
         }
-
-        if( debug )
-            System.out.printf("[debug] XBeeHandle(%s) sending packet%n", name);
 
         if( dump_outgoing_packets )
             p.fileDump(name + "-send-%d-%x.pkt");
@@ -246,5 +249,8 @@ public class XBeeHandle {
         }
 
         serialPort.setRTS(false);
+
+        if( debug )
+            System.out.printf("[debug] XBeeHandle(%s) sent packet (desync)%n", name);
     }
 }

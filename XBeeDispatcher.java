@@ -168,6 +168,9 @@ public class XBeeDispatcher implements PacketRecvEvent {
         XBeeRxPacket rx;
         XBeeTxStatusPacket st;
 
+        if( debug )
+            System.out.printf("[debug] XBeeDispatcher(%s) Rx'd a packet of type %02x, dispatching...%n", name, bType);
+
         switch(bType) {
             case XBeePacket.AMT_AT_RESPONSE: handleATResponse( (XBeeATResponsePacket) p ); break;
             case XBeePacket.AMT_RX64:
