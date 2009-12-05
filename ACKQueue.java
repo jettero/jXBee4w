@@ -20,6 +20,11 @@ public class ACKQueue {
         return N.size();
     }
 
+    public void dumpPackets(String s) {
+        for( XBeeTxPacket p : packets(false) )
+            p.fileDump(s);
+    }
+
     public XBeeTxPacket[] packets() { return packets(true); }
 
     public synchronized XBeeTxPacket[] packets(boolean resetNackCount) {
