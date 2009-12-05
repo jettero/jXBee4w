@@ -4,9 +4,13 @@ use strict;
 
 $| = 1;
 
-open my $out, ">", "debug.log" or die $!;
+open my $out, ">", "run.log" or die $!;
 
 while(<>) {
-    print $out $_;
-    print $_ unless m/\[debug\]/;
+    my $time = localtime;
+
+    s/[\r\n]$//g;
+
+    print $out "$time: $_\n";
+    print "$_\n" unless m/\[debug\]/;
 }
