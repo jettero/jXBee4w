@@ -168,11 +168,11 @@ public class XBeeHandle {
                 }
 
                 catch(BufferOverflowException e) {
-                    System.err.printf("packetReader(%s) internal error storing packet delimiter%n", name);
+                    System.err.printf("packetReader(%s) internal error: buffer error storing packet delimiter%n", name);
                 }
 
             } else {
-                System.err.printf("packetReader(%s) warning: ignoring byte %02x while seeking start of packet%n", name, aByte);
+                System.out.printf("packetReader(%s) internal error: something is out of sync, ignoring byte %02x while seeking start of packet%n", name, aByte);
             }
         }
 
