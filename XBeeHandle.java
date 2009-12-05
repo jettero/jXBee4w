@@ -6,7 +6,9 @@ import java.util.*;
 import java.nio.*;
 
 public class XBeeHandle {
-    private static boolean debug = false;
+    private static final int POLLING_WAIT = 150;
+
+    private static boolean debug                 = false;
     private static boolean dump_outgoing_packets = false;
 
     private InputStream  in;
@@ -14,6 +16,7 @@ public class XBeeHandle {
     private PacketReader packetReader;
     private Thread _prThread;
     private String name;
+    private boolean closed = true;
 
     private CommPort   commPort;   // these two objects are just two views of the same thing
     private SerialPort serialPort; // we close the comm port, but we setRTS and isCTS on the serial port
@@ -22,22 +25,29 @@ public class XBeeHandle {
     private static int unknownHandleNo; // for debugging
 
     static {
-        debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
-        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
+        debug = TestENV.test("DEBUG") || TestENV.test("XH_DEBUG");
+        dump_outgoing_packets = TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
     }
 
     protected void finalize() throws Throwable { this.close(); }
     public void close() {
+        if( debug )
+            System.out.printf("[debug] XBeeHandle(%s) closing child packetReader%n", name);
+
         packetReader.close();
+
+        if( debug )
+            System.out.printf("[debug] XBeeHandle(%s) closing commPort%n", name);
+
+        closed = true;
         commPort.close();
     }
 
-    XBeeHandle(CommPortIdentifier p, int s, boolean d, PacketRecvEvent c) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        this(String.format("Handle-%d", ++unknownHandleNo), p, s, d, c);
+    XBeeHandle(CommPortIdentifier p, int s, PacketRecvEvent c) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+        this(String.format("Handle-%d", ++unknownHandleNo), p, s, c);
     }
 
-    XBeeHandle(String _name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        debug = _debug;
+    XBeeHandle(String _name, CommPortIdentifier portIdentifier, int speed, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(name, 50);
         name = _name;
 
@@ -53,19 +63,21 @@ public class XBeeHandle {
             _prThread = new Thread(packetReader);
             _prThread.start();
 
+            closed = false;
+
         } else {
             throw new UnsupportedCommOperationException("\"" + portIdentifier.getName() + "\" is probably not a serial port");
         }
     }
 
-    public static XBeeHandle newFromPortName(String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
-        return XBeeHandle.newFromPortName(String.format("Handle-%d", ++unknownHandleNo), portName, speed, debug, callback);
+    public static XBeeHandle newFromPortName(String portName, int speed, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+        return XBeeHandle.newFromPortName(String.format("Handle-%d", ++unknownHandleNo), portName, speed, callback);
     }
 
-    public static XBeeHandle newFromPortName(String _name, String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    public static XBeeHandle newFromPortName(String _name, String portName, int speed, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 
-        return new XBeeHandle(_name, portIdentifier, speed, debug, callback);
+        return new XBeeHandle(_name, portIdentifier, speed, callback);
     }
 
     private static class PacketReader implements Runnable {
@@ -75,13 +87,13 @@ public class XBeeHandle {
         private boolean inPkt;
 
         private String name;
-        private static boolean debug;
+        private static boolean debug                 = false;
         private static boolean dump_incoming_packets = false;
-        private static boolean dump_bad_packets = false;
+        private static boolean dump_bad_packets      = false;
 
         static {
-            debug                 = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
-            dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS") || TestENV.test("DUMP_PACKETS");
+            debug                 = TestENV.test("DEBUG") || TestENV.test("XH_DEBUG");
+            dump_incoming_packets = TestENV.test("DUMP_INCOMING_PACKETS") || TestENV.test("DUMP_PACKETS");
             dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS") || TestENV.test("DUMP_PACKETS");
         }
 
@@ -95,7 +107,7 @@ public class XBeeHandle {
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
             if( debug )
-                System.out.println("[debug] packetReader closing");
+                System.out.printf("[debug] packetReader(%s) closing%n", name);
 
             in = null; // this is synchronized (see below)
         }
@@ -117,18 +129,18 @@ public class XBeeHandle {
 
                 if( p.checkPacket() ) {
                     if( debug )
-                        System.out.println("[debug] packetReader completed a XBeePacket, sending to packetReceiver");
+                        System.out.printf("[debug] packetReader(%s) completed a XBeePacket, sending to packetReceiver%n", name);
 
-                    if( debug || dump_incoming_packets )
+                    if( dump_incoming_packets )
                         p.fileDump(name + "-recv-%d-%x.pkt");
 
                     packetReceiver.recvPacket(p.adapt());
 
                 } else {
-                    if( debug || dump_bad_packets )
+                    if( dump_bad_packets )
                         p.fileDump(name + "-bad-%d-%x.pkt");
 
-                    System.err.println("warning: found a packet, but it didn't pass basic checks, tossing");
+                    System.err.printf("Warning: packetReader(%s) found a packet, but it didn't pass basic checks, tossing%n", name);
                 }
 
                 // else
@@ -144,7 +156,7 @@ public class XBeeHandle {
         private void seekDelimiter(int aByte) {
             if( aByte == 0x7e ) {
                 if( debug )
-                    System.out.println("[debug] packetReader found a frame delimiter, starting packet");
+                    System.out.printf("[debug] packetReader(%s) found a frame delimiter, starting packet%n", name);
 
                 try {
                     b.clear();
@@ -153,11 +165,11 @@ public class XBeeHandle {
                 }
 
                 catch(BufferOverflowException e) {
-                    System.err.println("internal error storing packet delimiter");
+                    System.err.printf("packetReader(%s) internal error storing packet delimiter%n", name);
                 }
 
             } else {
-                System.err.printf("warning: ignoring byte %02x while seeking start of packet%n", aByte);
+                System.err.printf("packetReader(%s) warning: ignoring byte %02x while seeking start of packet%n", name, aByte);
             }
         }
 
@@ -168,7 +180,7 @@ public class XBeeHandle {
                 return;
 
             if( debug )
-                System.out.println("[debug] packetReader looking for packets for a step (sync)");
+                System.out.printf("[debug] packetReader(%s) looking for packets for a step (sync)%n", name);
 
             try {
 
@@ -191,22 +203,29 @@ public class XBeeHandle {
             }
 
             if( debug )
-                System.out.println("[debug] packetReader finished looking for packets, this step (desync)");
+                System.out.printf("[debug] packetReader(%s) finished looking for packets, this step (desync)%n", name);
         }
 
         public void run() { // not synchronized so the (this).lock is cleared every _step()
             while(in != null) {
                 _step();
 
-                try { Thread.sleep(150); }
+                try { Thread.sleep(POLLING_WAIT); }
                 catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
             }
         }
     }
 
     public synchronized void send_packet(XBeePacket p) throws IOException {
+        if( closed ) {
+            if( debug )
+                System.out.printf("[debug] XBeeHandle(%s) asked to send packet while handle closed, discarding%n", name);
+
+            return;
+        }
+
         if( debug )
-            System.out.println("[debug] XBeeHandle sending packet");
+            System.out.printf("[debug] XBeeHandle(%s) sending packet%n", name);
 
         if( dump_outgoing_packets )
             p.fileDump(name + "-send-%d-%x.pkt");
@@ -218,8 +237,8 @@ public class XBeeHandle {
         for(int i=0; i<b.length; i++) {
 
             while(!serialPort.isCTS()) {
-                System.out.println("[debug] ----------------------------------- waiting for cts ----------------------------- ");
-                try { Thread.sleep(100); }
+                System.out.printf("[debug] --------------------------- XBeeHandle(%s) waiting for cts -------------------------%n", name);
+                try { Thread.sleep(POLLING_WAIT); }
                 catch(InterruptedException e) { /* don't really care if it doesn't work... maybe a warning should go here */ }
             }
 

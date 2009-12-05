@@ -28,7 +28,7 @@ public class XBeeConfig {
     XBeeConfig(CommPortIdentifier portIdentifier, int speed) throws PortInUseException, UnsupportedCommOperationException, IOException {
         commPort = portIdentifier.open(getClass().getName(), 50);
 
-        debug = TestENV.test("DEBUG") || TestENV.test("XBEECONFIG_DEBUG");
+        debug = TestENV.test("DEBUG") || TestENV.test("XC_DEBUG");
 
         if( packetizer == null )
             packetizer = new XBeePacketizer();

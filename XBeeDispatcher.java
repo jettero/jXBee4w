@@ -69,14 +69,14 @@ public class XBeeDispatcher implements PacketRecvEvent {
         int speeds[] = {115200, 9600};
 
         while( (pid = ports.poll()) != null ) {
-            System.out.println("Looking for XBee on port " + pid.getName());
+            System.out.printf("XBeeDispatcher(%s) Looking for XBee on port %s%n", name, pid.getName());
 
             for(int i=0; i<speeds.length; i++) {
                 int result = XBeeConfig.config(pid, speeds[i]); // try to config
 
                 if( result == XBeeConfig.CONFIGURED ) {
                     try {
-                        xh = new XBeeHandle(name, pid, 115200, debug, this);
+                        xh = new XBeeHandle(name, pid, 115200, this);
                         xp = new XBeePacketizer();
                     }
 
@@ -113,7 +113,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
         a = new Address64(sh, sl);
 
         if( debug )
-            System.out.println("Address found SH+SL => " + a.toText());
+            System.out.printf("[debug] XBeeDispatcher(%s) Address found SH+SL => %s%n", name, a.toText());
     }
     // }}}
     // public void handleATResponse(XBeeATResponsePacket p) {{{
@@ -124,7 +124,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
             byte b[] = p.responseBytes();
 
             if( debug )
-                System.out.println("[debug] received valid AT" + cmd + " response.");
+                System.out.printf("[debug] XBeeDispatcher(%s) received valid AT%s response.%n", name, cmd);
 
             if( cmd.equals("VR") ) {
                 firmwareVersion = b;
@@ -145,17 +145,17 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
             // this doesn't like confirm the new channel or anything... we'd
             // probably get a status error or something if it didn't work
-            // else if( cmd.equals("CH") ) { System.out.println("[debug] channel changed"); }
+            // else if( cmd.equals("CH") ) { System.out.printf("[debug] XBeeDispatcher(%s) channel changed%n", name); }
 
         } else {
             if( p.statusError() ) {
-                System.err.println("Error sending " + cmd + " command.  Bad params?");
+                System.err.printf("XBeeDispatcher(%s) Error sending %s command.  Bad params?%n", name, cmd);
 
             } else if( p.statusInvalidCommand() ) {
-                System.err.println("Invlaid Command error sending " + cmd + " command.  Bad command?");
+                System.err.printf("XBeeDispatcher(%s) Invlaid Command error sending %s command.  Bad command?%n", name, cmd);
 
             } else {
-                System.err.println("Unhandled error sending " + cmd + " command.");
+                System.err.printf("XBeeDispatcher(%s) Unhandled error sending %s command.%n", name, cmd);
             }
         }
 
@@ -191,13 +191,13 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     PQW.receiveACK(st.frameID());
 
                     if( debug )
-                        System.out.printf("[debug] Tx packet-%d OK -- received on Rx side.%n", st.frameID());
+                        System.out.printf("[debug] XBeeDispatcher(%s) Tx packet-%d OK -- received on Rx side.%n", name, st.frameID());
 
                 } else {
                     PQW.receiveNACK(st.frameID());
 
                     if( debug )
-                        System.out.printf("[debug] Rx did not say it received packet-%d.%n", st.frameID());
+                        System.out.printf("[debug] XBeeDispatcher(%s) Rx did not say it received packet-%d.%n", name, st.frameID());
                 }
                 break;
 
@@ -205,7 +205,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                 if( dump_unhandled )
                     p.fileDump(String.format("%s-recv-%02x-%s.pkt", name, bType, "%d"));
 
-                System.err.printf("%s Packet type: %02x ignored -- unhandled type.%n", name, bType);
+                System.err.printf("XBeeDispatcher(%s) Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
     }
     // }}}
@@ -222,14 +222,15 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     // private void handleIncomingMessage( XBeeRxPacket rx ) {{{
     private void _handleIncomingMessageException( IOException e, Address64 src, byte payload[] ) {
-        System.err.println("warning: some inconsistency found, discarding current message: " + e.getMessage());
+        System.err.printf("XBeeDispatcher(%s) warning: some inconsistency found, discarding current message: %s%n", name, e.getMessage());
+
         Message m = new Message(payload);
         incoming.put( src, m );
     }
 
     private void handleIncomingMessage( XBeeRxPacket rx ) {
         if( debug )
-            System.out.println("[debug] rx packet...");
+            System.out.printf("[debug] XBeeDispatcher(%s) rx packet...%n", name);
 
         if( messageReceiver != null ) {
             if( incoming == null )
@@ -283,7 +284,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                 xh.send_packet(atp[i]); // this method is synchronized, no worries on timing
 
             } catch(IOException e) {
-                System.err.println("error sending at packet(" + i + "): " + e.getMessage());
+                System.err.printf("XBeeDispatcher(%s) error sending at packet(%d): %s%n", name, i, e.getMessage());
                 return;
             }
         }
@@ -299,7 +300,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
             String cmds[][] = { { "SH" }, { "SL" } };
 
             if( debug )
-                System.out.println("[debug] sending ATSH and ATSL packets");
+                System.out.printf("[debug] XBeeDispatcher(%s) sending ATSH and ATSL packets%n", name);
 
             sendATcmds(cmds);
 
@@ -317,7 +318,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
             String cmds[][] = { { "VR" } };
 
             if( debug )
-                System.out.println("[debug] sending ATVR packets");
+                System.out.printf("[debug] XBeeDispatcher(%s) sending ATVR packets%n", name);
 
             sendATcmds(cmds);
 
@@ -335,7 +336,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
             String cmds[][] = { { "HV" } };
 
             if( debug )
-                System.out.println("[debug] sending ATHV packets");
+                System.out.printf("[debug] XBeeDispatcher(%s) sending ATHV packets%n", name);
 
             sendATcmds(cmds);
 
@@ -488,7 +489,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
             byte ch[]  = h.channelRange();   // differs from radio to radio (used to calculate f[])
             double f[] = h.frequencyRange(); // differs from radio to radio
 
-            System.out.printf("%s Address: %s%n", name, h.addr().toText());
+            System.out.printf("XBeeDispatcher(%s) Address: %s%n", name, h.addr().toText());
             System.out.printf("  Hardware version: %02x%02x%n", vr[0], vr[1]);
             System.out.printf("  Firmware version: %02x%02x%n", vr[0], vr[1]);
             System.out.printf("  XBee Type:        %s%n", h.hardwareTypeString());
