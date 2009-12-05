@@ -34,6 +34,16 @@ public class ACKQueue {
         return Q.values().toArray(new XBeeTxPacket[Q.size()]);
     }
 
+    public synchronized String IDsAsString() {
+        XBeeTxPacket d[] = packets(false);
+        String IDs = "" + d[0].frameID();
+
+        for(int i=1; i<d.length; i++)
+            IDs += ", " + d[i].frameID();
+
+        return IDs;
+    }
+
     public synchronized boolean ACK(int frameID) {
         Integer F = new Integer(frameID);
 

@@ -98,15 +98,10 @@ public class PacketQueueWriter implements Runnable {
         int waits = Integer.MAX_VALUE;
 
         while( !closed && currentDatagram.size() > 0 ) {
-            if( debug ) {
-                XBeeTxPacket d[] = currentDatagram.packets(false);
-                String IDs = "" + d[0].frameID();
-                for(int i=1; i<d.length; i++)
-                    IDs += ", " + d[i].frameID();
+            if( debug )
 
                 System.out.printf("[debug] PacketQueueWriter(%s) - dealWithCurrentDatagram(nack=%d, size=%d, [%s])%n",
-                    name, currentDatagram.NACKCount(), currentDatagram.size(), IDs);
-            }
+                    name, currentDatagram.NACKCount(), currentDatagram.size(), currentDatagram.IDsAsString());
 
             if( (waits >= POLLING_WAITS) || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
                 if( debug ) {
