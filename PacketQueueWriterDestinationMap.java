@@ -23,8 +23,15 @@ public class PacketQueueWriterDestinationMap {
     }
 
     public synchronized void closeAll() {
-        for( PacketQueueWriter pw : allPQW() )
+        if( debug )
+            System.out.printf("[debug] PacketWriterDestinationMap(%s) - close()%n", name);
+
+        for( PacketQueueWriter pw : allPQW() ) {
+            if( debug )
+                System.out.printf("[debug] PacketWriterDestinationMap(%s) - close(%d)%n", name, pw.getName());
+
             pw.close();
+        }
 
         hm.clear();
     }
