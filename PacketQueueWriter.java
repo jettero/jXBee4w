@@ -3,6 +3,8 @@ import java.util.*;
 
 public class PacketQueueWriter implements Runnable {
     private static final int MAX_QUEUE_DEPTH = 5;
+    private static final int POLLING_WAIT    = 150;
+    private static final int POLLING_WAITS   = 9; // number of sleep(POLLING_WAIT)s before we give up and resend
 
     private XBeeHandle xh;
     private Queue <Queue <XBeeTxPacket>> outboundQueue; // not synched, so the append and pop functions must be
@@ -30,7 +32,7 @@ public class PacketQueueWriter implements Runnable {
 
         // block while we've already got enough to do
         while(outboundQueue.size() >= MAX_QUEUE_DEPTH)
-            try { Thread.sleep(150); }
+            try { Thread.sleep(POLLING_WAIT); }
             catch(InterruptedException e) {/* we go around again either way */}
 
         if( debug )
@@ -93,18 +95,33 @@ public class PacketQueueWriter implements Runnable {
         if( closed || currentDatagram == null )
             return;
 
-        boolean firstLoop = true;
+        int waits = Integer.MAX_VALUE;
 
         while( !closed && currentDatagram.size() > 0 ) {
-            if( debug )
-                System.out.printf("[debug] PacketQueueWriter(%s) - dealWithCurrentDatagram(size=%d)%n", name, currentDatagram.size());
+            if( debug ) {
+                XBeeTxPacket d[] = currentDatagram.packets(false);
+                String IDs = "" + d[0].frameID();
+                for(int i=1; i<d.length; i++)
+                    IDs += ", " + d[i].frameID();
 
-            if( firstLoop || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
-                sendCurrentDatagram();
-                firstLoop = false;
+                System.out.printf("[debug] PacketQueueWriter(%s) - dealWithCurrentDatagram(nack=%d, size=%d, [%s])%n",
+                    name, currentDatagram.NACKCount(), currentDatagram.size(), IDs);
             }
 
-            try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
+            if( (waits >= POLLING_WAITS) || (currentDatagram.NACKCount() >= currentDatagram.size()) ) {
+                if( debug ) {
+                    if( waits < Integer.MAX_VALUE )  {
+                        System.out.printf("[debug] PacketQueueWriter(%s) - resending current datagram -- this should be fairly rare");
+                        currentDatagram.dumpPackets("resending-%d-%x.pkt");
+                    }
+                }
+
+                sendCurrentDatagram();
+                waits = 0;
+            }
+
+            try { Thread.sleep(POLLING_WAIT); } catch(InterruptedException e) {/* we go around again either way */}
+            waits ++;
         }
 
         clearCurrentDatagram();
@@ -148,7 +165,7 @@ public class PacketQueueWriter implements Runnable {
             lookForDatagram();
             dealWithDatagram();
 
-            try { Thread.sleep(150); } catch(InterruptedException e) {/* we go around again either way */}
+            try { Thread.sleep(POLLING_WAIT); } catch(InterruptedException e) {/* we go around again either way */}
         }
     }
 
