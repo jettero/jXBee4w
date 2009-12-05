@@ -36,6 +36,10 @@ public class ACKQueue {
 
     public synchronized String IDsAsString() {
         XBeeTxPacket d[] = packets(false);
+
+        if( d.length == 0 )
+            return "";
+
         String IDs = "" + d[0].frameID();
 
         for(int i=1; i<d.length; i++)
