@@ -207,7 +207,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         else if( st.statusPurged() )   res = "packet purged";
 
                         System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: frameID=%d <%s> -- NACKed the PQW.%n",
-                            name, res, st.frameID());
+                            name, st.frameID(), res);
                     }
                 }
                 break;
@@ -218,6 +218,9 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
                 System.err.printf("XBeeDispatcher(%s) Packet type: %02x ignored -- unhandled type.%n", name, bType);
         }
+
+        if( debug )
+            System.out.printf("[debug] XBeeDispatcher(%s) dispatch of %02x complete.%n", name, bType);
     }
     // }}}
     // public void registerMessageReceiver(MessageRecvEvent callback) {{{
