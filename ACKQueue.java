@@ -5,10 +5,7 @@ public class ACKQueue {
     private HashSet <Integer> N = new HashSet<Integer>();
 
     ACKQueue(Queue <XBeeTxPacket> packets) {
-        XBeeTxPacket p;
-
-        while( (p = (XBeeTxPacket) packets.poll()) != null )
-
+        for( XBeeTxPacket p : packets.toArray(new XBeeTxPacket[packets.size()]) )
             Q.put( new Integer(p.frameID()), p );
     }
 
