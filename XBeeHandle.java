@@ -13,13 +13,18 @@ public class XBeeHandle {
     private OutputStream out;
     private PacketReader packetReader;
     private Thread _prThread;
-    private String handleName;
+    private String name;
 
     private CommPort   commPort;   // these two objects are just two views of the same thing
     private SerialPort serialPort; // we close the comm port, but we setRTS and isCTS on the serial port
 
     private static int bad_packet_no; // for debugging
     private static int unknownHandleNo; // for debugging
+
+    static {
+        debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
+        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
+    }
 
     protected void finalize() throws Throwable { this.close(); }
     public void close() {
@@ -31,13 +36,10 @@ public class XBeeHandle {
         this(String.format("Handle-%d", ++unknownHandleNo), p, s, d, c);
     }
 
-    XBeeHandle(String name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    XBeeHandle(String _name, CommPortIdentifier portIdentifier, int speed, boolean _debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         debug = _debug;
         commPort = portIdentifier.open(name, 50);
-        handleName = name;
-
-        debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
-        dump_outgoing_packets = debug || TestENV.test("DUMP_OUTGOING_PACKETS") || TestENV.test("DUMP_PACKETS");
+        name = _name;
 
         if ( commPort instanceof SerialPort ) {
             serialPort = (SerialPort) commPort;
@@ -46,7 +48,7 @@ public class XBeeHandle {
             in  = serialPort.getInputStream();
             out = serialPort.getOutputStream();
 
-            packetReader = new PacketReader(handleName, in, callback);
+            packetReader = new PacketReader(name, in, callback);
 
             _prThread = new Thread(packetReader);
             _prThread.start();
@@ -60,10 +62,10 @@ public class XBeeHandle {
         return XBeeHandle.newFromPortName(String.format("Handle-%d", ++unknownHandleNo), portName, speed, debug, callback);
     }
 
-    public static XBeeHandle newFromPortName(String handleName, String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
+    public static XBeeHandle newFromPortName(String _name, String portName, int speed, boolean debug, PacketRecvEvent callback) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 
-        return new XBeeHandle(handleName, portIdentifier, speed, debug, callback);
+        return new XBeeHandle(_name, portIdentifier, speed, debug, callback);
     }
 
     private static class PacketReader implements Runnable {
@@ -72,21 +74,23 @@ public class XBeeHandle {
         private ByteBuffer b;
         private boolean inPkt;
 
-        private String handleName;
-        private boolean debug;
-        private boolean dump_incoming_packets = false;
-        private boolean dump_bad_packets = false;
+        private String name;
+        private static boolean debug;
+        private static boolean dump_incoming_packets = false;
+        private static boolean dump_bad_packets = false;
 
-        public PacketReader(String _hn, InputStream _in, PacketRecvEvent callback) {
+        static {
+            debug                 = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
+            dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS") || TestENV.test("DUMP_PACKETS");
+            dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS") || TestENV.test("DUMP_PACKETS");
+        }
+
+        public PacketReader(String _name, InputStream _in, PacketRecvEvent callback) {
             in = _in;
             packetReceiver = callback;
             b = ByteBuffer.wrap(new byte[1024]);
             inPkt = false;
-            handleName = _hn;
-
-            debug = TestENV.test("DEBUG") || TestENV.test("XBEEHANDLE_DEBUG");
-            dump_incoming_packets = debug || TestENV.test("DUMP_INCOMING_PACKETS") || TestENV.test("DUMP_PACKETS");
-            dump_bad_packets      = debug || TestENV.test("DUMP_BAD_PACKETS") || TestENV.test("DUMP_PACKETS");
+            name = _name;
         }
 
         public synchronized void close() { // synchronized so in=null doesn't sneak up on the packet reader
@@ -116,13 +120,13 @@ public class XBeeHandle {
                         System.out.println("[debug] packetReader completed a XBeePacket, sending to packetReceiver");
 
                     if( debug || dump_incoming_packets )
-                        p.fileDump(handleName + "-recv-%d-%x.pkt");
+                        p.fileDump(name + "-recv-%d-%x.pkt");
 
                     packetReceiver.recvPacket(p.adapt());
 
                 } else {
                     if( debug || dump_bad_packets )
-                        p.fileDump(handleName + "-bad-%d-%x.pkt");
+                        p.fileDump(name + "-bad-%d-%x.pkt");
 
                     System.err.println("warning: found a packet, but it didn't pass basic checks, tossing");
                 }
@@ -205,7 +209,7 @@ public class XBeeHandle {
             System.out.println("[debug] XBeeHandle sending packet");
 
         if( dump_outgoing_packets )
-            p.fileDump(handleName + "-send-%d-%x.pkt");
+            p.fileDump(name + "-send-%d-%x.pkt");
 
         byte b[] = p.getBytes();
 
