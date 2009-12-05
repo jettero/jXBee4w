@@ -27,8 +27,8 @@ public class PacketQueueWriter implements Runnable {
 
     public synchronized void append(Queue <XBeeTxPacket> q) {
         if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - append(%d) [%s] (sync)%n",
-                name, outboundQueue.size(), outboundQueue.size() >= MAX_QUEUE_DEPTH ? "waiting" : "nowait");
+            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [%s] (sync)%n",
+                name, (new ACKQueue(q)).IDsAsString(), outboundQueue.size() >= MAX_QUEUE_DEPTH ? "waiting" : "nowait");
 
         // block while we've already got enough to do
         while(outboundQueue.size() >= MAX_QUEUE_DEPTH) {
@@ -37,15 +37,15 @@ public class PacketQueueWriter implements Runnable {
 
             if( closed ) {
                 if( debug )
-                    System.out.printf("[debug] PacketQueueWriter(%s) - append(%d) [closed, aborting] (desync)%n",
-                        name, outboundQueue.size());
+                    System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [closed, aborting] (desync)%n",
+                        name, (new ACKQueue(q)).IDsAsString());
                 return;
             }
         }
 
         if( debug )
-            System.out.printf("[debug] PacketQueueWriter(%s) - append(%d) [adding to Queue] (desync) %n",
-                name, outboundQueue.size()+1);
+            System.out.printf("[debug] PacketQueueWriter(%s) - append(IDs=[%s]) [adding to Queue] (desync) %n",
+                name, (new ACKQueue(q)).IDsAsString());
 
         outboundQueue.add(q);
     }
