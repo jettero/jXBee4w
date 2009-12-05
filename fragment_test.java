@@ -17,7 +17,7 @@ public class fragment_test {
             Message m = new Message();
             for(int i=0; i<b.length; i++)
                 try {
-                    m.addBlock(0, b[i]);
+                    m.addBlock(b[i]);
 
                 } catch(IOException e) {
                     System.err.println("fatal error adding block: " + e.getMessage());
