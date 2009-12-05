@@ -176,8 +176,15 @@ public class XBeeDispatcher implements PacketRecvEvent {
             case XBeePacket.AMT_RX64:
                 rx = (XBeeRxPacket) p;
 
-                if( rawReceiver != null )
+                if( debug )
+                    System.out.printf("[debug] XBeeDispatcher(%s) Rx packet RSSI=%d%n", name, rx.RSSI());
+
+                if( rawReceiver != null ) {
+                    if( debug )
+                        System.out.printf("[debug] XBeeDispatcher(%s) sending to rawReceiver%n", name);
+
                     rawReceiver.recvPacket(this, rx);
+                }
 
                 handleIncomingMessage( rx );
 
@@ -244,7 +251,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
 
     private void handleIncomingMessage( XBeeRxPacket rx ) {
         if( debug )
-            System.out.printf("[debug] XBeeDispatcher(%s) rx packet...%n", name);
+            System.out.printf("[debug] XBeeDispatcher(%s) -- handleIncomingMessage() ...%n", name);
 
         if( messageReceiver != null ) {
             if( incoming == null )
@@ -273,10 +280,22 @@ public class XBeeDispatcher implements PacketRecvEvent {
                 return;
             }
 
+            if( debug )
+                System.out.printf("[debug] XBeeDispatcher(%s) -- handleIncomingMessage() survived put()s, whole: %s%n",
+                    name, whole ? "yes" : "no");
+
             if( whole ) {
                 try {
                     byte msgBytes[] = m.reconstructMessage();
+
+                    if( debug )
+                        System.out.printf("[debug] XBeeDispatcher(%s) -- handleIncomingMessage() sending to messageReceiver%n", name);
+
                     messageReceiver.recvMessage(this, src, msgBytes);
+
+                    if( debug )
+                        System.out.printf("[debug] XBeeDispatcher(%s) -- handleIncomingMessage() sent, removing message from queuer%n", name);
+
                     incoming.remove(src);
                 }
                 catch(IOException e) {
@@ -284,6 +303,7 @@ public class XBeeDispatcher implements PacketRecvEvent {
                 }
             }
         }
+
     }
     // }}}
 
