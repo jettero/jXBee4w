@@ -194,13 +194,21 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     PQW.receiveACK(st.frameID());
 
                     if( debug )
-                        System.out.printf("[debug] XBeeDispatcher(%s) Tx packet-%d OK -- received on Rx side.%n", name, st.frameID());
+                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: packet-%d OK -- ACKed the PQW.%n", name, st.frameID());
 
                 } else {
                     PQW.receiveNACK(st.frameID());
 
-                    if( debug )
-                        System.out.printf("[debug] XBeeDispatcher(%s) Rx did not say it received packet-%d.%n", name, st.frameID());
+                    if( debug ) {
+                        String res = "?not ok?";
+
+                        if( st.statusNoACK() )         res = "no ack";
+                        else if( st.statusCCAError() ) res = "clear channel assesment: not clear";
+                        else if( st.statusPurged() )   res = "packet purged";
+
+                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: frameID=%d <%s> -- NACKed the PQW.%n",
+                            name, res, st.frameID());
+                    }
                 }
                 break;
 
