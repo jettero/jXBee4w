@@ -198,14 +198,13 @@ public class XBeeDispatcher implements PacketRecvEvent {
                     // XXX: Sadly, TxStatus packets *DO NOT* contain an address
                     // at all probably, the frameID could later be used to
                     // match the write pqw, but this is ok for now
-                    PQW.receiveACK(st.frameID());
 
                     if( debug )
-                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: packet-%d OK -- ACKed the PQW.%n", name, st.frameID());
+                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: packet-%d OK -- ACKing the PQW.%n", name, st.frameID());
+
+                    PQW.receiveACK(st.frameID());
 
                 } else {
-                    PQW.receiveNACK(st.frameID());
-
                     if( debug ) {
                         String res = "?not ok?";
 
@@ -213,9 +212,11 @@ public class XBeeDispatcher implements PacketRecvEvent {
                         else if( st.statusCCAError() ) res = "clear channel assesment: not clear";
                         else if( st.statusPurged() )   res = "packet purged";
 
-                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: frameID=%d <%s> -- NACKed the PQW.%n",
+                        System.out.printf("[debug] XBeeDispatcher(%s) TxStatus: frameID=%d <%s> -- NACKing the PQW.%n",
                             name, st.frameID(), res);
                     }
+
+                    PQW.receiveNACK(st.frameID());
                 }
                 break;
 
