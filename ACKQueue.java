@@ -37,6 +37,9 @@ public class ACKQueue {
     }
 
     public synchronized void NACK(int frameID) {
-        N.add(new Integer(frameID));
+        Integer F = new Integer(frameID);
+
+        if( Q.containsKey(F) )
+            N.add(new Integer(F));
     }
 }
