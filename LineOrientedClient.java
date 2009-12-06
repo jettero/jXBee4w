@@ -21,7 +21,7 @@ public class LineOrientedClient {
         }
 
         public boolean ok() {
-            if( code >= 200 && code < 400 )
+            if( code < 400 )
                 return true;
 
             return false;
