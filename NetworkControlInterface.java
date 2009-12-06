@@ -54,9 +54,6 @@ public class NetworkControlInterface extends LineOrientedServer {
             // name... is it valid?  is it already taken?  OAUTH tokens? ssl
             // certificates.
 
-            if( mundane == null )
-                System.out.println("wtf2");
-
             mundane.put(cmd[1], m);
              urgent.put(cmd[1], u);
             reverse.put(u, cmd[1]);
