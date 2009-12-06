@@ -17,7 +17,7 @@ run_last_test:
 	@make --no-print-directory $@.class
 	@-rm -f *.pkt *.dat
 	@echo " >> RUNNING $@ << "
-	@-java $@;
+	@-x=`echo $@ | sed s/_test//`; if [ -x $$x.sh ]; then ./$$x.sh; else java $@; fi
 	@chmod 644 *.txt *.pkt *.dat &>/dev/null || /bin/true
 
 show show_packets:
@@ -27,14 +27,10 @@ clean:
 	@ echo cleaning in 2 seconds; sleep 2
 	git clean -dfx
 
-NetworkEndpointInterface.class: NetworkControlInterface.class XBeeDispatcher.class
+NetworkEndpointInterface.class: NetworkControlInterface.class XBeeDispatcher.class NetworkControlInterface.class
 NetworkControlInterface.class: LineOrientedServer.class Address64.class
 nci_test.class: NetworkControlInterface.class
 nei_test.class: NetworkEndpointInterface.class
-
-
-
-
 
 XBeeTxPacket.class:         XBeePacket.class
 XBeeRxPacket.class:         XBeePacket.class

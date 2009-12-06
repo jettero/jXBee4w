@@ -3,8 +3,8 @@ import java.net.*;
 import java.util.regex.*;
 
 public class LineOrientedClient {
-    // private static class ServerResponse {{{
-    private static class ServerResponse {
+    // public static class ServerResponse {{{
+    public static class ServerResponse {
         private static Pattern cmdre = Pattern.compile("^([12345]\\d{2})\\s+(.+)$");
         String orig;
         int code = 500;
@@ -83,6 +83,10 @@ public class LineOrientedClient {
         }   
     }
 
+    public void send(String cmd) {
+        out.println(cmd);
+    }
+
     public void close() {
         try {
             server.close();
@@ -93,9 +97,13 @@ public class LineOrientedClient {
         }
     }
 
+    public void handleServerResponse(ServerResponse s) {
+        System.out.println( s.ok() ? "Server Says: " + s.msg : String.format("ERROR(%d): %s", s.code, s.msg) );
+    }
+
     public void handleServerResponse(String line) {
         ServerResponse s = new ServerResponse(line);
 
-        System.out.println( s.ok() ? "Server Says: " + s.msg : String.format("ERROR(%d): %s", s.code, s.msg) );
+        handleServerResponse(s);
     }
 }

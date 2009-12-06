@@ -7,8 +7,9 @@ public class NetworkControlInterface extends LineOrientedServer {
     public static final int USAGE_ERROR           = 401;
     public static final int FORMAT_ERROR          = 402;
 
-    public static final int SUCCESS          = 200;
-    public static final int CHANNEL_RESPONSE = 210;
+    public static final int SUCCESS            = 200;
+    public static final int CHANNEL_RESPONSE   = 210;
+    public static final int CHANNEL_ASSIGNMENT = CHANNEL_RESPONSE;
 
     private Hashtable <String, Address64> mundane = new Hashtable <String, Address64>();
     private Hashtable <String, Address64> urgent  = new Hashtable <String, Address64>();
