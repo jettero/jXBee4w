@@ -34,5 +34,7 @@ public class file {
         System.out.println(cat(t));
         System.out.println(cat(u));
         System.out.println(cat(v));
+
+        System.out.println("  lolol\n\n\n".trim());
     }
 }
