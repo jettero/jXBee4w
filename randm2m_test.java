@@ -40,6 +40,16 @@ public class randm2m_test implements MessageRecvEvent, RawRecvEvent {
         System.out.printf("%s received, \"%s\"%n", handle.getName(), s);
 
         if( TestENV.booleanize("REPLY") )
+
+            // XXX: if the send buffer on the handle is full, send() will block
+            // until there's room in the outbound queue.  This is problematic
+            // since the XBee may still be ready to receive and cannot if the
+            // handle is blocked.
+            //
+            // To get replies actually working would require starting anothe
+            // thread to deal with them.
+            //
+
             if( message[message.length-1] != 'R' ) {
                 s = String.format("%s R", s);
                 inc(dst, src, s);
