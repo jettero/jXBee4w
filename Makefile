@@ -27,8 +27,10 @@ clean:
 	@ echo cleaning in 2 seconds; sleep 2
 	git clean -dfx
 
+NetworkEndpointInterface.class: NetworkControlInterface.class XBeeDispatcher.class
 NetworkControlInterface.class: LineOrientedServer.class Address64.class
 nci_test.class: NetworkControlInterface.class
+nei_test.class: NetworkEndpointInterface.class
 
 
 

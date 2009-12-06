@@ -1,7 +1,7 @@
 import java.net.*;
 import java.io.*;
 
-public class LineOrientedServer {
+public class LineOrientedServer implements Runnable {
     public static final int GREETINGS           = 100;
     public static final int QUIT                = 299;
     public static final int UNIMPLEMENTED_ERROR = 599;
@@ -83,7 +83,7 @@ public class LineOrientedServer {
         return new CommandResponse(GREETINGS, "Hello, this is a geneirc line oriented server.");
     }
 
-    public void listen() {
+    public void run() {
         try {
             Socket clientSocket;
 
@@ -101,6 +101,8 @@ public class LineOrientedServer {
             System.exit(1);
         }
     }
+
+    public void listen() { (new Thread(this)).start(); }
 
     LineOrientedServer(int port) {
         try {
