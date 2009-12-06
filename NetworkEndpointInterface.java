@@ -4,7 +4,7 @@ import java.util.regex.*;
 import java.util.*;
 import java.io.*;
 
-public class NetworkEndpointInterface implements Runnable {
+public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
     // private static class NCIClient extends LineOrientedClient {{{
     private static class NCIClient extends LineOrientedClient {
         NetworkEndpointInterface NEI;
@@ -15,7 +15,7 @@ public class NetworkEndpointInterface implements Runnable {
         }
 
         public void register(String name, Address64 mundane, Address64 urgent) {
-            String command = String.format("register %s %s %s", 
+            String command = String.format("register %s %s %s",
                 name, urgent.toText(), mundane.toText() );
 
             send(command);
@@ -37,6 +37,10 @@ public class NetworkEndpointInterface implements Runnable {
                 else
                     System.out.printf("Internal Error processing NCI(%d): %s%n", s.code, s.msg);
 
+            } else if( s.code == NetworkControlInterface.QUIT ) {
+                System.out.printf("NCI(%d): %s%n", s.code, s.msg);
+                System.exit(0); // we asked for it...
+
             } else if( s.code >= 400 ) {
                 System.out.printf("NCI ERROR(%d): %s%n", s.code, s.msg);
 
@@ -53,7 +57,9 @@ public class NetworkEndpointInterface implements Runnable {
     private Hashtable <String,Address64> hostmap_u = new Hashtable <String,Address64>();
     private Hashtable <Address64,String> reverse   = new Hashtable <Address64,String>();
 
-    Address64 t;
+    boolean resolvedUrgent;
+    Address64 resolved;
+    String    reversed;
 
     String name;
     NCIClient NCI;
@@ -72,6 +78,7 @@ public class NetworkEndpointInterface implements Runnable {
             System.err.println("Problem setting channels: " + e.getMessage());
         }
 
+        NCI.send("list"); // learn all known hosts
     }
 
     public void learnHostAddress(String h, String _m, String _u) {
@@ -88,7 +95,7 @@ public class NetworkEndpointInterface implements Runnable {
             return;
         }
 
-        System.out.printf("Learning Host: %s %s %s%n", h, m, u);
+        // System.out.printf("Host: %s %s %s%n", h, m, u);
 
         hostmap_m.put(h, m);
         hostmap_u.put(h, u);
@@ -96,22 +103,45 @@ public class NetworkEndpointInterface implements Runnable {
         reverse.put(u, "!" + h);
     }
 
-    private boolean resolv(String s) {
-        Hashtable m;
-        if( s.startsWith("!") ) {
-            s = s.substring(1);
-            m = hostmap_u;
-
-        } else {
-            m = hostmap_m;
-        }
-
-        if( m.containsKey(s) ) {
-            t = (Address64) m.get(s);
+    private boolean resolv(Address64 r) {
+        if( reverse.containsKey(r) ) {
+            reversed = (String) reverse.get(r);
 
             return true;
         }
-        
+
+        return false;
+    }
+
+    private boolean resolv(String s) {
+        Hashtable m;
+
+        if( s.equals(".") )
+            if( resolved != null )
+                return true;
+
+        if( s.equals("r") )
+            if( reversed != null )
+                return resolv(reversed);
+
+        if( s.startsWith("!") ) {
+            s = s.substring(1);
+            m = hostmap_u;
+            resolvedUrgent = true;
+
+        } else {
+            m = hostmap_m;
+            resolvedUrgent = false;
+        }
+
+        if( m.containsKey(s) ) {
+            resolved = (Address64) m.get(s);
+
+            return true;
+        }
+
+        resolved = null;
+
         return false;
     }
 
@@ -139,26 +169,38 @@ public class NetworkEndpointInterface implements Runnable {
 
         return ret;
     }
-    
+
+    public void recvMessage(XBeeDispatcher handle, Address64 src, byte message[]) {
+        String prefix = String.format("Message from %s", resolv(src) ? reversed : src);
+        String status = handle == urgent ? "!" : " ";
+
+        System.out.printf("%s: %s [%s]%n", prefix, new String(message), status);
+    }
+
     public void run() {
         String line;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
         try {
             while( (line = in.readLine()) != null ) {
-                String[] tokens = line.trim().split("\\s+");
+                if( (line = line.trim()).length() > 0 ) {
 
-                if( tokens[0].startsWith("/") ) {
-                    NCI.send(line.substring(1));
+                    String[] tokens = line.split("\\s+");
 
-                } else {
-                    XBeeDispatcher d = tokens[0].startsWith("!") ? urgent : mundane;
+                    if( tokens[0].startsWith("/") ) {
+                        NCI.send(line.substring(1));
 
-                    if( resolv(tokens[0]) )
-                        d.send(t, cat(subarr(tokens, 1)));
+                    } else {
+                        if( resolv(tokens[0]) )
 
-                    else
-                        System.out.println("host " + tokens[0] + " not found. :(");
+                            (resolvedUrgent ? urgent : mundane)
+
+                                .send(resolved, cat(subarr(tokens, 1)));
+
+                        else
+                            System.out.println("host " + tokens[0] + " not found. :(");
+                    }
+
                 }
             }
 
@@ -175,6 +217,9 @@ public class NetworkEndpointInterface implements Runnable {
 
         Address64 u = urgent.addr();
         Address64 m = mundane.addr();
+
+         urgent.registerMessageReceiver(this);
+        mundane.registerMessageReceiver(this);
 
         System.out.println("\nLogging into NCI...");
 
