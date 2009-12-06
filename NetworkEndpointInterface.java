@@ -31,7 +31,7 @@ public class NetworkEndpointInterface implements Runnable {
                 System.out.printf("NCI ERROR(%d): %s%n", s.code, s.msg);
 
             } else {
-                System.out.printf("NCI: %s%n", s.msg);
+                System.out.printf("NCI(%d): %s%n", s.code, s.msg);
             }
         }
     }

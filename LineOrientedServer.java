@@ -1,3 +1,4 @@
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -34,6 +35,10 @@ public class LineOrientedServer implements Runnable {
             cmdHandler = _e;
         }
 
+        public void send(CommandResponse r ) {
+            out.println( r.toLine() );
+        }
+
         public void run() {
             String line;
             String IP = client.getInetAddress().getHostAddress();
@@ -45,9 +50,9 @@ public class LineOrientedServer implements Runnable {
                 out.println( cmdHandler.greeting().toLine() );
 
                 while( (line = in.readLine()) != null ) {
+                    cmdHandler.setCurrent(this);
                     CommandResponse r = cmdHandler.handleCommand(line);
-
-                    out.println( r.toLine() );
+                    send( r );
 
                     if( r.code == QUIT )
                         break;
@@ -63,6 +68,7 @@ public class LineOrientedServer implements Runnable {
                 out.close();
                 in.close();
                 client.close();
+                cmdHandler.removeMe(this);
 
             } catch(IOException e) {
                 System.err.println("ERROR closing client command connection streams: " + e.getMessage());
@@ -70,10 +76,21 @@ public class LineOrientedServer implements Runnable {
         }
     }
 
-
-    ServerSocket serverSocket;
+    private ServerSocket serverSocket;
+    private HashSet <LineDispatcher> ld = new HashSet <LineDispatcher>();
+    private LineDispatcher curld;
 
     public void learnIP(String ignored) {}
+
+    public void removeMe(LineDispatcher _ld) { ld.remove(_ld); }
+    public void setCurrent(LineDispatcher _ld) { curld = _ld; }
+    public void send(CommandResponse r) { curld.send(r); }
+    public void sendAll(CommandResponse r) {
+        Iterator i = ld.iterator();
+
+        while( i.hasNext() )
+            ( (LineDispatcher) i.next() ).send(r);
+    }
 
     public CommandResponse handleCommand(String ignored) {
         return new CommandResponse(UNIMPLEMENTED_ERROR, "command handler unimplemented");
@@ -89,7 +106,11 @@ public class LineOrientedServer implements Runnable {
 
             while( (clientSocket = serverSocket.accept()) != null ) {
                 try {
-                    (new Thread( new LineDispatcher(clientSocket, this) )).start();
+                    LineDispatcher _ld = new LineDispatcher(clientSocket, this);
+
+                    (new Thread(_ld)).start();
+
+                    ld.add(_ld);
 
                 } catch(IOException e) {
                     System.err.println("ERROR opening client connection streams: " + e.getMessage());

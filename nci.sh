@@ -1,4 +1,4 @@
 #!/bin/bash
 
-make nci_test
-
+make nci_test.class
+java nci_test
