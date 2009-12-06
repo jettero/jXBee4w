@@ -1,7 +1,7 @@
 #!/bin/bash
 
-x=`ps auxfw | grep nei_test | wc -l`
-x=$(( x + 1 ))
+x=`netstat -a -p tcp | grep :.*:4000\ *ESTABLISHED | wc -l`
+x=$(( x + 2 ))
 
 set -e -x
 
