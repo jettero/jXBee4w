@@ -82,6 +82,8 @@ public class Address64 {
         return addr;
     }
 
+    public String toString() { return toText(); }
+
     public String toText() {
         String s = "";
         String d = Integer.toHexString(addr[0] & 0xff); // java has no unsigned type, so squash the "negative" bits for printing
