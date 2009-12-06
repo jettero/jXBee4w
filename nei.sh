@@ -1,7 +1,7 @@
 #!/bin/bash
 
 x=`netstat -a -p tcp | grep :.*:4000\ *ESTABLISHED | wc -l`
-x=$(( x + 2 ))
+x=$(( x + 1 ))
 
 set -e -x
 
