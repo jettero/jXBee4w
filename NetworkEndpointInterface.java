@@ -24,8 +24,15 @@ public class NetworkEndpointInterface implements Runnable {
         public void handleServerResponse(ServerResponse s) {
             if( s.code == NetworkControlInterface.CHANNEL_ASSIGNMENT ) {
                 Matcher m = Pattern.compile("channels:\\s+([0-9a-fA-F]+)\\s+([0-9a-fA-F]+)$").matcher(s.msg);
+
                 if( m.find() )
                     NEI.assignChannels(m.group(1), m.group(2));
+
+            } else if( s.code == NetworkControlInterface.HOST_ADDRESS ) {
+                Matcher m = Pattern.compile("^(\\S+)\\s+([0-9a-fA-F]+)s+F]+)\\s+([0-9a-fA-F]+)$").matcher(s.msg);
+
+                if( m.find() )
+                    NEI.learnHostAddress(m.group(1), m.group(2), m.group(3));
 
             } else if( s.code >= 400 ) {
                 System.out.printf("NCI ERROR(%d): %s%n", s.code, s.msg);
@@ -61,6 +68,19 @@ public class NetworkEndpointInterface implements Runnable {
             System.err.println("Problem setting channels: " + e.getMessage());
         }
 
+    }
+
+    public void learnHostAddress(String h, String _m, String _u) {
+        Address64 m,u;
+
+        try {
+            m = new Address64(_m);
+            u = new Address64(_u);
+
+        } catch(Address64Exception e) { return; }
+
+        hostmap_m.put(h, m);
+        hostmap_u.put(h, u);
     }
 
     private boolean resolv(String s) {
