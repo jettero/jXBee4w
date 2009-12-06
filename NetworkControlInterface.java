@@ -7,11 +7,14 @@ public class NetworkControlInterface extends LineOrientedServer {
     public static final int USAGE_ERROR           = 401;
     public static final int FORMAT_ERROR          = 402;
 
-    public static final int CHANNEL_RESPONSE      = 300;
+    public static final int SUCCESS          = 200;
+    public static final int CHANNEL_RESPONSE = 210;
 
-    Hashtable <String, Address64> mundane = new Hashtable <String, Address64>();
-    Hashtable <String, Address64> urgent  = new Hashtable <String, Address64>();
-    Hashtable <Address64, String> reverse = new Hashtable <Address64, String>();
+    private Hashtable <String, Address64> mundane = new Hashtable <String, Address64>();
+    private Hashtable <String, Address64> urgent  = new Hashtable <String, Address64>();
+    private Hashtable <Address64, String> reverse = new Hashtable <Address64, String>();
+
+    private String clientIP;
 
     NetworkControlInterface(int port) { super(port); }
 
@@ -21,19 +24,38 @@ public class NetworkControlInterface extends LineOrientedServer {
         if( tokens[0].equals("register") )
             return handleRegistration(tokens);
 
+        if( tokens[0].equals("quit") || tokens[0].equals("exit") )
+            return new CommandResponse(QUIT, "bye");
+
         return new CommandResponse(UNKNOWN_COMMAND_ERROR, "unknown command");
+    }
+
+    public void learnIP(String IP) {
+        clientIP = IP;
+    }
+
+    public CommandResponse greeting() {
+        return new CommandResponse(GREETINGS, "Hello, this is the NCI Server");
     }
 
     public CommandResponse handleRegistration(String cmd[]) {
         if( cmd.length == 4 ) {
             Address64 m, u;
-            try {
-                m = new Address64(cmd[2]);
-                u = new Address64(cmd[3]);
 
-            } catch(Address64Exception e) {
-                return new CommandResponse(FORMAT_ERROR, e.getMessage());
+            try { m = new Address64(cmd[2]); } catch(Address64Exception e) {
+                return new CommandResponse(FORMAT_ERROR, "argument #2 seems invalid: " + e.getMessage());
             }
+
+            try { u = new Address64(cmd[3]); } catch(Address64Exception e) {
+                return new CommandResponse(FORMAT_ERROR, "argument #3 seems invalid: " + e.getMessage());
+            }
+
+            // XXX: there should probably be some kind of check here on the
+            // name... is it valid?  is it already taken?  OAUTH tokens? ssl
+            // certificates.
+
+            if( mundane == null )
+                System.out.println("wtf2");
 
             mundane.put(cmd[1], m);
              urgent.put(cmd[1], u);
@@ -47,4 +69,5 @@ public class NetworkControlInterface extends LineOrientedServer {
 
         return new CommandResponse(USAGE_ERROR, "usage: register <name> <mundane-address> <urgent-address>");
     }
+
 }

@@ -9,7 +9,6 @@ public class nci_test {
 
         System.out.printf("NCI running on port %d.%n", port);
 
-        try { Thread.sleep(5000); }
-        catch(Exception e) {}
+        NCI.listen(); // doesn't return until the socket dies
     }
 }
