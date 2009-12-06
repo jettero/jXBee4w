@@ -66,16 +66,28 @@ public class NetworkControlInterface extends LineOrientedServer {
         return new CommandResponse(GREETINGS, "Hello, this is the NCI Server");
     }
 
+    public CommandResponse buildHostAddress(String h, Address64 m, Address64 u) {
+        return new CommandResponse(HOST_ADDRESS, String.format("%s %s %s", h, m, u));
+    }
+
     public void listHosts() {
         Iterator i = mundane.keySet().iterator();
+
+        // XXX: this should probably only list hosts in the same area
 
         while( i.hasNext() ) {
             String s = (String) i.next();
 
-            send( new CommandResponse(HOST_ADDRESS,
-                String.format("%s %s %s",
-                    s, mundane.get(s), urgent.get(s) )));
+            send( buildHostAddress(s, mundane.get(s), urgent.get(s)) );
         }
+    }
+
+    public int[] channelAssignments(String host) {
+        int ret[] = { 0x0c, 0x17 };
+
+        // XXX: later on, presumably, this interface would return choices besides 0c and 17
+
+        return ret;
     }
 
     public CommandResponse handleRegistration(String cmd[]) {
@@ -99,9 +111,15 @@ public class NetworkControlInterface extends LineOrientedServer {
             reverse.put(m, cmd[1]);
             reverse.put(u, "!" + cmd[1]);
 
-            // XXX: later on, presumably, this interface would return choices besides 0c and 17
+            sendAll( buildHostAddress(cmd[1], m, u) ); // tell everyone about this registration
 
-            return new CommandResponse(CHANNEL_RESPONSE, "registration success.  channels: 0c 17");
+            int ch[] = channelAssignments(cmd[1]);
+
+            // XXX: These channel assignment messages can be sent at any time.
+
+            return new CommandResponse(CHANNEL_RESPONSE,
+                String.format("registration success.  channels: %02x %02x",
+                    ch[0], ch[1]));
         }
 
         return new CommandResponse(USAGE_ERROR, "usage: register <name> <mundane-address> <urgent-address>");
