@@ -1,9 +1,7 @@
+import java.net.*;
+import java.io.*;
 
 public class LineOrientedServer {
-
-    public static interface ClientCommandEvent {
-        public CommandResponse handleCommand(String cmd);
-    }
 
     public static class CommandResponse {
         int code = 500;
@@ -15,10 +13,16 @@ public class LineOrientedServer {
         }
     }
 
-    ClientCommandEvent clientHandler;
+    ServerSocket serverSocket;
 
-    LineOrientedServer(ClientCommandEvent _e, int listenPort) {
-        clientHandler = _e;
+    LineOrientedServer(int listenPort) {
+        try {
+            serverSocket = new ServerSocket(listenPort);
+
+        } catch (IOException e) {
+            System.err.printf("Could not listen on port %d: %s%n", listenPort, e.getMessage());
+            System.exit(1);
+        }
     }
 
 }

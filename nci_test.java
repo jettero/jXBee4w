@@ -7,6 +7,9 @@ public class nci_test {
 
         NetworkControlInterface NCI = new NetworkControlInterface(port);
 
-        System.out.println("NCI running.");
+        System.out.printf("NCI running on port %d.%n", port);
+
+        try { Thread.sleep(5000); }
+        catch(Exception e) {}
     }
 }

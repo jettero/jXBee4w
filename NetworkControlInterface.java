@@ -1,17 +1,19 @@
 // This object interfaces with NEI to assign channels and keep track of vehicles
 
-import java.lang.*;
-import java.net.*;
-import java.io.*;
+import java.util.*;
 
 public class NetworkControlInterface extends LineOrientedServer {
     public static final int UNKNOWN_COMMAND_ERROR = 400;
     public static final int USAGE_ERROR           = 401;
     public static final int FORMAT_ERROR          = 402;
 
-    HashTable <String, Address64> mundane = new HashTable <String, Address64>();
-    HashTable <String, Address64> urgent  = new HashTable <String, Address64>();
-    HashTable <Address64, String> reverse = new HashTable <Address64, String>();
+    public static final int CHANNEL_RESPONSE      = 300;
+
+    Hashtable <String, Address64> mundane = new Hashtable <String, Address64>();
+    Hashtable <String, Address64> urgent  = new Hashtable <String, Address64>();
+    Hashtable <Address64, String> reverse = new Hashtable <Address64, String>();
+
+    NetworkControlInterface(int port) { super(port); }
 
     public CommandResponse handleCommand(String cmd) {
         String[] tokens = cmd.trim().split("\\s+");
