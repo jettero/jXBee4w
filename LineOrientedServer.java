@@ -13,11 +13,19 @@ public class LineOrientedServer {
         }
     }
 
+    public static class LineDispatcher {
+    }
+
     ServerSocket serverSocket;
 
     LineOrientedServer(int listenPort) {
         try {
             serverSocket = new ServerSocket(listenPort);
+            Socket clientSocket;
+
+            while( (clientSocket = serverSocket.accept()) != null ) {
+                System.out.println("do stuff here");
+            }
 
         } catch (IOException e) {
             System.err.printf("Could not listen on port %d: %s%n", listenPort, e.getMessage());
