@@ -29,10 +29,13 @@ public class NetworkEndpointInterface implements Runnable {
                     NEI.assignChannels(m.group(1), m.group(2));
 
             } else if( s.code == NetworkControlInterface.HOST_ADDRESS ) {
-                Matcher m = Pattern.compile("^(\\S+)\\s+([0-9a-fA-F]+)s+F]+)\\s+([0-9a-fA-F]+)$").matcher(s.msg);
+                Matcher m = Pattern.compile("^(\\S+)\\s+([0-9a-fA-F:]+)\\s+([0-9a-fA-F:]+)$").matcher(s.msg);
 
                 if( m.find() )
                     NEI.learnHostAddress(m.group(1), m.group(2), m.group(3));
+
+                else
+                    System.out.printf("Internal Error processing NCI(%d): %s%n", s.code, s.msg);
 
             } else if( s.code >= 400 ) {
                 System.out.printf("NCI ERROR(%d): %s%n", s.code, s.msg);
@@ -77,7 +80,14 @@ public class NetworkEndpointInterface implements Runnable {
             m = new Address64(_m);
             u = new Address64(_u);
 
-        } catch(Address64Exception e) { return; }
+        } catch(Address64Exception e) {
+            System.out.printf("ERROR Learning Host: %s %s %s -- %s%n",
+                h, _m, _u, e.getMessage()
+            );
+            return;
+        }
+
+        System.out.printf("Learning Host: %s %s %s%n", h, m, u);
 
         hostmap_m.put(h, m);
         hostmap_u.put(h, u);
@@ -104,7 +114,10 @@ public class NetworkEndpointInterface implements Runnable {
 
     private String[] subarr(String a[], int i) { return subarr(a, i, a.length-1); }
     private String[] subarr(String a[], int i, int j) {
-        int k = Math.abs(i - j) + 1;
+        if( i<0 || i > a.length-1 ) return new String[0];
+        if( j<i || j > a.length-1 ) return new String[0];
+
+        int k = (j-i) + 1;
 
         String ret[] = new String[k];
         for(int w=0; w<k; w++)
