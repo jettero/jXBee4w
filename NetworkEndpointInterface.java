@@ -51,6 +51,7 @@ public class NetworkEndpointInterface implements Runnable {
     private XBeeDispatcher mundane;
     private Hashtable <String,Address64> hostmap_m = new Hashtable <String,Address64>();
     private Hashtable <String,Address64> hostmap_u = new Hashtable <String,Address64>();
+    private Hashtable <Address64,String> reverse   = new Hashtable <Address64,String>();
 
     Address64 t;
 
@@ -91,6 +92,8 @@ public class NetworkEndpointInterface implements Runnable {
 
         hostmap_m.put(h, m);
         hostmap_u.put(h, u);
+        reverse.put(m, h);
+        reverse.put(u, "!" + h);
     }
 
     private boolean resolv(String s) {
