@@ -1,7 +1,7 @@
 
 public class file {
-    private String[] subarr(String a[], int i) { return subarr(a, i, a.length-1); }
-    private String[] subarr(String a[], int i, int j) {
+    private static String[] subarr(String a[], int i) { return subarr(a, i, a.length-1); }
+    private static String[] subarr(String a[], int i, int j) {
         int k = Math.abs(i - j) + 1;
 
         String ret[] = new String[k];
@@ -11,7 +11,7 @@ public class file {
         return ret;
     }
 
-    private String cat(String s[]) {
+    private static String cat(String s[]) {
         if( s.length < 1 )
             return "";
 
@@ -28,8 +28,11 @@ public class file {
         String t[] = subarr(s, 1);
         String u[] = subarr(s, 3, 4);
 
+        String v[] = {};
+
         System.out.println(cat(s));
         System.out.println(cat(t));
         System.out.println(cat(u));
+        System.out.println(cat(v));
     }
 }
