@@ -1,8 +1,10 @@
 // This object interfaces with the XBee radios.
 
 import java.util.regex.*;
+import java.util.*;
+import java.io.*;
 
-public class NetworkEndpointInterface {
+public class NetworkEndpointInterface implements Runnable {
     // private static class NCIClient extends LineOrientedClient {{{
     private static class NCIClient extends LineOrientedClient {
         NetworkEndpointInterface NEI;
@@ -37,6 +39,10 @@ public class NetworkEndpointInterface {
 
     private XBeeDispatcher urgent;
     private XBeeDispatcher mundane;
+    private Hashtable <String,Address64> hostmap_m = new Hashtable <String,Address64>();
+    private Hashtable <String,Address64> hostmap_u = new Hashtable <String,Address64>();
+
+    Address64 t;
 
     String name;
     NCIClient NCI;
@@ -55,6 +61,75 @@ public class NetworkEndpointInterface {
             System.err.println("Problem setting channels: " + e.getMessage());
         }
 
+    }
+
+    private boolean resolv(String s) {
+        Hashtable m;
+        if( s.startsWith("!") ) {
+            s = s.substring(1);
+            m = hostmap_u;
+
+        } else {
+            m = hostmap_m;
+        }
+
+        if( m.containsKey(s) ) {
+            t = (Address64) m.get(s);
+
+            return true;
+        }
+        
+        return false;
+    }
+
+    private String[] subarr(String a[], int i) { return subarr(a, i, a.length-1); }
+    private String[] subarr(String a[], int i, int j) {
+        int k = Math.abs(i - j) + 1;
+
+        String ret[] = new String[k];
+        for(int w=0; w<k; w++)
+            ret[w] = a[w+i];
+
+        return ret;
+    }
+
+    private String cat(String s[]) {
+        if( s.length < 1 )
+            return "";
+
+        String ret = s[0];
+        for( String _s : subarr(s, 1) )
+                ret += " " + _s;
+
+        return ret;
+    }
+    
+    public void run() {
+        String line;
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        try {
+            while( (line = in.readLine()) != null ) {
+                String[] tokens = line.trim().split("\\s+");
+
+                if( tokens[0].startsWith("/") ) {
+                    NCI.send(line.substring(1));
+
+                } else {
+                    XBeeDispatcher d = tokens[0].startsWith("!") ? urgent : mundane;
+
+                    if( resolv(tokens[0]) )
+                        d.send(t, cat(subarr(tokens, 1)));
+
+                    else
+                        System.out.println("host " + tokens[0] + " not found. :(");
+                }
+            }
+
+        } catch(IOException e) {
+            System.err.println("IOException using stdin, weird: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     NetworkEndpointInterface(String _n, String host, int port) {

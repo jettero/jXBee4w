@@ -6,7 +6,11 @@ public class nei_test {
             System.exit(1);
         }
 
-        NetworkEndpointInterface NEI = new NetworkEndpointInterface(args[0], "ranger", 4000);
+        (new Thread(
+
+            new NetworkEndpointInterface(args[0], "ranger", 4000)
+
+        )).start();
 
         System.out.printf(args[0] + " NEI running%n");
     }
