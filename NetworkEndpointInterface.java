@@ -5,7 +5,7 @@ public class NetworkEndpointInterface {
     private XBeeDispatcher urgent;
     private XBeeDispatcher mundane;
 
-    NetworkEndpointInterface() throws XBeeNotFoundException {
+    NetworkEndpointInterface(String name) throws XBeeNotFoundException {
         urgent  = new XBeeDispatcher();
         mundane = new XBeeDispatcher();
     }

@@ -27,6 +27,13 @@ clean:
 	@ echo cleaning in 2 seconds; sleep 2
 	git clean -dfx
 
+NetworkControlInterface.class: LineOrientedServer.class Address64.class
+nci_test.class: NetworkControlInterface.class
+
+
+
+
+
 XBeeTxPacket.class:         XBeePacket.class
 XBeeRxPacket.class:         XBeePacket.class
 XBeeATCommandPacket.class:  XBeeATPacket.class
