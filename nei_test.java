@@ -1,14 +1,14 @@
 
 public class nei_test {
     public static void main(String [] args) {
-        if( args.length != 1 ) {
-            System.out.println("java nei_test <name>");
+        if( args.length != 3 ) {
+            System.out.println("java nei_test <name> <host> <port>");
             System.exit(1);
         }
 
         (new Thread(
 
-            new NetworkEndpointInterface(args[0], "ranger", 4000)
+            new NetworkEndpointInterface(args[0], args[1], new Integer(args[2]).intValue())
 
         )).start();
 
