@@ -25,7 +25,7 @@ public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
             if( s.code == NetworkControlInterface.CHANNEL_ASSIGNMENT ) {
                 Matcher m = Pattern.compile("channels:\\s+([0-9a-fA-F]+)\\s+([0-9a-fA-F]+)$").matcher(s.msg);
 
-                System.out.printf("NCI(%d): %s%n", s.code, s.msg);
+                System.out.printf("NCI(%d) channel assignment: %s%n", s.code, s.msg);
 
                 if( m.find() )
                     NEI.assignChannels(m.group(1), m.group(2));
@@ -33,7 +33,7 @@ public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
             } else if( s.code == NetworkControlInterface.HOST_ADDRESS ) {
                 Matcher m = Pattern.compile("^(\\S+)\\s+([0-9a-fA-F:]+)\\s+([0-9a-fA-F:]+)$").matcher(s.msg);
 
-                System.out.printf("NCI(%d): %s%n", s.code, s.msg);
+                System.out.printf("NCI(%d) host address: %s%n", s.code, s.msg);
 
                 if( m.find() )
                     NEI.learnHostAddress(m.group(1), m.group(2), m.group(3));
