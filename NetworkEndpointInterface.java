@@ -81,8 +81,6 @@ public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
         } catch(IllegalArgumentException e) {
             System.err.println("Problem setting channels: " + e.getMessage());
         }
-
-        NCI.send("list"); // learn all known hosts
     }
 
     public void learnHostAddress(String h, String _m, String _u) {
@@ -227,7 +225,8 @@ public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
 
         System.out.println("\nLogging into NCI...");
 
-        NCI = new NCIClient( host, port, this );
-        NCI.register(name, u, m);
+        NCI = new NCIClient( host, port, this ); // connect
+        NCI.register(name, u, m); // register
+        NCI.send("list"); // learn all known hosts
     }
 }
