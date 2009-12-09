@@ -118,11 +118,11 @@ public class NetworkEndpointInterface implements Runnable, MessageRecvEvent {
     private boolean resolv(String s) {
         Hashtable m;
 
-        if( s.equals(".") )
+        if( s.equals(".") ) // rtell (tell the same persom you last resolved)
             if( resolved != null )
                 return true;
 
-        if( s.equals("r") )
+        if( s.equals("r") ) // reply (tell the last person who told you)
             if( reversed != null )
                 return resolv(reversed);
 
